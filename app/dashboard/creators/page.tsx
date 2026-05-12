@@ -27,10 +27,46 @@ export default function CreatorsPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Modal State
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedCreator, setSelectedCreator] = useState<Creator | null>(null);
+  const [selectedCreatorIds, setSelectedCreatorIds] = useState<Set<string>>(new Set());
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
 
-  const supabase = createClient();
+  const toggleCreatorSelection = (id: string) => {
+    const newSelection = new Set(selectedCreatorIds);
+    if (newSelection.has(id)) {
+      newSelection.delete(id);
+    } else {
+      newSelection.add(id);
+    }
+    setSelectedCreatorIds(newSelection);
+  };
+
+  // Calculate Invoice
+  const selectedCreatorsData = useMemo(() => {
+    return creators.filter(c => selectedCreatorIds.has(c.id));
+  }, [creators, selectedCreatorIds]);
+
+  const invoiceTotals = useMemo(() => {
+    const baseTotal = selectedCreatorsData.reduce((sum, c) => sum + (c.base_price || 0), 0);
+    const commission = baseTotal * 0.20;
+    const tax = (baseTotal + commission) * 0.05;
+    return { baseTotal, commission, tax, total: baseTotal + commission + tax };
+  }, [selectedCreatorsData]);
+
+  // ... (inside the return statement, add the Checkout Bar)
+  {selectedCreatorIds.size > 0 && (
+    <div className="fixed bottom-6 left-6 right-6 bg-neutral-900 border border-lime-500/30 p-4 rounded-2xl shadow-2xl flex items-center justify-between z-50">
+      <div>
+        <p className="text-white font-bold">{selectedCreatorIds.size} Creators Selected</p>
+        <p className="text-xs text-neutral-400">Total: ${invoiceTotals.total.toFixed(2)}</p>
+      </div>
+      <button 
+        onClick={() => setIsInvoiceModalOpen(true)}
+        className="bg-lime-400 text-black font-bold px-6 py-3 rounded-xl hover:bg-lime-300"
+      >
+        Onboard Creators
+      </button>
+    </div>
+  )}
 
   const loadCreators = async () => {
     setLoading(true);
