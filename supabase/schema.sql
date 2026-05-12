@@ -250,6 +250,40 @@ CREATE POLICY "Editors and admins can delete imports" ON bulk_imports
     (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
   );
 
+-- Create notes table
+CREATE TABLE IF NOT EXISTS notes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  creator_id UUID NOT NULL REFERENCES creators(id) ON DELETE CASCADE,
+  author_id UUID NOT NULL REFERENCES auth.users(id),
+  author_name TEXT NOT NULL,
+  author_role TEXT NOT NULL,
+  content TEXT NOT NULL,
+  is_internal BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Notes RLS Policies
+ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can read notes for their campaign" ON notes
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM creators c 
+      JOIN campaigns cp ON c.campaign_id = cp.id
+      WHERE notes.creator_id = c.id
+    )
+  );
+
+CREATE POLICY "Editors and admins can insert notes" ON notes
+  FOR INSERT WITH CHECK (
+    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
+  );
+
+CREATE POLICY "Clients can insert notes" ON notes
+  FOR INSERT WITH CHECK (
+    (SELECT role FROM profiles WHERE id = auth.uid()) = 'client'
+  );
+
 -- Function to automatically create a profile for new users based on email or metadata
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
@@ -279,6 +313,7 @@ BEGIN
   RETURN new;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
 
 -- Trigger to call the function on user creation
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
