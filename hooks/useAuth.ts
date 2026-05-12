@@ -44,7 +44,6 @@ export function useAuth() {
 
         if (profileError) {
           console.error('Error fetching profile:', profileError);
-          // If profile fetch fails, we still set loading to false so the UI doesn't hang
         } else {
           setProfile(profileData);
         }
@@ -57,7 +56,6 @@ export function useAuth() {
       }
     };
 
-    // Add a safety timeout to force stop loading if auth hangs
     const timeout = setTimeout(() => {
       if (loading) {
         console.warn('Auth loading timed out, forcing stop');
@@ -67,13 +65,11 @@ export function useAuth() {
 
     getUser();
 
-    // Subscribe to auth changes and fetch profile on login/refresh
     const {
         data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
         if (session?.user) {
         setUser(session.user);
-        // Force re-fetch profile
         const { data: profileData } = await supabase
             .from('profiles')
             .select('*')
@@ -90,17 +86,28 @@ export function useAuth() {
         subscription?.unsubscribe();
         clearTimeout(timeout);
     };
-    }, [supabase]);
+  }, [supabase]);
 
-    return {
+  const logout = async () => {
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      setProfile(null);
+      router.push('/auth/login');
+    } catch (err) {
+      console.error('Error logging out:', err);
+      setError('Failed to log out');
+    }
+  };
+
+  return {
     user,
     profile,
     loading,
     error,
     logout,
     isAdmin: profile?.role === 'admin',
-    isEditor: profile?.role === 'editor', // Strict match
-    isClient: profile?.role === 'client', // Strict match
-    };
-    }
+    isEditor: profile?.role === 'editor',
+    isClient: profile?.role === 'client',
+  };
 }
