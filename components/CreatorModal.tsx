@@ -148,13 +148,30 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                     className="bg-neutral-900 border-white/10 focus:border-lime-400 h-11"
                   />
                 </div>
-                
-                <div className="space-y-2 col-span-2">
-                  <Label htmlFor="draft_reel_url" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Draft Reel URL</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="approval_status" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Approval Status</Label>
+                  <select
+                    id="approval_status"
+                    name="approval_status"
+                    value={formData.approval_status || 'Ideation'}
+                    onChange={handleChange}
+                    className="flex h-11 w-full rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm focus:outline-none focus:border-lime-400"
+                  >
+                    <option value="Ideation">Ideation</option>
+                    <option value="Script Sent">Script Sent</option>
+                    <option value="Video Pending Approval">Video Pending Approval</option>
+                    <option value="Revisions Requested">Revisions Requested</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Published">Published</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="video_link" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Draft Video Link</Label>
                   <Input
-                    id="draft_reel_url"
-                    name="draft_reel_url"
-                    value={formData.draft_reel_url || ''}
+                    id="video_link"
+                    name="video_link"
+                    value={formData.video_link || ''}
                     onChange={handleChange}
                     className="bg-neutral-900 border-white/10 focus:border-lime-400 h-11"
                   />

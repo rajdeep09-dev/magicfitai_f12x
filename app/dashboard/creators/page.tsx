@@ -44,11 +44,18 @@ export default function CreatorsPage() {
       </div>
 
       {loading ? (
-        <p>Loading...</p>
+        <div className="flex items-center justify-center h-64 text-neutral-500 font-bold tracking-widest uppercase text-xs">Loading Roster...</div>
+      ) : creators.length === 0 ? (
+        <div className="flex flex-col items-center justify-center h-64 border border-white/5 rounded-2xl bg-neutral-900/20">
+          <p className="text-neutral-500 font-bold mb-4">No creators in database</p>
+          {isEditor && (
+             <button onClick={() => { setSelectedCreator(null); setIsModalOpen(true); }} className="bg-white/5 px-6 py-2 rounded-lg text-xs font-bold uppercase hover:bg-white/10">Add First Creator</button>
+          )}
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {creators.map((c) => (
-            <div key={c.id} onClick={() => { setSelectedCreator(c); setIsModalOpen(true); }}>
+            <div key={c.id} onClick={() => { setSelectedCreator(c); setIsModalOpen(true); }} className="cursor-pointer">
               <CreatorCard
                 id={c.id}
                 name={c.creator_name}
