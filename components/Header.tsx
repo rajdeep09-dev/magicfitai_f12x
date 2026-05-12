@@ -33,8 +33,8 @@ export default function Header() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#050505]/80 backdrop-blur-2xl border-b border-white/5">
-      <div className="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between">
+    <header className="fixed top-6 left-6 right-6 z-50">
+      <div className="max-w-[1600px] mx-auto bg-[#050505]/60 backdrop-blur-2xl border border-white/10 rounded-2xl px-6 h-20 flex items-center justify-between shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
         <Link href="/dashboard" className="flex items-center gap-3">
           <div className="flex items-center gap-1">
             <Image 
@@ -53,16 +53,19 @@ export default function Header() {
               className="w-8 h-8"
             />
           </div>
-          <span className="text-white font-black tracking-tighter text-xl uppercase">
+          <span className="text-white font-black tracking-tighter text-xl uppercase hidden sm:block">
             F12X <span className="text-lime-400">×</span> MAGICFIT
           </span>
-        </Link>        <nav className="hidden md:flex gap-8">
+        </Link>
+        
+        <nav className="hidden md:flex gap-8">
           {navItems.map((item) => (
             <Link key={item.href} href={item.href} className={`text-xs font-bold uppercase tracking-widest transition ${isActive(item.href) ? 'text-lime-400' : 'text-neutral-500 hover:text-white'}`}>
               {item.label}
             </Link>
           ))}
         </nav>
+
         <div className="flex items-center gap-6">
           <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10">
             <span className={`w-2 h-2 rounded-full ${isEditor ? 'bg-purple-400' : 'bg-blue-400'}`}></span>
