@@ -1,8 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, AlertCircle, Play, ExternalLink } from 'lucide-react';
+import { CheckCircle, AlertCircle, Play, ExternalLink, Loader2 } from 'lucide-react';
 import NotesThread from './NotesThread';
+import { useRouter } from 'next/navigation';
 
 interface Note {
   id: string;
@@ -23,8 +25,8 @@ interface VideoApprovalPanelProps {
   engagementRate: number;
   notes: Note[];
   onAddNote: (content: string, isInternal: boolean) => void;
-  onApprove?: () => void;
-  onRevisions?: () => void;
+  onApprove: () => void;
+  onRevisions: () => void;
   userRole: 'client' | 'editor';
 }
 
@@ -42,7 +44,29 @@ export default function VideoApprovalPanel({
   onRevisions,
   userRole,
 }: VideoApprovalPanelProps) {
-  const isPublished = approvalStatus === 'Published';
+  const router = useRouter();
+  const [loadingAction, setLoadingAction] = useState<string | null>(null);
+
+  const handleAction = async (action: 'approve' | 'revision') => {
+    setLoadingAction(action);
+    try {
+      const response = await fetch('/api/creators/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ creatorId, action }),
+      });
+      if (response.ok) {
+        if (action === 'approve') onApprove();
+        else onRevisions();
+        router.refresh(); // Refresh dashboard data
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingAction(null);
+    }
+  };
+
   const isPending = approvalStatus === 'Video Pending Approval';
   const isClient = userRole === 'client';
 
@@ -52,144 +76,53 @@ export default function VideoApprovalPanel({
       animate={{ opacity: 1, height: 'auto' }}
       exit={{ opacity: 0, height: 0 }}
       transition={{ duration: 0.3 }}
-      className="border-t border-neutral-700 p-4 bg-neutral-800/20 space-y-6"
+      className="border-t border-white/10 p-6 bg-neutral-950/30 space-y-6"
     >
-      {/* Video Links Section */}
-      <div>
-        <h4 className="text-sm font-semibold text-neutral-50 mb-3">Video Content</h4>
-        <div className="space-y-2">
-          {videoLink && (
-            <div className="bg-neutral-900/50 border border-neutral-700 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 pt-1">
-                  <Play className="w-5 h-5 text-lime-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-neutral-400 font-medium mb-2">
-                    {isPublished ? 'Published Video' : 'Draft Video (Unlisted)'}
-                  </p>
-                  <a
-                    href={videoLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-lime-400 hover:text-lime-300 text-sm font-medium break-all flex items-center gap-2 group"
-                  >
-                    {videoLink}
-                    <ExternalLink className="w-4 h-4 flex-shrink-0 opacity-0 group-hover:opacity-100 transition" />
-                  </a>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {publishedVideoLink && publishedVideoLink !== videoLink && (
-            <div className="bg-green-900/20 border border-green-700 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 pt-1">
-                  <CheckCircle className="w-5 h-5 text-green-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-green-400 font-medium mb-2">Published on Live Platform</p>
-                  <a
-                    href={publishedVideoLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-green-400 hover:text-green-300 text-sm font-medium break-all flex items-center gap-2 group"
-                  >
-                    {publishedVideoLink}
-                    <ExternalLink className="w-4 h-4 flex-shrink-0 opacity-0 group-hover:opacity-100 transition" />
-                  </a>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {!videoLink && !publishedVideoLink && (
-            <div className="bg-neutral-900/50 border border-neutral-700 rounded-lg p-4 text-center">
-              <p className="text-sm text-neutral-400 italic">No video link available yet</p>
-            </div>
-          )}
-        </div>
+      {/* Video Preview */}
+      <div className="bg-neutral-900/40 border border-white/5 rounded-xl p-5">
+        <a 
+          href={videoLink || '#'} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 text-lime-400 hover:text-lime-300 font-bold transition"
+        >
+          <div className="w-10 h-10 rounded-full bg-lime-400/10 flex items-center justify-center">
+             <Play className="w-5 h-5" />
+          </div>
+          Watch Draft Video
+        </a>
       </div>
 
-      {/* Performance Stats (only for published videos) */}
-      {isPublished && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <h4 className="text-sm font-semibold text-neutral-50 mb-3">Performance Metrics</h4>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-neutral-900/50 rounded-lg p-3 border border-neutral-700">
-              <p className="text-xs text-neutral-400 mb-1">Views</p>
-              <p className="text-2xl font-bold text-lime-400">{views.toLocaleString()}</p>
-              <p className="text-xs text-neutral-500 mt-1">total reach</p>
-            </div>
-            <div className="bg-neutral-900/50 rounded-lg p-3 border border-neutral-700">
-              <p className="text-xs text-neutral-400 mb-1">Engagement Rate</p>
-              <p className="text-2xl font-bold text-pink-400">{engagementRate}%</p>
-              <p className="text-xs text-neutral-500 mt-1">likes + comments</p>
-            </div>
-          </div>
-        </motion.div>
+      {/* Action Buttons (Client Only) */}
+      {isClient && isPending && (
+        <div className="flex gap-3">
+          <button 
+            onClick={() => handleAction('approve')}
+            disabled={!!loadingAction}
+            className="flex-1 bg-lime-400 hover:bg-lime-300 text-neutral-950 py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition"
+          >
+            {loadingAction === 'approve' ? <Loader2 className="animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+            Approve Video
+          </button>
+          <button 
+            onClick={() => handleAction('revision')}
+            disabled={!!loadingAction}
+            className="flex-1 bg-neutral-800 hover:bg-neutral-700 text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition"
+          >
+            {loadingAction === 'revision' ? <Loader2 className="animate-spin" /> : <AlertCircle className="w-4 h-4" />}
+            Request Changes
+          </button>
+        </div>
       )}
 
-      {/* Approval Status Section */}
-      {isPending && isClient && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="bg-yellow-900/20 border border-yellow-700 rounded-lg p-4"
-        >
-          <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
-            <div>
-              <h5 className="font-semibold text-yellow-400 mb-1">Ready for Your Review</h5>
-              <p className="text-sm text-yellow-300">
-                Please review the video above and either approve it or request revisions using the notes section below.
-              </p>
-            </div>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Notes & Comments Section */}
-      <div>
-        <h4 className="text-sm font-semibold text-neutral-50 mb-3">Comments & Feedback</h4>
-        <NotesThread
+      {/* Notes */}
+      <NotesThread 
           creatorId={creatorId}
           creatorName={creatorName}
           notes={notes}
           onAddNote={onAddNote}
           userRole={userRole}
-        />
-      </div>
-
-      {/* Action Buttons for Pending Videos */}
-      {isPending && isClient && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="flex gap-3 pt-4 border-t border-neutral-700"
-        >
-          <button
-            onClick={onApprove}
-            className="flex-1 px-4 py-3 bg-lime-400 hover:bg-lime-300 text-neutral-950 font-semibold rounded-lg transition flex items-center justify-center gap-2"
-          >
-            <CheckCircle className="w-5 h-5" />
-            Approve Video
-          </button>
-          <button
-            onClick={onRevisions}
-            className="flex-1 px-4 py-3 bg-orange-600/20 hover:bg-orange-600/30 border border-orange-600 text-orange-400 font-semibold rounded-lg transition"
-          >
-            Request Revisions
-          </button>
-        </motion.div>
-      )}
+      />
     </motion.div>
   );
 }
