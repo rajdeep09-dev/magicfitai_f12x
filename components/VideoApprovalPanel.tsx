@@ -2,31 +2,15 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, AlertCircle, Play, Loader2 } from 'lucide-react';
-import NotesThread from './NotesThread';
+import { CheckCircle, AlertCircle, Play, Loader2, FileDown, Mail } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-
-interface Note {
-  id: string;
-  author_name: string;
-  author_role: 'client' | 'editor';
-  content: string;
-  is_internal: boolean;
-  created_at: string;
-}
+import jsPDF from 'jspdf';
 
 interface VideoApprovalPanelProps {
   creatorName: string;
   creatorId: string;
   approvalStatus: string;
   videoLink: string | null;
-  publishedVideoLink: string | null;
-  views: number;
-  engagementRate: number;
-  notes: Note[];
-  onAddNote: (content: string, isInternal: boolean) => void;
-  onApprove: () => void;
-  onRevisions: () => void;
   userRole: 'client' | 'editor';
 }
 
@@ -35,14 +19,12 @@ export default function VideoApprovalPanel({
   creatorId,
   approvalStatus,
   videoLink,
-  notes,
-  onAddNote,
-  onApprove,
-  onRevisions,
   userRole,
 }: VideoApprovalPanelProps) {
   const router = useRouter();
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
+
+  if (!creatorId) return null;
 
   const handleAction = async (action: 'approve' | 'revision') => {
     setLoadingAction(action);
@@ -53,15 +35,25 @@ export default function VideoApprovalPanel({
         body: JSON.stringify({ creatorId, action }),
       });
       if (response.ok) {
-        if (action === 'approve') onApprove();
-        else onRevisions();
         router.refresh(); 
+      } else {
+        alert('Action failed');
       }
     } catch (e) {
       console.error(e);
     } finally {
       setLoadingAction(null);
     }
+  };
+
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text(`Revision Requirements: ${creatorName}`, 20, 20);
+    doc.setFontSize(12);
+    doc.text(`Video Link: ${videoLink || 'N/A'}`, 20, 40);
+    doc.text(`Status: ${approvalStatus}`, 20, 50);
+    doc.save(`Revision_${creatorName}.pdf`);
   };
 
   const isPending = approvalStatus === 'Video Pending Approval';
@@ -71,10 +63,10 @@ export default function VideoApprovalPanel({
     <motion.div
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: 'auto' }}
+      exit={{ opacity: 0, height: 0 }}
       transition={{ duration: 0.3 }}
       className="border-t border-white/5 p-6 bg-neutral-950/50 space-y-6"
     >
-      {/* Video Preview */}
       <div className="bg-neutral-900/40 border border-white/5 rounded-xl p-4 hover:border-white/10 transition">
         <a 
           href={videoLink || '#'} 
@@ -89,7 +81,6 @@ export default function VideoApprovalPanel({
         </a>
       </div>
 
-      {/* Action Zone */}
       {isClient && isPending && (
         <div className="grid grid-cols-2 gap-3">
           <button 
@@ -109,13 +100,16 @@ export default function VideoApprovalPanel({
         </div>
       )}
 
-      <NotesThread 
-          creatorId={creatorId}
-          creatorName={creatorName}
-          notes={notes}
-          onAddNote={onAddNote}
-          userRole={userRole}
-      />
+      {isClient && (
+        <div className="grid grid-cols-2 gap-3 pt-4 border-t border-white/5">
+           <button onClick={generatePDF} className="bg-white/5 hover:bg-white/10 text-white py-3 rounded-lg font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 border border-white/5">
+            <FileDown className="w-4 h-4" /> Export PDF
+          </button>
+          <a href="mailto:?subject=Revision Request&body=Please address the attached requirements." className="bg-neutral-800 hover:bg-neutral-700 text-white py-3 rounded-lg font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 border border-white/5 text-center">
+            <Mail className="w-4 h-4" /> Send Email
+          </a>
+        </div>
+      )}
     </motion.div>
   );
 }
