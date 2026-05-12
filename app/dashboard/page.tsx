@@ -1,177 +1,72 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import dynamic from 'next/dynamic';
-import {
-  Users,
-  FileText,
-  Play,
-  TrendingUp,
-  Instagram,
-  Youtube,
-  ChevronDown,
-  CheckCircle,
-  Clock,
-  AlertCircle,
-} from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import ProgressRing from '@/components/ProgressRing';
+import { createClient } from '@/lib/supabase/client';
+import { Users, Play, TrendingUp, Clock, DollarSign, CheckCircle } from 'lucide-react';
 import KPICard from '@/components/KPICard';
-import LinearProgress from '@/components/LinearProgress';
-
-// Lazy load VideoApprovalPanel for better initial page load
-const VideoApprovalPanel = dynamic(() => import('@/components/VideoApprovalPanel'), {
-  loading: () => <div className="p-4 text-neutral-400">Loading approval panel...</div>,
-  ssr: true,
-});
-
-const PLATFORM_ICONS: Record<string, any> = {
-  Instagram: Instagram,
-  TikTok: () => (
-    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.1 1.74 2.89 2.89 0 0 1 2.31-4.64 2.88 2.88 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-.96-.1z" />
-    </svg>
-  ),
-  YouTube: Youtube,
-};
-
-interface Creator {
-  id: string;
-  creator_name: string;
-  platform: 'Instagram' | 'TikTok' | 'YouTube';
-  deliverable: string;
-  approval_status: string;
-  progress_score: number;
-  views: number;
-  engagement_rate: number;
-  video_link: string | null;
-  published_video_link: string | null;
-}
-
-const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  'Ideation': { bg: 'bg-gray-900/50', text: 'text-gray-400', border: 'border-gray-700' },
-  'Script Sent': { bg: 'bg-blue-900/20', text: 'text-blue-400', border: 'border-blue-700' },
-  'Video Pending Approval': {
-    bg: 'bg-yellow-900/20',
-    text: 'text-yellow-400',
-    border: 'border-yellow-700',
-  },
-  'Revisions Requested': { bg: 'bg-orange-900/20', text: 'text-orange-400', border: 'border-orange-700' },
-  'Approved': { bg: 'bg-green-900/20', text: 'text-green-400', border: 'border-green-700' },
-  'Published': { bg: 'bg-lime-900/20', text: 'text-lime-400', border: 'border-lime-700' },
-};
 
 export default function DashboardPage() {
-  const [creators, setCreators] = useState<Creator[]>([]);
+  const { isEditor, profile } = useAuth();
+  const [creators, setCreators] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedCreator, setExpandedCreator] = useState<string | null>(null);
-  const { profile } = useAuth();
-  const supabase = createClient();
 
   useEffect(() => {
-    setCreators(creators as Creator[]);
-    setLoading(false);
+    async function load() {
+      const supabase = createClient();
+      const { data } = await supabase.from('creators').select('*');
+      if (data) setCreators(data);
+      setLoading(false);
+    }
+    load();
   }, []);
 
-  const kpis = useMemo(() => {
-    const totalCreators = creators.length;
-    const pendingApproval = creators.filter((c) => c.approval_status === 'Video Pending Approval').length;
-    const published = creators.filter((c) => c.approval_status === 'Published').length;
-    const totalReach = creators.reduce((sum, c) => sum + c.views, 0);
-    const totalSpend = creators.reduce((sum, c) => sum + c.spend, 0);
-    
-    return { totalCreators, pendingApproval, published, totalReach, totalSpend };
-  }, [creators]);
+  if (loading) return <div className="p-10 text-white">Loading...</div>;
 
-  const pendingCreators = useMemo(
-    () => creators.filter((c) => c.approval_status === 'Video Pending Approval'),
-    [creators]
-  );
+  const kpis = {
+    totalCreators: creators.length,
+    pending: creators.filter(c => c.approval_status === 'Video Pending Approval').length,
+    published: creators.filter(c => c.approval_status === 'Published').length,
+    totalSpend: creators.reduce((sum, c) => sum + Number(c.base_price || 0), 0)
+  };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] px-6 py-10 font-sans text-neutral-200">
-      {/* Command Center Hero */}
-      <section className="mb-12">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-4xl font-black text-white tracking-tighter">Command Center</h1>
-            <p className="text-neutral-500 mt-2 text-sm uppercase tracking-widest font-bold">Campaign Performance Overview</p>
-          </div>
-          <div className="text-right">
-            <p className="text-5xl font-black text-lime-400">$ {kpis.totalSpend.toLocaleString()}</p>
-            <p className="text-xs text-neutral-500 font-bold uppercase tracking-wider">Total Campaign Spend</p>
-          </div>
-        </div>
+    <div className="min-h-screen bg-[#050505] pt-24 px-6 text-white">
+      <h1 className="text-4xl font-black mb-8 uppercase tracking-tighter">
+        {isEditor ? 'Editor Control Panel' : 'Command Center'}
+      </h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <KPICard icon={Users} label="Active Creators" value={kpis.totalCreators} />
-          <KPICard icon={Play} label="Published Content" value={kpis.published} />
-          <KPICard icon={TrendingUp} label="Total Reach" value={(kpis.totalReach/1000000).toFixed(1) + 'M'} subtitle="views" />
-          <KPICard icon={Clock} label="Pending Review" value={kpis.pendingApproval} />
-        </div>
-      </section>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-12">
+        <KPICard icon={Users} label="Total Creators" value={kpis.totalCreators} />
+        <KPICard icon={Play} label="Published" value={kpis.published} />
+        <KPICard icon={DollarSign} label="Total Spend" value={`$${kpis.totalSpend.toFixed(0)}`} />
+        <KPICard icon={Clock} label="Pending Review" value={kpis.pending} />
+      </div>
 
-      {/* Roster & Workflow Section */}
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
-          <h2 className="text-xl font-black text-white tracking-tight uppercase flex items-center gap-3">
-             <span className="w-2 h-6 bg-lime-400 rounded-full"></span> Creator Roster
-          </h2>
-          <div className="space-y-4">
-            {creators.map((creator) => {
-              const isExpanded = expandedCreator === creator.id;
-              return (
-                <div key={creator.id} className="bg-[#111] border border-white/5 rounded-xl overflow-hidden hover:border-lime-500/30 transition">
-                  <button
-                    onClick={() => setExpandedCreator(isExpanded ? null : creator.id)}
-                    className="w-full p-4 flex items-center justify-between focus:outline-none"
-                  >
-                    <div>
-                      <p className="font-bold text-white">{creator.creator_name}</p>
-                      <p className="text-xs text-neutral-500">{creator.platform}</p>
+      <div className="bg-[#111] border border-white/5 rounded-2xl p-6">
+        <h2 className="text-xs font-black uppercase tracking-widest text-neutral-500 mb-6">
+            {isEditor ? 'Creator Status & Approvals' : 'Roster Status'}
+        </h2>
+        <div className="space-y-2">
+            {creators.map((c) => (
+                <div key={c.id} className="grid grid-cols-4 items-center p-4 bg-white/5 rounded-lg border border-white/5">
+                    <p className="font-bold">{c.creator_name}</p>
+                    <p className="text-sm text-neutral-400">{c.approval_status}</p>
+                    <div className="text-sm">
+                        {isEditor && (
+                            <div className="flex gap-2 text-[10px]">
+                                <span className={c.client_approved_creator ? "text-green-500" : "text-red-500"}>Creator: {c.client_approved_creator ? '✓' : '✗'}</span>
+                                <span className={c.client_approved_video ? "text-green-500" : "text-red-500"}>Video: {c.client_approved_video ? '✓' : '✗'}</span>
+                            </div>
+                        )}
                     </div>
-                    <div className="text-right">
-                       <p className="text-sm font-bold text-lime-400">{creator.approval_status}</p>
-                       {isEditor && (
-                          <div className="flex gap-2 text-[10px] mt-1">
-                              <span className={creator.client_approved_creator ? "text-green-500" : "text-red-500"}>Creator: {creator.client_approved_creator ? '✓' : '✗'}</span>
-                              <span className={creator.client_approved_video ? "text-green-500" : "text-red-500"}>Video: {creator.client_approved_video ? '✓' : '✗'}</span>
-                          </div>
-                       )}
-                       <p className="text-xs text-neutral-600">{creator.progress_score}% Complete</p>
-                    </div>
-                  </button>
-                  
-                  {isExpanded && (
-                    <VideoApprovalPanel
-                      creatorName={creator.creator_name}
-                      creatorId={creator.id}
-                      approvalStatus={creator.approval_status}
-                      videoLink={creator.video_link}
-                      userRole={profile?.role || 'client'}
-                    />
-                  )}
+                    <p className={`text-right font-bold ${c.payment_status === 'paid' ? 'text-green-400' : 'text-neutral-500'}`}>
+                        {c.payment_status}
+                    </p>
                 </div>
-              );
-            })}
-          </div>
+            ))}
         </div>
-
-        <div className="space-y-6">
-           <h2 className="text-xl font-black text-white tracking-tight uppercase flex items-center gap-3">
-             <span className="w-2 h-6 bg-yellow-400 rounded-full"></span> Pending Action
-          </h2>
-           {pendingCreators.map(creator => (
-             <div key={creator.id} className="bg-yellow-950/20 border border-yellow-500/20 p-5 rounded-xl">
-               <p className="font-bold text-yellow-500">{creator.creator_name}</p>
-               <p className="text-xs text-neutral-400 mt-1 mb-4">{creator.deliverable}</p>
-               <button className="w-full py-2 bg-yellow-500 text-black font-bold text-xs uppercase rounded-lg hover:bg-yellow-400">Review Now</button>
-             </div>
-           ))}
-        </div>
-      </section>
+      </div>
     </div>
   );
 }
