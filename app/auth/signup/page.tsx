@@ -5,12 +5,14 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [firstName, setFirstName] = useState('');
+  const [role, setRole] = useState<'editor' | 'client'>('client');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -41,7 +43,7 @@ export default function SignupPage() {
             process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ?? `${window.location.origin}/auth/callback`,
           data: {
             first_name: firstName,
-            role: 'client',
+            role: role,
           },
         },
       });
@@ -50,6 +52,16 @@ export default function SignupPage() {
         setError(authError.message);
         setLoading(false);
         return;
+      }
+      
+      // Attempt to insert profile directly just in case the trigger fails or wasn't updated
+      if (data.user) {
+         await supabase.from('profiles').upsert({
+           id: data.user.id,
+           email: data.user.email,
+           first_name: firstName,
+           role: role,
+         }, { onConflict: 'id' });
       }
 
       if (data.user) {
@@ -66,10 +78,23 @@ export default function SignupPage() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-lime-400 to-green-500 flex items-center justify-center">
-              <span className="text-neutral-950 font-bold text-lg">F</span>
-            </div>
+          <div className="flex justify-center gap-4 mb-4 items-center">
+            <Image 
+              src="/logos/f12x-logo.png" 
+              alt="F12X Logo"
+              width={48}
+              height={48}
+              className="w-12 h-12"
+              priority
+            />
+            <Image 
+              src="/logos/magicfit-logo.png" 
+              alt="Magicfit Logo"
+              width={48}
+              height={48}
+              className="w-12 h-12"
+              priority
+            />
           </div>
           <h1 className="text-2xl font-bold text-neutral-50 mb-2">
             <span>F12X Studio</span>
@@ -93,6 +118,7 @@ export default function SignupPage() {
                 onChange={(e) => setFirstName(e.target.value)}
                 placeholder="John"
                 className="w-full px-4 py-2.5 bg-neutral-800/50 border border-neutral-700 rounded-lg text-neutral-50 placeholder-neutral-500 focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400/50 transition"
+                required
               />
             </div>
 
@@ -110,6 +136,22 @@ export default function SignupPage() {
                 className="w-full px-4 py-2.5 bg-neutral-800/50 border border-neutral-700 rounded-lg text-neutral-50 placeholder-neutral-500 focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400/50 transition"
                 required
               />
+            </div>
+            
+            {/* Role Input */}
+            <div>
+              <label htmlFor="role" className="block text-neutral-50 text-sm font-medium mb-2">
+                I am a...
+              </label>
+              <select
+                id="role"
+                value={role}
+                onChange={(e) => setRole(e.target.value as 'editor' | 'client')}
+                className="w-full px-4 py-2.5 bg-neutral-800/50 border border-neutral-700 rounded-lg text-neutral-50 focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400/50 transition"
+              >
+                <option value="client">Client</option>
+                <option value="editor">Editor</option>
+              </select>
             </div>
 
             {/* Password Input */}

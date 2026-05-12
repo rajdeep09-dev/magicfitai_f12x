@@ -139,7 +139,6 @@ export default function AnalyticsPage() {
                 dataKey="engagement"
                 stroke="#ff69b4"
                 name="Engagement %"
-                yAxisId="right"
                 strokeWidth={2}
               />
             </ComposedChart>

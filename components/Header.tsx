@@ -19,7 +19,6 @@ export default function Header() {
     { label: 'Analytics', href: '/dashboard/analytics' },
     { label: 'Timeline', href: '/dashboard/timeline' },
     { label: 'Calendar', href: '/dashboard/calendar' },
-    { label: 'Messages', href: '/dashboard/messages' },
     { label: 'Reports', href: '/dashboard/reports' },
     ...(isEditor ? [{ label: 'Settings', href: '/dashboard/settings' }] : []),
   ];
