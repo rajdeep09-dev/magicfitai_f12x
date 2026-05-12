@@ -67,61 +67,40 @@ export function useAuth() {
 
     getUser();
 
-    return () => clearTimeout(timeout);
-
-    // Subscribe to auth changes
-    try {
-      const {
+    // Subscribe to auth changes and fetch profile on login/refresh
+    const {
         data: { subscription },
-      } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
         if (session?.user) {
-          setUser(session.user);
-
-          // Fetch profile on auth state change
-          const { data: profileData } = await supabase
+        setUser(session.user);
+        // Force re-fetch profile
+        const { data: profileData } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', session.user.id)
             .single();
-
-          if (profileData) {
-            setProfile(profileData);
-          }
+        if (profileData) setProfile(profileData);
         } else {
-          setUser(null);
-          setProfile(null);
+        setUser(null);
+        setProfile(null);
         }
-      });
+    });
 
-      return () => {
+    return () => {
         subscription?.unsubscribe();
-      };
-    } catch (err) {
-      console.log('[v0] Auth subscription error (expected if Supabase not configured)');
-    }
-  }, [supabase]);
+        clearTimeout(timeout);
+    };
+    }, [supabase]);
 
-  const logout = async () => {
-    try {
-      await supabase.auth.signOut();
-      setUser(null);
-      setProfile(null);
-      router.push('/auth/login');
-    } catch (err) {
-      console.error('Error logging out:', err);
-      setError('Failed to log out');
-    }
-  };
-
-  return {
+    return {
     user,
     profile,
     loading,
     error,
     logout,
-    // Add logging to debug role in console
     isAdmin: profile?.role === 'admin',
-    isEditor: profile?.role === 'editor' || profile?.role === 'admin',
-    isClient: profile?.role === 'client' || !profile?.role || (profile?.role !== 'editor' && profile?.role !== 'admin'),
-  };
+    isEditor: profile?.role === 'editor', // Strict match
+    isClient: profile?.role === 'client', // Strict match
+    };
+    }
 }
