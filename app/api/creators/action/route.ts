@@ -19,6 +19,10 @@ export async function POST(req: Request) {
         await supabase.from('creators').update({ approval_status: 'Approved', client_approved_video: true }).eq('id', creatorId);
     } else if (action === 'revision') {
         await supabase.from('creators').update({ approval_status: 'Revisions Requested' }).eq('id', creatorId);
+    } else if (action === 'toggle_recommend') {
+        if (role !== 'editor') return NextResponse.json({ error: 'Only editors can recommend' }, { status: 403 });
+        const { isRecommended } = await req.json();
+        await supabase.from('creators').update({ is_recommended: isRecommended }).eq('id', creatorId);
     } else if (action === 'add_note') {
         // Logic to add note (if we had a notes table) - for now just log
         console.log('Adding note:', note, 'internal:', isInternal);

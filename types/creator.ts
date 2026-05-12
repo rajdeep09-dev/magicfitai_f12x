@@ -13,6 +13,7 @@ export interface Creator {
   // Editor fields
   recommended_for_batch?: string;
   draft_reel_url?: string;
+  is_recommended?: boolean;
   
   // Client approval fields
   client_approved_creator?: boolean;

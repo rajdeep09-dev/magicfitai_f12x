@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS creators (
   -- Editor specific additions
   recommended_for_batch TEXT,
   draft_reel_url TEXT,
+  is_recommended BOOLEAN DEFAULT false,
   
   -- Client approval additions
   client_approved_creator BOOLEAN DEFAULT false,
