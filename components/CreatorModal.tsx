@@ -86,15 +86,17 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[600px] bg-neutral-900 border-neutral-800 text-neutral-50 overflow-y-auto max-h-[80vh]">
-        <DialogHeader>
-          <DialogTitle>{creator ? 'Edit Creator' : 'Add New Creator'}</DialogTitle>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[600px] bg-neutral-950/95 backdrop-blur-2xl border border-white/10 text-neutral-50 overflow-y-auto max-h-[85vh] rounded-2xl shadow-2xl p-0">
+        <div className="p-6 border-b border-white/5">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-black tracking-tight">{creator ? 'Edit Creator' : 'Add New Creator'}</DialogTitle>
+          </DialogHeader>
+        </div>
         
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          <div className="grid grid-cols-2 gap-5">
             <div className="space-y-2">
-              <Label htmlFor="creator_name">Creator Name</Label>
+              <Label htmlFor="creator_name" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Creator Name</Label>
               <Input
                 id="creator_name"
                 name="creator_name"
@@ -102,19 +104,19 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                 onChange={handleChange}
                 disabled={!isEditor && !!creator}
                 required
-                className="bg-neutral-800 border-neutral-700"
+                className="bg-neutral-900 border-white/10 focus:border-lime-400 h-11"
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="platform">Platform</Label>
+              <Label htmlFor="platform" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Platform</Label>
               <select
                 id="platform"
                 name="platform"
                 value={formData.platform || 'Instagram'}
                 onChange={handleChange}
                 disabled={!isEditor && !!creator}
-                className="flex h-10 w-full rounded-md border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-11 w-full rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm focus:outline-none focus:border-lime-400"
               >
                 <option value="Instagram">Instagram</option>
                 <option value="TikTok">TikTok</option>
@@ -125,37 +127,37 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
             {isEditor && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="base_price">Base Price ($)</Label>
+                  <Label htmlFor="base_price" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Base Price ($)</Label>
                   <Input
                     id="base_price"
                     name="base_price"
                     type="number"
                     value={formData.base_price || 0}
                     onChange={handleChange}
-                    className="bg-neutral-800 border-neutral-700"
+                    className="bg-neutral-900 border-white/10 focus:border-lime-400 h-11"
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="recommended_for_batch">Recommended Batch</Label>
+                  <Label htmlFor="recommended_for_batch" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Recommended Batch</Label>
                   <Input
                     id="recommended_for_batch"
                     name="recommended_for_batch"
                     value={formData.recommended_for_batch || ''}
                     onChange={handleChange}
-                    className="bg-neutral-800 border-neutral-700"
+                    className="bg-neutral-900 border-white/10 focus:border-lime-400 h-11"
                     placeholder="e.g. Batch 1"
                   />
                 </div>
                 
                 <div className="space-y-2 col-span-2">
-                  <Label htmlFor="draft_reel_url">Draft Reel URL</Label>
+                  <Label htmlFor="draft_reel_url" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Draft Reel URL</Label>
                   <Input
                     id="draft_reel_url"
                     name="draft_reel_url"
                     value={formData.draft_reel_url || ''}
                     onChange={handleChange}
-                    className="bg-neutral-800 border-neutral-700"
+                    className="bg-neutral-900 border-white/10 focus:border-lime-400 h-11"
                     placeholder="https://..."
                   />
                 </div>
@@ -163,52 +165,52 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
             )}
 
             {(isEditor || isClient) && creator && (
-              <div className="space-y-2 col-span-2 p-4 bg-neutral-800/50 rounded-lg border border-neutral-700">
-                <h4 className="font-semibold mb-2">Pricing & Approval</h4>
+              <div className="space-y-4 col-span-2 p-5 bg-white/5 rounded-xl border border-white/5">
+                <h4 className="font-bold text-sm tracking-wide text-neutral-200">Pricing & Approval</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-neutral-400 text-xs">Final Price (Incl. 20% Comm + 5% Tax)</Label>
-                    <p className="text-xl font-bold text-lime-400">
+                    <Label className="text-neutral-500 text-[10px] font-bold uppercase tracking-widest">Final Price</Label>
+                    <p className="text-2xl font-black text-lime-400">
                       ${creator.final_price?.toFixed(2) || '0.00'}
                     </p>
                   </div>
                   
                   <div className="flex flex-col gap-2">
-                    <label className="flex items-center gap-2 cursor-pointer">
+                    <label className="flex items-center gap-2 cursor-pointer group">
                       <input
                         type="checkbox"
                         name="client_approved_creator"
                         checked={formData.client_approved_creator || false}
                         onChange={handleChange}
                         disabled={!isClient}
-                        className="rounded border-neutral-700 text-lime-400 focus:ring-lime-400 bg-neutral-800"
+                        className="rounded border-neutral-700 text-lime-400 focus:ring-lime-400 bg-neutral-900"
                       />
-                      <span className="text-sm">Approve Creator</span>
+                      <span className="text-xs font-semibold text-neutral-300 group-hover:text-neutral-50">Approve Creator</span>
                     </label>
                     
-                    <label className="flex items-center gap-2 cursor-pointer">
+                    <label className="flex items-center gap-2 cursor-pointer group">
                       <input
                         type="checkbox"
                         name="client_approved_video"
                         checked={formData.client_approved_video || false}
                         onChange={handleChange}
                         disabled={!isClient}
-                        className="rounded border-neutral-700 text-lime-400 focus:ring-lime-400 bg-neutral-800"
+                        className="rounded border-neutral-700 text-lime-400 focus:ring-lime-400 bg-neutral-900"
                       />
-                      <span className="text-sm">Approve Video</span>
+                      <span className="text-xs font-semibold text-neutral-300 group-hover:text-neutral-50">Approve Video</span>
                     </label>
                   </div>
                 </div>
 
                 {isClient && formData.client_approved_video && formData.client_approved_creator && (
-                  <div className="mt-4">
-                    <Label htmlFor="payment_status">Payment Action</Label>
+                  <div className="mt-2 pt-4 border-t border-white/5">
+                    <Label htmlFor="payment_status" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Payment Action</Label>
                     <select
                       id="payment_status"
                       name="payment_status"
                       value={formData.payment_status || 'pending'}
                       onChange={handleChange}
-                      className="flex h-10 w-full mt-1 rounded-md border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm"
+                      className="flex h-11 w-full mt-1 rounded-lg border border-white/10 bg-neutral-950 px-3 py-2 text-sm"
                     >
                       <option value="pending">Pending</option>
                       <option value="waiting_for_tolt">Buy/Pay via Tolt.io (Wait for process)</option>
@@ -218,14 +220,14 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                 )}
                 
                 {isEditor && (
-                  <div className="mt-4">
-                    <Label htmlFor="payment_status">Payment Status (Editor View)</Label>
+                  <div className="mt-2 pt-4 border-t border-white/5">
+                    <Label htmlFor="payment_status" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Payment Status (Editor)</Label>
                     <select
                       id="payment_status"
                       name="payment_status"
                       value={formData.payment_status || 'pending'}
                       onChange={handleChange}
-                      className="flex h-10 w-full mt-1 rounded-md border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm"
+                      className="flex h-11 w-full mt-1 rounded-lg border border-white/10 bg-neutral-950 px-3 py-2 text-sm"
                     >
                       <option value="pending">Pending</option>
                       <option value="waiting_for_tolt">Waiting for Tolt.io</option>
@@ -237,11 +239,11 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
             )}
           </div>
 
-          <DialogFooter className="mt-6">
-            <Button type="button" variant="outline" onClick={onClose} disabled={loading} className="bg-transparent border-neutral-700 hover:bg-neutral-800 text-white">
+          <DialogFooter className="mt-2 pt-4 border-t border-white/5">
+            <Button type="button" variant="ghost" onClick={onClose} disabled={loading} className="text-neutral-400 hover:text-white">
               Cancel
             </Button>
-            <Button type="submit" disabled={loading} className="bg-lime-400 text-neutral-950 hover:bg-lime-500">
+            <Button type="submit" disabled={loading} className="bg-lime-400 text-neutral-950 hover:bg-lime-300 font-bold px-6">
               {loading ? 'Saving...' : 'Save Changes'}
             </Button>
           </DialogFooter>

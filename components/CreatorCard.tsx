@@ -42,72 +42,85 @@ function CreatorCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.05 }}
-      className="bg-neutral-900/50 backdrop-blur-md border border-neutral-800 rounded-lg overflow-hidden hover:border-lime-400/50 transition group"
+      whileHover={{ y: -5, scale: 1.01 }}
+      className="relative group h-full bg-neutral-900/40 backdrop-blur-xl border border-white/5 rounded-2xl overflow-hidden hover:bg-neutral-900/60 hover:border-lime-400/30 hover:shadow-[0_0_40px_rgba(132,204,22,0.05)] transition-all duration-300"
     >
+      {/* Glow Effect */}
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-lime-500/0 via-lime-500/40 to-lime-500/0 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
       {/* Active Campaign Badge */}
       {activeOnCampaign && (
-        <div className="bg-lime-500/20 border-b border-lime-500/30 px-4 py-2">
-          <p className="text-xs font-semibold text-lime-400">
-            ✓ Active: {campaignName || 'Campaign in progress'}
+        <div className="bg-lime-400/10 border-b border-white/5 px-5 py-2.5 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-lime-400 animate-pulse shadow-[0_0_8px_rgba(132,204,22,1)]"></div>
+            <p className="text-[10px] font-black uppercase tracking-widest text-lime-400/90">
+              Active Campaign
+            </p>
+          </div>
+          <p className="text-[10px] font-bold text-neutral-400 truncate max-w-[150px]">
+            {campaignName || 'Magicfit Summer'}
           </p>
         </div>
       )}
 
       <div className="p-6">
         {/* Header */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3 flex-1">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-lime-400 to-green-500 flex items-center justify-center flex-shrink-0 text-neutral-950 font-bold text-lg">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="relative">
+            <div className="absolute -inset-1 bg-gradient-to-br from-lime-400 to-green-500 rounded-full blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+            <div className="relative w-14 h-14 rounded-full bg-neutral-950 border border-white/10 flex items-center justify-center flex-shrink-0 text-neutral-50 font-black text-xl shadow-xl">
               {name.charAt(0)}
             </div>
-            <div className="min-w-0">
-              <p className="font-semibold text-neutral-50 truncate">{name}</p>
-              <p className="text-xs text-neutral-400">{platform}</p>
+          </div>
+          <div className="min-w-0">
+            <h4 className="font-bold text-neutral-50 text-lg truncate group-hover:text-lime-100 transition-colors leading-tight">{name}</h4>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-[10px] font-black uppercase tracking-widest text-neutral-500 bg-white/5 px-2 py-0.5 rounded border border-white/5">{platform}</span>
             </div>
           </div>
         </div>
 
         {/* Metrics Grid */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-2 gap-4 mb-6">
           {/* Followers */}
-          <div className="bg-neutral-800/50 rounded-lg p-3">
-            <div className="flex items-center gap-2 mb-1">
-              <Users className="w-4 h-4 text-neutral-400" />
-              <p className="text-xs text-neutral-400">Followers</p>
+          <div className="bg-white/5 rounded-xl p-3.5 border border-white/5 group-hover:bg-white/10 transition-colors">
+            <div className="flex items-center gap-2 mb-1.5">
+              <Users className="w-3.5 h-3.5 text-neutral-400" />
+              <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Audience</p>
             </div>
-            <p className="text-lg font-bold text-neutral-50">{(followers / 1000).toFixed(1)}K</p>
+            <p className="text-xl font-black text-neutral-50">{(followers / 1000).toFixed(1)}K</p>
           </div>
 
           {/* Engagement Ratio */}
-          <div className="bg-neutral-800/50 rounded-lg p-3">
-            <div className="flex items-center gap-2 mb-1">
-              <TrendingUp className="w-4 h-4 text-lime-400" />
-              <p className="text-xs text-neutral-400">Engagement</p>
+          <div className="bg-white/5 rounded-xl p-3.5 border border-white/5 group-hover:bg-white/10 transition-colors">
+            <div className="flex items-center gap-2 mb-1.5">
+              <TrendingUp className="w-3.5 h-3.5 text-lime-400" />
+              <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Engage</p>
             </div>
-            <p className="text-lg font-bold text-lime-400">{engagementRatio.toFixed(1)}%</p>
+            <p className="text-xl font-black text-lime-400">{engagementRatio.toFixed(1)}%</p>
           </div>
         </div>
 
         {/* Payout Status */}
-        <div className={`rounded-lg p-3 border ${statusColors.bg}`}>
+        <div className={`rounded-xl p-3.5 border ${statusColors.bg} ${statusColors.badge.replace('bg-', 'border-')} shadow-inner group-hover:brightness-110 transition-all`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <DollarSign className="w-4 h-4 text-neutral-400" />
-              <p className="text-xs text-neutral-400">Payout Status</p>
+              <DollarSign className="w-4 h-4 text-neutral-300/70" />
+              <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Payment</p>
             </div>
-            <span className={`text-xs font-semibold px-2 py-1 rounded ${statusColors.text} ${statusColors.badge}`}>
-              {payoutStatus.charAt(0).toUpperCase() + payoutStatus.slice(1)}
+            <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${statusColors.text} ${statusColors.badge}`}>
+              {payoutStatus === 'waiting_for_tolt' ? 'Tolt Process' : payoutStatus}
             </span>
           </div>
         </div>
       </div>
 
       {/* Action Footer */}
-      <div className="bg-neutral-800/30 border-t border-neutral-700 px-6 py-3 flex gap-2">
-        <button className="flex-1 text-sm font-medium text-neutral-400 hover:text-lime-400 transition py-2 rounded hover:bg-neutral-700/50">
-          View Profile
+      <div className="bg-neutral-950/40 border-t border-white/5 px-6 py-4 flex gap-3">
+        <button className="flex-1 text-xs font-bold uppercase tracking-widest text-neutral-400 hover:text-neutral-50 transition-all py-2.5 rounded-lg border border-transparent hover:bg-white/5">
+          Profile
         </button>
-        <button className="flex-1 text-sm font-medium text-lime-400 hover:text-lime-300 transition py-2 rounded hover:bg-lime-500/10">
+        <button className="flex-1 text-xs font-black uppercase tracking-widest bg-lime-400 text-neutral-950 hover:bg-lime-300 transition-all py-2.5 rounded-lg shadow-[0_0_15px_rgba(132,204,22,0.2)] hover:shadow-[0_0_20px_rgba(132,204,22,0.4)]">
           Details →
         </button>
       </div>

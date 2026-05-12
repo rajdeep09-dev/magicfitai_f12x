@@ -54,14 +54,12 @@ export default function SignupPage() {
         return;
       }
       
-      // Attempt to insert profile directly just in case the trigger fails or wasn't updated
+      // Attempt to update profile directly to override the default trigger
       if (data.user) {
-         await supabase.from('profiles').upsert({
-           id: data.user.id,
-           email: data.user.email,
+         await supabase.from('profiles').update({
            first_name: firstName,
            role: role,
-         }, { onConflict: 'id' });
+         }).eq('id', data.user.id);
       }
 
       if (data.user) {

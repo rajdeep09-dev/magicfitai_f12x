@@ -127,12 +127,13 @@ export default function DashboardPage() {
     >
       {/* Hero Section with Circular Progress */}
       <motion.section
-        className="mb-12"
+        className="mb-12 relative"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="bg-neutral-900/50 backdrop-blur-md border border-neutral-800 rounded-lg p-8 sm:p-12">
+        <div className="absolute -inset-1 bg-gradient-to-r from-lime-400/20 via-green-500/20 to-lime-400/20 rounded-2xl blur-xl opacity-50"></div>
+        <div className="relative bg-neutral-950/60 backdrop-blur-2xl border border-white/10 rounded-2xl p-8 sm:p-12 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-center">
             {/* Progress Ring */}
             <motion.div
@@ -141,7 +142,10 @@ export default function DashboardPage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <ProgressRing percentage={kpis.avgProgress} label="Campaign Progress" size={220} />
+              <div className="relative">
+                <div className="absolute inset-0 bg-lime-400 rounded-full blur-2xl opacity-10"></div>
+                <ProgressRing percentage={kpis.avgProgress} label="Campaign Progress" size={220} />
+              </div>
             </motion.div>
 
             {/* KPI Cards */}
@@ -179,38 +183,44 @@ export default function DashboardPage() {
       {/* Approval Workflow Board */}
       {pendingCreators && pendingCreators.length > 0 && (
         <motion.section
-          className="mb-12"
+          className="mb-12 relative z-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
         >
-          <h2 className="text-xl font-bold text-neutral-50 mb-6">
-            Approval Workflow <span className="text-lime-400">({pendingCreators.length} pending)</span>
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="flex items-center gap-3 mb-6">
+            <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neutral-50 to-neutral-400">
+              Approval Workflow
+            </h2>
+            <div className="px-3 py-1 rounded-full bg-lime-400/10 border border-lime-400/20 text-lime-400 text-sm font-semibold shadow-[0_0_10px_rgba(132,204,22,0.2)]">
+              {pendingCreators.length} pending
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {pendingCreators.map((creator, idx) => (
               <motion.div
                 key={creator.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.5 + idx * 0.1 }}
-                className="bg-yellow-900/20 border border-yellow-700 rounded-lg p-4 hover:border-yellow-600 transition group"
+                className="bg-neutral-900/60 backdrop-blur-xl border border-yellow-500/30 rounded-xl p-5 hover:border-yellow-400/60 hover:shadow-[0_0_20px_rgba(234,179,8,0.15)] transition-all duration-300 group relative overflow-hidden"
               >
-                <div className="flex items-start justify-between mb-3">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-500/0 via-yellow-500 to-yellow-500/0 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                <div className="flex items-start justify-between mb-4">
                   <div>
-                    <p className="font-semibold text-neutral-50">{creator.creator_name}</p>
-                    <p className="text-xs text-yellow-400 font-medium">Ready for Review</p>
+                    <p className="font-bold text-neutral-50 text-lg group-hover:text-yellow-100 transition-colors">{creator.creator_name}</p>
+                    <p className="text-xs text-yellow-400 font-semibold tracking-wide uppercase mt-1">Ready for Review</p>
                   </div>
-                  <div className="text-xs text-neutral-400">{creator.platform}</div>
+                  <div className="text-xs font-medium px-2 py-1 rounded-md bg-white/5 text-neutral-300 border border-white/10">{creator.platform}</div>
                 </div>
-                <p className="text-sm text-neutral-400 mb-4">{creator.deliverable}</p>
+                <p className="text-sm text-neutral-400 mb-5 line-clamp-2">{creator.deliverable}</p>
                 <a
                   href={creator.video_link || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-block w-full text-center px-3 py-2 bg-yellow-400/20 hover:bg-yellow-400/30 border border-yellow-600 text-yellow-400 rounded text-sm font-medium transition"
+                  className="inline-flex w-full items-center justify-center px-4 py-2.5 bg-yellow-400/10 hover:bg-yellow-400 text-yellow-400 hover:text-yellow-950 rounded-lg text-sm font-bold transition-all duration-300 border border-yellow-400/30 hover:border-yellow-400 shadow-[inset_0_0_12px_rgba(234,179,8,0.1)] hover:shadow-none"
                 >
-                  Review Draft
+                  <Play className="w-4 h-4 mr-2" /> Review Draft
                 </a>
               </motion.div>
             ))}
@@ -223,9 +233,10 @@ export default function DashboardPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.6 }}
+        className="relative z-10"
       >
-        <h2 className="text-xl font-bold text-neutral-50 mb-6">Creator Roster</h2>
-        <div className="space-y-3">
+        <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neutral-50 to-neutral-400 mb-6">Creator Roster</h2>
+        <div className="space-y-4">
           {creators.map((creator, idx) => {
             const isExpanded = expandedCreator === creator.id;
             const statusColor = STATUS_COLORS[creator.approval_status] || STATUS_COLORS['Ideation'];
@@ -237,79 +248,86 @@ export default function DashboardPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.7 + idx * 0.05 }}
-                className="bg-neutral-900/50 backdrop-blur-md border border-neutral-800 rounded-lg overflow-hidden hover:border-lime-400/50 transition group"
+                className="bg-neutral-900/40 backdrop-blur-xl border border-white/5 rounded-xl overflow-hidden hover:bg-neutral-900/60 hover:border-lime-400/30 hover:shadow-[0_0_30px_rgba(132,204,22,0.05)] transition-all duration-300 group"
               >
                 {/* Creator Card */}
                 <button
                   onClick={() => setExpandedCreator(isExpanded ? null : creator.id)}
-                  className="w-full text-left"
+                  className="w-full text-left focus:outline-none"
                 >
-                  <div className="p-4 flex items-center gap-4">
+                  <div className="p-5 flex items-center gap-5">
                     {/* Avatar */}
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-lime-400 to-green-500 flex items-center justify-center flex-shrink-0">
-                      <PlatformIcon className="w-6 h-6 text-neutral-950" />
+                    <div className="relative">
+                      <div className="absolute -inset-1 bg-lime-400 rounded-full blur opacity-0 group-hover:opacity-40 transition duration-500"></div>
+                      <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-lime-400 to-green-500 flex items-center justify-center flex-shrink-0 shadow-lg border-2 border-neutral-950">
+                        <PlatformIcon className="w-7 h-7 text-neutral-950" />
+                      </div>
                     </div>
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-semibold text-neutral-50 truncate">{creator.creator_name}</p>
-                        <span className="text-xs text-neutral-500">{creator.platform}</span>
+                      <div className="flex items-center gap-3 mb-1.5">
+                        <p className="font-bold text-neutral-50 text-lg truncate group-hover:text-lime-100 transition-colors">{creator.creator_name}</p>
+                        <span className="text-[10px] uppercase tracking-wider font-bold text-neutral-400 bg-white/5 px-2 py-0.5 rounded border border-white/5">{creator.platform}</span>
                       </div>
-                      <p className="text-xs text-neutral-400 truncate">{creator.deliverable}</p>
+                      <p className="text-sm text-neutral-400 truncate">{creator.deliverable}</p>
                     </div>
 
                     {/* Status Badge */}
                     <div
-                      className={`flex items-center gap-1 px-3 py-1 rounded-full border ${statusColor.bg} ${statusColor.border}`}
+                      className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full border ${statusColor.bg} ${statusColor.border} shadow-inner`}
                     >
                       {getStatusIcon(creator.approval_status)}
-                      <span className={`text-xs font-medium ${statusColor.text}`}>
+                      <span className={`text-xs font-bold uppercase tracking-wide ${statusColor.text}`}>
                         {creator.approval_status}
                       </span>
                     </div>
 
                     {/* Progress Indicator */}
-                    <div className="w-12 text-right flex-shrink-0">
-                      <p className="text-xs font-semibold text-lime-400">{creator.progress_score}%</p>
+                    <div className="w-16 text-right flex-shrink-0">
+                      <p className="text-lg font-black text-transparent bg-clip-text bg-gradient-to-br from-lime-300 to-lime-600">{creator.progress_score}%</p>
                     </div>
 
                     {/* Expand Icon */}
-                    <ChevronDown
-                      className={`w-5 h-5 text-neutral-400 transition ${
-                        isExpanded ? 'rotate-180' : ''
-                      }`}
-                    />
+                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/5 group-hover:bg-lime-400/10 group-hover:border-lime-400/20 transition-colors">
+                      <ChevronDown
+                        className={`w-5 h-5 text-neutral-400 group-hover:text-lime-400 transition-transform duration-300 ${
+                          isExpanded ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </div>
                   </div>
 
                   {/* Progress Bar */}
-                  <div className="px-4 pb-3">
+                  <div className="px-5 pb-4">
                     <LinearProgress percentage={creator.progress_score} delay={0.7 + idx * 0.05} />
                   </div>
                 </button>
 
                 {/* Expanded Section - Video Approval */}
                 {isExpanded && (
-                  <VideoApprovalPanel
-                    creatorName={creator.creator_name}
-                    creatorId={creator.id}
-                    approvalStatus={creator.approval_status}
-                    videoLink={creator.video_link}
-                    publishedVideoLink={creator.published_video_link}
-                    views={creator.views}
-                    engagementRate={creator.engagement_rate}
-                    notes={getMockNotes(creator.id)}
-                    onAddNote={(content, isInternal) => {
-                      console.log(`Added note to ${creator.creator_name}: ${content}`);
-                    }}
-                    onApprove={() => {
-                      console.log(`Approved video for ${creator.creator_name}`);
-                    }}
-                    onRevisions={() => {
-                      console.log(`Requested revisions for ${creator.creator_name}`);
-                    }}
-                    userRole={profile?.role || 'client'}
-                  />
+                  <div className="border-t border-white/5 bg-neutral-950/50">
+                    <VideoApprovalPanel
+                      creatorName={creator.creator_name}
+                      creatorId={creator.id}
+                      approvalStatus={creator.approval_status}
+                      videoLink={creator.video_link}
+                      publishedVideoLink={creator.published_video_link}
+                      views={creator.views}
+                      engagementRate={creator.engagement_rate}
+                      notes={getMockNotes(creator.id)}
+                      onAddNote={(content, isInternal) => {
+                        console.log(`Added note to ${creator.creator_name}: ${content}`);
+                      }}
+                      onApprove={() => {
+                        console.log(`Approved video for ${creator.creator_name}`);
+                      }}
+                      onRevisions={() => {
+                        console.log(`Requested revisions for ${creator.creator_name}`);
+                      }}
+                      userRole={profile?.role || 'client'}
+                    />
+                  </div>
                 )}
               </motion.div>
             );
