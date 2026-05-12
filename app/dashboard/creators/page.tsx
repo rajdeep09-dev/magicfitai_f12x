@@ -10,14 +10,23 @@ export default function CreatorsPage() {
 
   useEffect(() => {
     async function load() {
+      setLoading(true);
+      console.log("Fetching data from Supabase...");
       try {
         const supabase = createClient();
-        console.log("Fetching data from Supabase...");
-        const { data: result, error } = await supabase.from('creators').select('*');
-        if (error) throw error;
-        setData(result);
+        const { data, error } = await supabase.from('creators').select('*');
+        
+        console.log("Supabase response:", { data, error });
+        
+        if (error) {
+          console.error("Supabase Error:", error);
+          setError(error.message);
+        } else {
+          console.log("Data received:", data);
+          setCreators(data || []);
+        }
       } catch (e: any) {
-        console.error("DEBUG ERROR:", e);
+        console.error("Unexpected error:", e);
         setError(e.message);
       } finally {
         setLoading(false);
