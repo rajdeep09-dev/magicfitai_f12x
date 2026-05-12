@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion';
 import { Calendar, AlertCircle, CheckCircle } from 'lucide-react';
-import { mockCreators } from '@/lib/mock-data';
 
 const STATUS_COLORS: Record<string, string> = {
   'Ideation': 'bg-gray-600',

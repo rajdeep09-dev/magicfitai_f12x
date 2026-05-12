@@ -20,7 +20,6 @@ import { useAuth } from '@/hooks/useAuth';
 import ProgressRing from '@/components/ProgressRing';
 import KPICard from '@/components/KPICard';
 import LinearProgress from '@/components/LinearProgress';
-import { mockCreators, getMockNotes } from '@/lib/mock-data';
 
 // Lazy load VideoApprovalPanel for better initial page load
 const VideoApprovalPanel = dynamic(() => import('@/components/VideoApprovalPanel'), {

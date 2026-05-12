@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion';
 import CalendarView from '@/components/CalendarView';
-import { mockCreators } from '@/lib/mock-data';
 
 const generateCalendarEvents = () => {
   const events: any[] = [];

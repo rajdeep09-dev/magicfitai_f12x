@@ -17,7 +17,6 @@ import {
   ResponsiveContainer,
   ComposedChart,
 } from 'recharts';
-import { mockCreators } from '@/lib/mock-data';
 
 // Generate chart data from mock creators
 const engagementTrendData = [
