@@ -36,10 +36,14 @@ export default function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#050505]/80 backdrop-blur-2xl border-b border-white/5">
       <div className="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between">
         <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded bg-lime-400"></div>
-          <span className="text-white font-black tracking-tighter text-xl">F12X <span className="text-lime-400">STUDIO</span></span>
-        </Link>
-        <nav className="hidden md:flex gap-8">
+          <div className="flex -space-x-2">
+            <div className="w-8 h-8 rounded-full bg-lime-400 border-2 border-black"></div>
+            <div className="w-8 h-8 rounded-full bg-white border-2 border-black"></div>
+          </div>
+          <span className="text-white font-black tracking-tighter text-xl">
+            F12X <span className="text-lime-400">×</span> MAGICFIT
+          </span>
+        </Link>        <nav className="hidden md:flex gap-8">
           {navItems.map((item) => (
             <Link key={item.href} href={item.href} className={`text-xs font-bold uppercase tracking-widest transition ${isActive(item.href) ? 'text-lime-400' : 'text-neutral-500 hover:text-white'}`}>
               {item.label}
