@@ -28,7 +28,7 @@ export default function Header() {
             <Image src="/logos/f12x-logo.png" alt="F" width={28} height={28} className="w-7 h-7 rounded-full border border-white/20" />
             <Image src="/logos/magicfit-logo.png" alt="M" width={28} height={28} className="w-7 h-7 rounded-full border border-white/20" />
           </div>
-          <span className="text-white font-bold tracking-tight text-sm uppercase">F12X × MF</span>
+          <span className="text-white font-black tracking-tighter text-sm uppercase">F12X × MAGICFIT</span>
         </Link>
 
         {/* Desktop Nav */}
