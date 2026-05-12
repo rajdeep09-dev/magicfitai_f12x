@@ -1,11 +1,20 @@
--- 1. Delete all existing creators to prepare for fresh data
+-- 1. Create a default campaign with a fixed ID
+INSERT INTO campaigns (id, name, description, status, start_date, end_date, created_by)
+SELECT 
+  '00000000-0000-0000-0000-000000000000', 
+  'Initial Campaign', 
+  'Default system campaign', 
+  '2026-05-01', 
+  '2026-12-31', 
+  id
+FROM auth.users 
+LIMIT 1
+ON CONFLICT (id) DO NOTHING;
+
+-- 2. Delete existing creators
 DELETE FROM creators;
 
--- 2. Insert the new creator list
--- Note: Assuming you have at least one campaign ID. If not, create one first.
--- You can run: INSERT INTO campaigns (id, name, description, start_date, end_date, created_by) VALUES (gen_random_uuid(), 'Initial Campaign', '...', '2026-05-01', '2026-12-31', auth.uid()); 
--- But for now, I will use a dummy campaign ID for the insert below.
-
+-- 3. Insert the new creator list
 INSERT INTO creators (
     campaign_id, 
     creator_name, 
