@@ -121,18 +121,49 @@ export default function DashboardPage() {
              <span className="w-2 h-6 bg-lime-400 rounded-full"></span> Creator Roster
           </h2>
           <div className="space-y-4">
-            {creators.map((creator) => (
-              <div key={creator.id} className="bg-[#111] border border-white/5 p-4 rounded-xl flex items-center justify-between hover:border-lime-500/30 transition">
-                <div>
-                  <p className="font-bold text-white">{creator.creator_name}</p>
-                  <p className="text-xs text-neutral-500">{creator.platform}</p>
+            {creators.map((creator) => {
+              const isExpanded = expandedCreator === creator.id;
+              return (
+                <div key={creator.id} className="bg-[#111] border border-white/5 rounded-xl overflow-hidden hover:border-lime-500/30 transition">
+                  <button
+                    onClick={() => setExpandedCreator(isExpanded ? null : creator.id)}
+                    className="w-full p-4 flex items-center justify-between focus:outline-none"
+                  >
+                    <div>
+                      <p className="font-bold text-white">{creator.creator_name}</p>
+                      <p className="text-xs text-neutral-500">{creator.platform}</p>
+                    </div>
+                    <div className="text-right">
+                       <p className="text-sm font-bold text-lime-400">{creator.approval_status}</p>
+                       <p className="text-xs text-neutral-600">{creator.progress_score}% Complete</p>
+                    </div>
+                  </button>
+                  
+                  {isExpanded && (
+                    <VideoApprovalPanel
+                      creatorName={creator.creator_name}
+                      creatorId={creator.id}
+                      approvalStatus={creator.approval_status}
+                      videoLink={creator.video_link}
+                      publishedVideoLink={creator.published_video_link}
+                      views={creator.views}
+                      engagementRate={creator.engagement_rate}
+                      notes={getMockNotes(creator.id)}
+                      onAddNote={(content, isInternal) => {
+                        console.log(`Added note to ${creator.creator_name}: ${content}`);
+                      }}
+                      onApprove={() => {
+                        console.log(`Approved video for ${creator.creator_name}`);
+                      }}
+                      onRevisions={() => {
+                        console.log(`Requested revisions for ${creator.creator_name}`);
+                      }}
+                      userRole={profile?.role || 'client'}
+                    />
+                  )}
                 </div>
-                <div className="text-right">
-                   <p className="text-sm font-bold text-lime-400">{creator.approval_status}</p>
-                   <p className="text-xs text-neutral-600">{creator.progress_score}% Complete</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
