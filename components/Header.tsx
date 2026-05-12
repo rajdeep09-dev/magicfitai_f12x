@@ -53,8 +53,8 @@ export default function Header() {
               className="w-8 h-8"
             />
           </div>
-          <span className="text-white font-black tracking-tighter text-xl">
-            STUDIO <span className="text-lime-400">PORTAL</span>
+          <span className="text-white font-black tracking-tighter text-xl uppercase">
+            F12X <span className="text-lime-400">×</span> MAGICFIT
           </span>
         </Link>        <nav className="hidden md:flex gap-8">
           {navItems.map((item) => (
