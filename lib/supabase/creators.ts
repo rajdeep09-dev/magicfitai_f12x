@@ -43,18 +43,35 @@ export async function getCreators(options?: {
       throw error;
     }
 
-    if (!data) {
-      console.log('[v0] No creators found');
-      return [];
-    }
+    if (!data) return [];
 
-    console.log(`[v0] Successfully loaded ${data.length} creators from Supabase`);
+    // Map database fields to the expected Creator interface with safe fallbacks
+    const normalizedData = data.map((item: any) => ({
+      ...item,
+      id: item.id || '',
+      campaign_id: item.campaign_id || null,
+      creator_name: item.creator_name || 'Unnamed Creator',
+      platform: item.platform || 'Instagram',
+      deliverable: item.deliverable || '',
+      approval_status: item.approval_status || 'Ideation',
+      progress_score: item.progress_score || 0,
+      video_link: item.video_link || '',
+      views: item.views || 0,
+      engagement_rate: Number(item.engagement_rate) || 0,
+      followers: item.followers || 0,
+      total_reach: item.total_reach || 0,
+      spend: Number(item.spend) || 0,
+      base_price: Number(item.base_price) || 0,
+      final_price: Number(item.final_price) || 0,
+    }));
+
+    console.log(`[v0] Successfully loaded ${normalizedData.length} creators`);
     
     // Update cache
-    creatorsCache = data;
+    creatorsCache = normalizedData;
     cacheTimestamp = Date.now();
 
-    return data;
+    return normalizedData;
   } catch (error) {
     console.error('[v0] Error in getCreators:', error);
     // Return empty array on error - UI should handle gracefully
