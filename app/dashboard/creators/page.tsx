@@ -1,51 +1,74 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Plus, Users } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import CreatorCard from '@/components/CreatorCard';
+import CreatorModal from '@/components/CreatorModal';
 import { createClient } from '@/lib/supabase/client';
 
 export default function CreatorsPage() {
-  const [creators, setCreators] = useState<any[] | null>(null);
+  const { isEditor } = useAuth();
+  const [creators, setCreators] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCreator, setSelectedCreator] = useState<any | null>(null);
+
+  const supabase = createClient();
+
+  const loadCreators = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.from('creators').select('*');
+    if (!error && data) setCreators(data);
+    setLoading(false);
+  };
 
   useEffect(() => {
-    async function load() {
-      setLoading(true);
-      console.log("Fetching data from Supabase...");
-      try {
-        const supabase = createClient();
-        const { data, error } = await supabase.from('creators').select('*');
-        
-        console.log("Supabase response:", { data, error });
-        
-        if (error) {
-          console.error("Supabase Error:", error);
-          setError(error.message);
-        } else {
-          console.log("Data received:", data);
-          setCreators(data || []);
-        }
-      } catch (e: any) {
-        console.error("Unexpected error:", e);
-        setError(e.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
+    loadCreators();
   }, []);
 
-  if (loading) return <div className="p-10 text-white">Loading data...</div>;
-  if (error) return <div className="p-10 text-red-500">Error: {error}</div>;
-
   return (
-    <div className="p-10 text-white">
-      <h1 className="text-2xl font-bold mb-5">Creators</h1>
-      {creators && creators.length > 0 ? (
-        <pre className="bg-neutral-900 p-4 rounded">{JSON.stringify(creators, null, 2)}</pre>
+    <div className="p-10 text-white min-h-screen bg-[#050505]">
+      <div className="flex items-center justify-between mb-10">
+        <h1 className="text-4xl font-black tracking-tighter">CREATOR ROSTER</h1>
+        {isEditor && (
+          <button 
+            onClick={() => { setSelectedCreator(null); setIsModalOpen(true); }}
+            className="bg-lime-400 text-black px-6 py-3 rounded-lg font-bold uppercase text-xs tracking-widest hover:bg-lime-300 flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" /> Add Creator
+          </button>
+        )}
+      </div>
+
+      {loading ? (
+        <div className="text-neutral-500 font-bold tracking-widest uppercase text-xs">Loading Roster...</div>
+      ) : creators.length === 0 ? (
+        <div className="text-neutral-500 font-bold">No creators in database</div>
       ) : (
-        <p>No creators found.</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {creators.map((c) => (
+            <div key={c.id} onClick={() => { setSelectedCreator(c); setIsModalOpen(true); }} className="cursor-pointer">
+              <CreatorCard
+                id={c.id}
+                name={c.creator_name}
+                platform={c.platform}
+                followers={c.followers || 0}
+                engagementRatio={Number(c.engagement_rate) || 0}
+                payoutStatus={c.payment_status || 'pending'}
+                activeOnCampaign={c.approval_status === 'Approved'}
+              />
+            </div>
+          ))}
+        </div>
       )}
+
+      <CreatorModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={async () => { setIsModalOpen(false); await loadCreators(); }}
+        creator={selectedCreator}
+      />
     </div>
   );
 }
