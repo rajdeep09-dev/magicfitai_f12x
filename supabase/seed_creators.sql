@@ -1,22 +1,16 @@
--- STEP 1: Manually force create the demo campaign.
--- If this fails with a primary key error, it means the row IS there, 
--- and the issue might be a different UUID.
-INSERT INTO campaigns (id, name, description, status, start_date, end_date, created_by)
-SELECT 
+-- 1. Create a campaign with a specific UUID ('demo') 
+INSERT INTO campaigns (id, name, status)
+VALUES (
   '00000000-0000-0000-0000-000000000000', 
   'Demo Campaign', 
-  'Initial system campaign', 
-  'active', 
-  '2026-05-01', 
-  '2026-12-31', 
-  id
-FROM auth.users 
-LIMIT 1
+  'active'
+)
 ON CONFLICT (id) DO NOTHING;
 
--- STEP 2: Clear and re-seed creators.
+-- 2. Clear existing creators
 DELETE FROM creators;
 
+-- 3. Insert creators using the same 'demo' campaign ID
 INSERT INTO creators (
     campaign_id, 
     creator_name, 
