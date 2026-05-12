@@ -28,7 +28,7 @@ const engagementTrendData = [
   { date: 'May 25', engagement: 8.5, views: 156000 },
 ];
 
-const creatorPerformanceData = mockCreators
+const creatorPerformanceData = creators
   .filter((c) => c.views > 0)
   .map((c) => ({
     name: c.creator_name.replace('@', ''),
@@ -39,15 +39,15 @@ const creatorPerformanceData = mockCreators
 const platformBreakdownData = [
   {
     name: 'Instagram',
-    value: mockCreators.filter((c) => c.platform === 'Instagram').reduce((sum, c) => sum + c.views, 0),
+    value: creators.filter((c) => c.platform === 'Instagram').reduce((sum, c) => sum + c.views, 0),
   },
   {
     name: 'TikTok',
-    value: mockCreators.filter((c) => c.platform === 'TikTok').reduce((sum, c) => sum + c.views, 0),
+    value: creators.filter((c) => c.platform === 'TikTok').reduce((sum, c) => sum + c.views, 0),
   },
   {
     name: 'YouTube',
-    value: mockCreators.filter((c) => c.platform === 'YouTube').reduce((sum, c) => sum + c.views, 0),
+    value: creators.filter((c) => c.platform === 'YouTube').reduce((sum, c) => sum + c.views, 0),
   },
 ];
 
@@ -70,11 +70,11 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export default function AnalyticsPage() {
-  const totalViews = mockCreators.reduce((sum, c) => sum + c.views, 0);
+  const totalViews = creators.reduce((sum, c) => sum + c.views, 0);
   const avgEngagement = (
-    mockCreators.reduce((sum, c) => sum + c.engagement_rate, 0) / mockCreators.length
+    creators.reduce((sum, c) => sum + c.engagement_rate, 0) / creators.length
   ).toFixed(1);
-  const totalSpend = mockCreators.reduce((sum, c) => sum + c.spend, 0);
+  const totalSpend = creators.reduce((sum, c) => sum + c.spend, 0);
   const costPerView = (totalSpend / totalViews).toFixed(2);
 
   return (

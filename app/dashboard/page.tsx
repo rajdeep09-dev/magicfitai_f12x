@@ -71,7 +71,7 @@ export default function DashboardPage() {
   const supabase = createClient();
 
   useEffect(() => {
-    setCreators(mockCreators as Creator[]);
+    setCreators(creators as Creator[]);
     setLoading(false);
   }, []);
 

@@ -6,7 +6,7 @@ import CalendarView from '@/components/CalendarView';
 const generateCalendarEvents = () => {
   const events: any[] = [];
 
-  mockCreators.forEach((creator) => {
+  creators.forEach((creator) => {
     // Add live date event
     if (creator.live_date) {
       events.push({

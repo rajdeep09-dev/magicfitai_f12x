@@ -17,7 +17,7 @@ const generateCSVReport = () => {
     'Live Date',
   ];
 
-  const rows = mockCreators.map((creator) => [
+  const rows = creators.map((creator) => [
     creator.creator_name,
     creator.platform,
     creator.deliverable,
@@ -43,12 +43,12 @@ const generateCSVReport = () => {
 };
 
 const generateTextReport = () => {
-  const totalCreators = mockCreators.length;
-  const publishedCount = mockCreators.filter((c) => c.approval_status === 'Published').length;
-  const pendingCount = mockCreators.filter((c) => c.approval_status === 'Video Pending Approval').length;
-  const totalViews = mockCreators.reduce((sum, c) => sum + c.views, 0);
-  const totalSpend = mockCreators.reduce((sum, c) => sum + c.spend, 0);
-  const avgEngagement = (mockCreators.reduce((sum, c) => sum + c.engagement_rate, 0) / mockCreators.length).toFixed(1);
+  const totalCreators = creators.length;
+  const publishedCount = creators.filter((c) => c.approval_status === 'Published').length;
+  const pendingCount = creators.filter((c) => c.approval_status === 'Video Pending Approval').length;
+  const totalViews = creators.reduce((sum, c) => sum + c.views, 0);
+  const totalSpend = creators.reduce((sum, c) => sum + c.spend, 0);
+  const avgEngagement = (creators.reduce((sum, c) => sum + c.engagement_rate, 0) / creators.length).toFixed(1);
 
   const reportContent = `MAGICFIT CAMPAIGN REPORT
 Generated: ${new Date().toLocaleDateString()}
@@ -64,7 +64,7 @@ Average Engagement: ${avgEngagement}%
 
 CREATOR PERFORMANCE
 ===================
-${mockCreators
+${creators
   .map(
     (c) =>
       `${c.creator_name} (${c.platform})
@@ -93,10 +93,10 @@ export default function ReportsPage() {
   const [downloadingCSV, setDownloadingCSV] = useState(false);
   const [downloadingReport, setDownloadingReport] = useState(false);
 
-  const totalCreators = mockCreators.length;
-  const publishedCount = mockCreators.filter((c) => c.approval_status === 'Published').length;
-  const totalViews = mockCreators.reduce((sum, c) => sum + c.views, 0);
-  const totalSpend = mockCreators.reduce((sum, c) => sum + c.spend, 0);
+  const totalCreators = creators.length;
+  const publishedCount = creators.filter((c) => c.approval_status === 'Published').length;
+  const totalViews = creators.reduce((sum, c) => sum + c.views, 0);
+  const totalSpend = creators.reduce((sum, c) => sum + c.spend, 0);
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-8">

@@ -42,7 +42,7 @@ export default function TimelinePage() {
   const startDate = '2026-05-01';
   const endDate = '2026-08-31';
 
-  const sortedCreators = [...mockCreators].sort((a, b) => {
+  const sortedCreators = [...creators].sort((a, b) => {
     if (!a.live_date || !b.live_date) return 0;
     return new Date(a.live_date).getTime() - new Date(b.live_date).getTime();
   });
