@@ -23,10 +23,10 @@ export interface Creator {
   base_price?: number;
   final_price?: number;
   payment_status?: 'pending' | 'waiting_for_tolt' | 'paid';
-
+  
+  followers: number; // Ensure this is present
   views: number;
   engagement_rate: number;
-  followers: number;
   total_reach: number;
   spend: number;
   created_at: string;
