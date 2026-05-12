@@ -1,0 +1,37 @@
+-- 1. Delete all existing creators to prepare for fresh data
+DELETE FROM creators;
+
+-- 2. Insert the new creator list
+-- Note: Assuming you have at least one campaign ID. If not, create one first.
+-- You can run: INSERT INTO campaigns (id, name, description, start_date, end_date, created_by) VALUES (gen_random_uuid(), 'Initial Campaign', '...', '2026-05-01', '2026-12-31', auth.uid()); 
+-- But for now, I will use a dummy campaign ID for the insert below.
+
+INSERT INTO creators (
+    campaign_id, 
+    creator_name, 
+    platform, 
+    base_price, 
+    engagement_rate, 
+    video_link
+) VALUES 
+('00000000-0000-0000-0000-000000000000', '@akarsh.lab', 'Instagram', 50.00, 3.52, 'https://www.instagram.com/akarsh.lab/'),
+('00000000-0000-0000-0000-000000000000', '@harry.creates.ai', 'Instagram', 50.00, 20.50, 'https://www.instagram.com/harry.creates.ai/'),
+('00000000-0000-0000-0000-000000000000', '@vik_viral', 'Instagram', 50.00, 7.94, 'https://www.instagram.com/vik_viral/'),
+('00000000-0000-0000-0000-000000000000', '@ezihowww', 'Instagram', 11.00, 9.24, 'https://www.instagram.com/ezihowww/'),
+('00000000-0000-0000-0000-000000000000', '@hellowjai', 'Instagram', 50.00, 1.26, 'https://www.instagram.com/hellowjai/'),
+('00000000-0000-0000-0000-000000000000', '@s.h.o.y.ai', 'Instagram', 50.00, 15.58, 'https://www.instagram.com/s.h.o.y.ai/'),
+('00000000-0000-0000-0000-000000000000', '@aadityaxcreate', 'Instagram', 50.00, 10.77, 'https://www.instagram.com/aadityaxcreate/'),
+('00000000-0000-0000-0000-000000000000', '@kemi_thefreelancegirl', 'Instagram', 100.00, 1.13, 'https://www.instagram.com/kemi_thefreelancegirl'),
+('00000000-0000-0000-0000-000000000000', '@vanshh_ai', 'Instagram', 50.00, 18.11, 'https://www.instagram.com/vanshh_ai/'),
+('00000000-0000-0000-0000-000000000000', '@thekaransonkar', 'Instagram', 50.00, 0.76, 'https://www.instagram.com/thekaransonkar/'),
+('00000000-0000-0000-0000-000000000000', '@ai_with_poonam', 'Instagram', 50.00, 19.66, 'https://www.instagram.com/ai_with_poonam/'),
+('00000000-0000-0000-0000-000000000000', '@octaves.ai', 'Instagram', 50.00, 50.27, 'https://www.instagram.com/octaves.ai?igsh=MWh6ZmhxZnp2bjBwag=='),
+('00000000-0000-0000-0000-000000000000', '@theorganicwiz', 'Instagram', 100.00, 81.80, 'https://www.instagram.com/theorganicwiz/'),
+('00000000-0000-0000-0000-000000000000', '@akarsh_ai', 'Instagram', 50.00, 0.00, 'https://www.instagram.com/akarsh_ai/'),
+('00000000-0000-0000-0000-000000000000', '@theabhisheik', 'Instagram', 50.00, 12.30, 'https://www.instagram.com/theabhisheik'),
+('00000000-0000-0000-0000-000000000000', '@nezi_anuj', 'Instagram', 50.00, 19.36, 'https://www.instagram.com/nezi_anuj'),
+('00000000-0000-0000-0000-000000000000', '@thetanishqjainn', 'Instagram', 50.00, 9.57, 'https://www.instagram.com/thetanishqjainn?igsh=MWNkMjJuN2gwaW1kcA=='),
+('00000000-0000-0000-0000-000000000000', '@vishall.ai', 'Instagram', 50.00, 21.21, 'https://www.instagram.com/vishall.ai?igsh=MWNoMTYwZ2U4eHhtMw=='),
+('00000000-0000-0000-0000-000000000000', '@theroshankrishna', 'Instagram', 50.00, 1.17, 'https://www.instagram.com/theroshankrishna?igsh=eHdnZThicG9udDN6'),
+('00000000-0000-0000-0000-000000000000', '@kemifrank__', 'Instagram', 100.00, 38.57, 'https://www.instagram.com/kemifrank__?igsh=MTdlZmNqMHI3dWxmMQ=='),
+('00000000-0000-0000-0000-000000000000', '@the.rexcodes', 'Instagram', 100.00, 10.13, 'https://www.instagram.com/the.rexcodes?igsh=MTBkajE5bmJlanZ3Mw==');
