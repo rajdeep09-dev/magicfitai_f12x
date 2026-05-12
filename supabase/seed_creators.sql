@@ -1,20 +1,25 @@
--- 1. Create a default campaign with a fixed ID
-INSERT INTO campaigns (id, name, description, status, start_date, end_date, created_by)
-SELECT 
-  '00000000-0000-0000-0000-000000000000', 
-  'Initial Campaign', 
-  'Default system campaign', 
-  '2026-05-01', 
-  '2026-12-31', 
-  id
-FROM auth.users 
-LIMIT 1
-ON CONFLICT (id) DO NOTHING;
+-- 1. Ensure the campaign exists first
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM campaigns WHERE id = '00000000-0000-0000-0000-000000000000') THEN
+        INSERT INTO campaigns (id, name, description, status, start_date, end_date, created_by)
+        SELECT 
+            '00000000-0000-0000-0000-000000000000', 
+            'Initial Campaign', 
+            'Default system campaign', 
+            'active', 
+            '2026-05-01', 
+            '2026-12-31', 
+            id
+        FROM auth.users 
+        LIMIT 1;
+    END IF;
+END $$;
 
--- 2. Delete existing creators
+-- 2. Clear existing creators
 DELETE FROM creators;
 
--- 3. Insert the new creator list
+-- 3. Insert the creators
 INSERT INTO creators (
     campaign_id, 
     creator_name, 
