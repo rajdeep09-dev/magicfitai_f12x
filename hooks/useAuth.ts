@@ -44,6 +44,7 @@ export function useAuth() {
 
         if (profileError) {
           console.error('Error fetching profile:', profileError);
+          // If profile fetch fails, we still set loading to false so the UI doesn't hang
         } else {
           setProfile(profileData);
         }
@@ -56,8 +57,17 @@ export function useAuth() {
       }
     };
 
-    // Get user on mount
+    // Add a safety timeout to force stop loading if auth hangs
+    const timeout = setTimeout(() => {
+      if (loading) {
+        console.warn('Auth loading timed out, forcing stop');
+        setLoading(false);
+      }
+    }, 5000);
+
     getUser();
+
+    return () => clearTimeout(timeout);
 
     // Subscribe to auth changes
     try {
