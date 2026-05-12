@@ -139,14 +139,13 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="recommended_for_batch" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Recommended Batch</Label>
+                  <Label htmlFor="recommended_for_batch" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Batch</Label>
                   <Input
                     id="recommended_for_batch"
                     name="recommended_for_batch"
                     value={formData.recommended_for_batch || ''}
                     onChange={handleChange}
                     className="bg-neutral-900 border-white/10 focus:border-lime-400 h-11"
-                    placeholder="e.g. Batch 1"
                   />
                 </div>
                 
@@ -158,8 +157,20 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                     value={formData.draft_reel_url || ''}
                     onChange={handleChange}
                     className="bg-neutral-900 border-white/10 focus:border-lime-400 h-11"
-                    placeholder="https://..."
                   />
+                </div>
+
+                <div className="col-span-2">
+                   <label className="flex items-center gap-2 cursor-pointer bg-white/5 p-3 rounded-lg border border-white/5">
+                      <input
+                        type="checkbox"
+                        name="is_recommended"
+                        checked={formData.is_recommended || false}
+                        onChange={handleChange}
+                        className="rounded border-neutral-700 text-lime-400 focus:ring-lime-400 bg-neutral-900"
+                      />
+                      <span className="text-sm font-bold text-lime-400">Recommend this Creator (F12X Pick)</span>
+                    </label>
                 </div>
               </>
             )}
