@@ -57,9 +57,9 @@ export class ErrorBoundary extends React.Component<Props, State> {
                   We encountered an unexpected error. Please try again or contact support if the problem persists.
                 </p>
 
-                {/* Error Details (Dev Only) */}
-                {process.env.NODE_ENV === 'development' && this.state.error && (
-                  <div className="mb-6 p-3 bg-neutral-800/50 rounded border border-neutral-700">
+                {/* Error Details (Visible to user) */}
+                {this.state.error && (
+                  <div className="mb-6 p-3 bg-red-900/20 rounded border border-red-700">
                     <p className="text-xs font-mono text-red-400 break-words">
                       {this.state.error.message}
                     </p>
