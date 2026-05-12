@@ -63,9 +63,17 @@ export default function Header() {
             </Link>
           ))}
         </nav>
-        <button onClick={handleLogout} className="text-xs font-bold uppercase tracking-widest text-neutral-500 hover:text-red-500 transition">
-          Logout
-        </button>
+        <div className="flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10">
+            <span className={`w-2 h-2 rounded-full ${isEditor ? 'bg-purple-400' : 'bg-blue-400'}`}></span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-neutral-300">
+              {isEditor ? 'Editor Mode' : 'Client Mode'}
+            </span>
+          </div>
+          <button onClick={handleLogout} className="text-xs font-bold uppercase tracking-widest text-neutral-500 hover:text-red-500 transition">
+            Logout
+          </button>
+        </div>
       </div>
     </header>
   );
