@@ -16,9 +16,25 @@ export async function POST(req: Request) {
   try {
     if (action === 'approve') {
         if (role !== 'client') return NextResponse.json({ error: 'Only clients can approve' }, { status: 403 });
-        await supabase.from('creators').update({ approval_status: 'Approved', client_approved_video: true }).eq('id', creatorId);
+        const { data: updatedCreator, error: updateError } = await supabase
+            .from('creators')
+            .update({ approval_status: 'Approved', client_approved_video: true })
+            .eq('id', creatorId)
+            .select()
+            .single();
+            
+        if (updateError) throw updateError;
+        return NextResponse.json({ success: true, creator: updatedCreator });
     } else if (action === 'revision') {
-        await supabase.from('creators').update({ approval_status: 'Revisions Requested' }).eq('id', creatorId);
+        const { data: updatedCreator, error: updateError } = await supabase
+            .from('creators')
+            .update({ approval_status: 'Revisions Requested' })
+            .eq('id', creatorId)
+            .select()
+            .single();
+            
+        if (updateError) throw updateError;
+        return NextResponse.json({ success: true, creator: updatedCreator });
     } else if (action === 'toggle_recommend') {
         if (role !== 'editor') return NextResponse.json({ error: 'Only editors can recommend' }, { status: 403 });
         const { isRecommended } = await req.json();

@@ -55,13 +55,18 @@ export default function VideoApprovalPanel({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ creatorId, action }),
       });
+      const data = await response.json();
       if (response.ok) {
         if (action === 'approve') onApprove();
         else onRevisions();
-        router.refresh(); // Refresh dashboard data
+        // Force router update and UI refresh
+        router.refresh(); 
+      } else {
+        alert(data.error || 'Failed to update');
       }
     } catch (e) {
       console.error(e);
+      alert('Network error, please try again.');
     } finally {
       setLoadingAction(null);
     }
