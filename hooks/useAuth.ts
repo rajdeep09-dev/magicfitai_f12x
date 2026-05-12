@@ -119,8 +119,9 @@ export function useAuth() {
     loading,
     error,
     logout,
+    // Add logging to debug role in console
     isAdmin: profile?.role === 'admin',
     isEditor: profile?.role === 'editor' || profile?.role === 'admin',
-    isClient: profile?.role === 'client',
+    isClient: profile?.role === 'client' || !profile?.role || (profile?.role !== 'editor' && profile?.role !== 'admin'),
   };
 }
