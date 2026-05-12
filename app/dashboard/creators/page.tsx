@@ -265,7 +265,7 @@ export default function CreatorsPage() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-lime-400"></div>
         </div>
       ) : filteredCreators.length > 0 ? (
-        <>
+        <ErrorBoundary>
           <motion.div
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             initial={{ opacity: 0 }}
@@ -273,22 +273,23 @@ export default function CreatorsPage() {
             transition={{ duration: 0.5, delay: 0.4 }}
           >
             {paginatedCreators.map((creator, idx) => (
-            <div key={creator.id} onClick={() => handleOpenModal(creator)} className="cursor-pointer">
-              <CreatorCard
-                id={creator.id}
-                name={creator.creator_name}
-                platform={creator.platform}
-                followers={creator.followers || 0}
-                engagementRatio={creator.engagement_rate || 0}
-                payoutStatus={creator.payment_status || 'pending'}
-                activeOnCampaign={creator.approval_status !== 'Published' && creator.approval_status !== 'Script Sent'}
-                campaignName={creator.campaign_id ? 'Active Campaign' : undefined}
-                index={idx}
-              />
-            </div>
-          ))}
+              <div key={creator.id} onClick={() => handleOpenModal(creator)} className="cursor-pointer">
+                <CreatorCard
+                  id={creator.id}
+                  name={creator.creator_name || 'Unnamed Creator'}
+                  platform={creator.platform || 'Instagram'}
+                  followers={creator.followers || 0}
+                  engagementRatio={creator.engagement_rate || 0}
+                  payoutStatus={creator.payment_status || 'pending'}
+                  activeOnCampaign={creator.approval_status !== 'Published' && creator.approval_status !== 'Script Sent'}
+                  campaignName={creator.campaign_id ? 'Active Campaign' : undefined}
+                  index={idx}
+                />
+              </div>
+            ))}
           </motion.div>
-
+        </ErrorBoundary>
+      ) : (
           {/* Pagination Controls */}
           {totalPages > 1 && (
             <motion.div
