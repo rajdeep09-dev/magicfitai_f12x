@@ -77,7 +77,15 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
     const dataToSave = {
       ...formData,
       final_price,
+      campaign_id: '00000000-0000-0000-0000-000000000000', // Ensure campaign_id is present
+      id: creator?.id 
     };
+    
+    await fetch('/api/creators/save', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(dataToSave)
+    });
     
     await onSave(dataToSave);
     setLoading(false);
