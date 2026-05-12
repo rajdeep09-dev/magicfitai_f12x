@@ -249,18 +249,21 @@ CREATE POLICY "Editors and admins can delete imports" ON bulk_imports
     (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
   );
 
--- Function to automatically create a profile for new users based on email
+-- Function to automatically create a profile for new users based on email or metadata
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 DECLARE
   assigned_role TEXT;
+  meta_role TEXT;
 BEGIN
-  IF new.email = 'f12x.studio@gmail.com' THEN
+  -- Check if a role was passed in raw_user_meta_data
+  meta_role := new.raw_user_meta_data->>'role';
+
+  IF meta_role IS NOT NULL AND meta_role IN ('editor', 'client', 'admin') THEN
+    assigned_role := meta_role;
+  -- Fallback logic for specific emails if not in metadata
+  ELSIF new.email = 'f12x.studio@gmail.com' OR new.email = 'ajayracharla20001@gmail.com' THEN
     assigned_role := 'editor';
-  ELSIF new.email = 'ajayracharla20001@gmail.com' THEN
-    assigned_role := 'editor';
-  ELSIF new.email = 'sheik.farooq@pushowl.com' THEN
-    assigned_role := 'client';
   ELSE
     assigned_role := 'client'; -- Default fallback
   END IF;

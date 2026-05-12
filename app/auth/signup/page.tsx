@@ -54,14 +54,7 @@ export default function SignupPage() {
         return;
       }
       
-      // Attempt to update profile directly to override the default trigger
-      if (data.user) {
-         await supabase.from('profiles').update({
-           first_name: firstName,
-           role: role,
-         }).eq('id', data.user.id);
-      }
-
+      // We don't need manual profile update anymore because the trigger now handles the role correctly from metadata
       if (data.user) {
         router.push('/auth/signup-success');
       }
