@@ -1,7 +1,5 @@
 import { createClient } from './client';
 
-const supabase = createClient();
-
 export interface BulkImport {
   id: string;
   import_name: string;
@@ -23,6 +21,7 @@ export async function createBulkImport(
   userId: string
 ): Promise<BulkImport | null> {
   try {
+    const supabase = createClient();
     const { data, error } = await supabase
       .from('bulk_imports')
       .insert([
@@ -61,6 +60,7 @@ export async function updateBulkImportStatus(
   }
 ): Promise<BulkImport | null> {
   try {
+    const supabase = createClient();
     const { data, error } = await supabase
       .from('bulk_imports')
       .update(updates)
@@ -82,6 +82,7 @@ export async function updateBulkImportStatus(
 
 export async function getBulkImports(): Promise<BulkImport[]> {
   try {
+    const supabase = createClient();
     const { data, error } = await supabase
       .from('bulk_imports')
       .select('*')

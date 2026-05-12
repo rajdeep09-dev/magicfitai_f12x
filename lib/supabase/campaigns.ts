@@ -1,7 +1,5 @@
 import { createClient } from './client';
 
-const supabase = createClient();
-
 export interface Campaign {
   id: string;
   name: string;
@@ -19,6 +17,7 @@ export async function getCampaigns(options?: {
   status?: string;
 }): Promise<Campaign[]> {
   try {
+    const supabase = createClient();
     console.log('[v0] Fetching campaigns from Supabase');
     
     let query = supabase.from('campaigns').select('*');
@@ -44,6 +43,7 @@ export async function getCampaigns(options?: {
 
 export async function getCampaignById(id: string): Promise<Campaign | null> {
   try {
+    const supabase = createClient();
     const { data, error } = await supabase
       .from('campaigns')
       .select('*')
