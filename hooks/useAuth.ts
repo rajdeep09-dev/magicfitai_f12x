@@ -17,97 +17,30 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
-    const getUser = async () => {
-      try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-
-        if (!user) {
-          setLoading(false);
-          return;
-        }
-
+    async function fetchAuth() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) { setLoading(false); return; }
         setUser(user);
 
-        // Fetch user profile
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-
-        if (profileError) {
-          console.error('Error fetching profile:', profileError);
-        } else {
-          setProfile(profileData);
-        }
-
+        // Fetch FRESH profile data
+        const { data: p } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+        console.log("DEBUG: Fetched Profile from DB:", p);
+        setProfile(p);
         setLoading(false);
-      } catch (err) {
-        console.error('Error getting user:', err);
-        setError('Failed to fetch user data');
-        setLoading(false);
-      }
-    };
-
-    const timeout = setTimeout(() => {
-      if (loading) {
-        console.warn('Auth loading timed out, forcing stop');
-        setLoading(false);
-      }
-    }, 5000);
-
-    getUser();
-
-    const {
-        data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-        if (session?.user) {
-        setUser(session.user);
-        const { data: profileData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-        if (profileData) setProfile(profileData);
-        } else {
-        setUser(null);
-        setProfile(null);
-        }
-    });
-
-    return () => {
-        subscription?.unsubscribe();
-        clearTimeout(timeout);
-    };
-  }, [supabase]);
-
-  const logout = async () => {
-    try {
-      await supabase.auth.signOut();
-      setUser(null);
-      setProfile(null);
-      router.push('/auth/login');
-    } catch (err) {
-      console.error('Error logging out:', err);
-      setError('Failed to log out');
     }
-  };
+    fetchAuth();
+  }, [supabase]);
 
   return {
     user,
     profile,
     loading,
-    error,
-    logout,
-    isAdmin: profile?.role === 'admin',
-    isEditor: profile?.role === 'editor',
+    isEditor: profile?.role === 'editor' || profile?.role === 'admin',
     isClient: profile?.role === 'client',
+    logout: async () => { await supabase.auth.signOut(); router.push('/auth/login'); }
   };
 }
