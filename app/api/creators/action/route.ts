@@ -2,14 +2,13 @@ import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
-  const { creatorId, action, note, isInternal } = await req.json();
+  const body = await req.json();
+  const { creatorId, action } = body;
   const supabase = await createClient();
 
-  // 1. Get current user
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  // 2. Get profile to check role
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
   const role = profile?.role;
 
@@ -37,14 +36,12 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: true, creator: updatedCreator });
     } else if (action === 'toggle_recommend') {
         if (role !== 'editor') return NextResponse.json({ error: 'Only editors can recommend' }, { status: 403 });
-        const { isRecommended } = await req.json();
+        const { isRecommended } = body; // Read from the already-parsed body
         await supabase.from('creators').update({ is_recommended: isRecommended }).eq('id', creatorId);
-    } else if (action === 'add_note') {
-        // Logic to add note (if we had a notes table) - for now just log
-        console.log('Adding note:', note, 'internal:', isInternal);
+        return NextResponse.json({ success: true });
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

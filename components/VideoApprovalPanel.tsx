@@ -78,9 +78,14 @@ export default function VideoApprovalPanel({
 
   // Toggle recommendation handler
   const handleToggleRecommend = async () => {
-    // We need to pass the new value. Assuming current value is in props, but it's not. 
-    // Simplified for demo: just toggle it.
-    await handleAction('toggle_recommend' as any); // Implementation detail
+    // Optimistic state toggle
+    const newStatus = !isRecommended; 
+    await fetch('/api/creators/action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ creatorId, action: 'toggle_recommend', isRecommended: newStatus }),
+    });
+    router.refresh();
   };
 
   return (
@@ -89,68 +94,68 @@ export default function VideoApprovalPanel({
       animate={{ opacity: 1, height: 'auto' }}
       exit={{ opacity: 0, height: 0 }}
       transition={{ duration: 0.3 }}
-      className="border-t border-white/10 p-6 bg-neutral-950/30 space-y-6"
+      className="border-t border-white/5 p-6 bg-neutral-950/50 space-y-6"
     >
-      {/* Recommended Badge (For Client View) */}
-      {!isClient && (
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-lime-400/10 border border-lime-400/20 text-lime-400 text-xs font-bold uppercase tracking-widest w-fit">
-          <CheckCircle className="w-3 h-3" /> Recommended by F12X Studio
-        </div>
-      )}
+      {/* Premium Header */}
+      <div className="flex items-center justify-between">
+         <h4 className="text-xs font-black uppercase tracking-widest text-neutral-500">Action Center</h4>
+         {isRecommended && (
+           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-lime-400/10 border border-lime-400/20 text-lime-400 text-[10px] font-black uppercase tracking-widest">
+            <CheckCircle className="w-3 h-3" /> F12X Recommended
+           </div>
+         )}
+      </div>
 
       {/* Video Preview */}
-      <div className="bg-neutral-900/40 border border-white/5 rounded-xl p-5">
+      <div className="bg-neutral-900/40 border border-white/5 rounded-xl p-4 hover:border-white/10 transition">
         <a 
           href={videoLink || '#'} 
           target="_blank" 
           rel="noopener noreferrer"
-          className="flex items-center gap-3 text-lime-400 hover:text-lime-300 font-bold transition"
+          className="flex items-center gap-3 text-lime-400 font-bold hover:text-lime-300 transition"
         >
-          <div className="w-10 h-10 rounded-full bg-lime-400/10 flex items-center justify-center">
-             <Play className="w-5 h-5" />
+          <div className="w-8 h-8 rounded-full bg-lime-400/10 flex items-center justify-center">
+             <Play className="w-4 h-4" />
           </div>
           Watch Draft Video
         </a>
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex gap-3">
+      {/* Action Zone */}
+      <div className="grid grid-cols-2 gap-3">
         {isClient && isPending && (
           <>
             <button 
               onClick={() => handleAction('approve')}
               disabled={!!loadingAction}
-              className="flex-1 bg-lime-400 hover:bg-lime-300 text-neutral-950 py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition"
+              className="bg-lime-400 hover:bg-lime-300 text-neutral-950 py-3 rounded-lg font-black text-xs uppercase tracking-widest transition"
             >
-              {loadingAction === 'approve' ? <Loader2 className="animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-              Approve Video
+              Approve
             </button>
             <button 
               onClick={() => handleAction('revision')}
               disabled={!!loadingAction}
-              className="flex-1 bg-neutral-800 hover:bg-neutral-700 text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition"
+              className="bg-white/5 hover:bg-white/10 text-white py-3 rounded-lg font-bold text-xs uppercase tracking-widest transition border border-white/5"
             >
-              {loadingAction === 'revision' ? <Loader2 className="animate-spin" /> : <AlertCircle className="w-4 h-4" />}
               Request Changes
             </button>
           </>
         )}
         {isEditor && (
           <button 
-            onClick={() => handleAction('toggle_recommend' as any)}
-            className="flex-1 bg-white/5 hover:bg-white/10 text-neutral-200 py-3 rounded-lg font-bold border border-white/5 transition"
+            onClick={handleToggleRecommend}
+            className="col-span-2 bg-neutral-800 hover:bg-neutral-700 text-white py-3 rounded-lg font-bold text-xs uppercase tracking-widest border border-white/5 transition"
           >
-            Toggle Recommendation
+            {isRecommended ? 'Remove Recommendation' : 'Recommend Creator'}
           </button>
         )}
       </div>
 
-      {/* Notes */}
       <NotesThread 
           creatorId={creatorId}
           creatorName={creatorName}
-          notes={notes}
-          onAddNote={onAddNote}
+          notes={remoteNotes}
+          onAddNote={handleAddNote}
           userRole={userRole}
       />
     </motion.div>
