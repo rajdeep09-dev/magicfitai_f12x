@@ -1,0 +1,151 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                   GOOGLE SHEETS INTEGRATION SETUP                           ║
+║                           CHECKLIST (10 MIN)                                ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+PHASE 1: PREPARE GOOGLE SHEET (3 minutes)
+═══════════════════════════════════════════════════════════════════════════════
+
+□ Go to Google Sheets: https://sheets.google.com
+□ Create new spreadsheet
+□ Name it: "Magicfit Campaign Creators" (or your choice)
+□ In Row 1, add these headers:
+  id | campaign_id | creator_name | platform | deliverable | approval_status | progress_score | live_date | video_link | published_video_link | views | engagement_rate | spend
+□ In Row 2+, add your creator data
+□ Make sure sheet is named "Sheet1" (the default)
+□ Save the spreadsheet
+
+PHASE 2: SHARE WITH SERVICE ACCOUNT (2 minutes)
+═══════════════════════════════════════════════════════════════════════════════
+
+□ Click "Share" button (top right of Google Sheet)
+□ Paste this email: farooqxf12x@farooq-dashboard.iam.gserviceaccount.com
+□ Select "Viewer" permission (read-only)
+□ Click "Share"
+□ Close share dialog
+
+PHASE 3: GET SPREADSHEET ID (1 minute)
+═══════════════════════════════════════════════════════════════════════════════
+
+□ Copy the URL: https://docs.google.com/spreadsheets/d/[ID]/edit
+□ Extract the ID between /d/ and /edit
+   Example: 1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p
+□ Save this ID - you'll need it in next phase
+
+PHASE 4: ADD ENVIRONMENT VARIABLES TO VERCEL (5 minutes)
+═══════════════════════════════════════════════════════════════════════════════
+
+Go to: https://vercel.com/dashboard
+       → Select your project
+       → Settings
+       → Environment Variables
+
+Add these 12 variables (copy-paste the values):
+
+□ GOOGLE_SHEETS_TYPE = service_account
+
+□ GOOGLE_SHEETS_PROJECT_ID = farooq-dashboard
+
+□ GOOGLE_SHEETS_PRIVATE_KEY_ID = 269bed3e59d947f52c99b8ce8282aa6dce2e3bcc
+
+□ GOOGLE_SHEETS_CLIENT_EMAIL = farooqxf12x@farooq-dashboard.iam.gserviceaccount.com
+
+□ GOOGLE_SHEETS_CLIENT_ID = 105207321611268343844
+
+□ GOOGLE_SHEETS_AUTH_URI = https://accounts.google.com/o/oauth2/auth
+
+□ GOOGLE_SHEETS_TOKEN_URI = https://oauth2.googleapis.com/token
+
+□ GOOGLE_SHEETS_AUTH_PROVIDER_CERT_URL = https://www.googleapis.com/oauth2/v1/certs
+
+□ GOOGLE_SHEETS_CLIENT_CERT_URL = https://www.googleapis.com/robot/v1/metadata/x509/farooqxf12x%40farooq-dashboard.iam.gserviceaccount.com
+
+□ GOOGLE_SHEETS_PRIVATE_KEY = (copy the entire private key from your JSON file)
+
+□ GOOGLE_SHEETS_SPREADSHEET_ID = (paste the ID you got from Phase 3)
+
+□ GOOGLE_SHEETS_RANGE = Sheet1!A:M
+
+PHASE 5: WAIT FOR REDEPLOY (2 minutes)
+═══════════════════════════════════════════════════════════════════════════════
+
+□ Vercel auto-redeploys after adding environment variables
+□ Go to Vercel Deployments tab to check progress
+□ Wait for green "Ready" status (about 1-2 minutes)
+□ Check that all 12 variables show as "Added"
+
+PHASE 6: TEST THE INTEGRATION (2 minutes)
+═══════════════════════════════════════════════════════════════════════════════
+
+□ Go to your portal URL
+□ Open browser console (F12 or right-click → Inspect → Console)
+□ Refresh the page
+□ Look for one of these messages:
+
+   SUCCESS: [v0] Successfully loaded X creators from Google Sheets
+   
+   OR (still works, but using fallback)
+   
+   FALLBACK: [v0] Using fallback mock data (Google Sheets not configured)
+
+□ If you see the SUCCESS message, you're done! ✅
+□ If you see FALLBACK, check troubleshooting below
+
+TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════════════════
+
+Problem: Still seeing "Using fallback mock data"
+Solution:
+  □ Check all 12 environment variables are set in Vercel
+  □ Verify GOOGLE_SHEETS_SPREADSHEET_ID matches your sheet exactly
+  □ Go to your Google Sheet → Click Share → Verify email is listed
+  □ Wait 2 minutes, then refresh browser
+  □ Check Vercel Deployments - is it fully deployed? (green "Ready")
+
+Problem: "Permission denied" error in console
+Solution:
+  □ Open your Google Sheet
+  □ Click Share button
+  □ Verify farooqxf12x@farooq-dashboard.iam.gserviceaccount.com is listed
+  □ Make sure it has "Viewer" permission (not just "Can comment")
+  □ Click Share again to confirm
+
+Problem: App loads but shows wrong data
+Solution:
+  □ Check Google Sheet column headers are exactly:
+    id | campaign_id | creator_name | platform | deliverable | approval_status | progress_score | live_date | video_link | published_video_link | views | engagement_rate | spend
+  □ Check Platform values are: Instagram, TikTok, or YouTube
+  □ Check Status values are: Ideation, Script Sent, Video Pending Approval, Revisions Requested, Approved, or Published
+  □ Check dates are in format: YYYY-MM-DD (e.g., 2026-05-15)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+WHAT TO READ FOR HELP
+═══════════════════════════════════════════════════════════════════════════════
+
+Quick Setup:
+→ Read: FIX_LOADING_ISSUE.md (best step-by-step guide)
+
+Quick Reference:
+→ Read: QUICK_START_GOOGLE_SHEETS.md
+
+Detailed Docs:
+→ Read: GOOGLE_SHEETS_SETUP.md
+
+Visual Overview:
+→ Read: README_GOOGLE_SHEETS.md
+
+═══════════════════════════════════════════════════════════════════════════════
+
+DONE? ✅
+
+Your app now:
+✅ Loads data from your Google Sheet
+✅ Never gets stuck loading (auto-fallback)
+✅ Shows clear console messages [v0] for debugging
+✅ Updates in real-time when you edit the sheet
+
+Total Setup Time: ~10 minutes
+Total Cost: FREE (Google Sheets + Vercel free tier)
+
+═══════════════════════════════════════════════════════════════════════════════

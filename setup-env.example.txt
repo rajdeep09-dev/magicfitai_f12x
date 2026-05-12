@@ -1,0 +1,24 @@
+# COPY AND PASTE INTO VERCEL ENVIRONMENT VARIABLES
+# Go to: Vercel Dashboard → Your Project → Settings → Environment Variables
+
+# Static credentials from your service account:
+GOOGLE_SHEETS_TYPE=service_account
+GOOGLE_SHEETS_PROJECT_ID=farooq-dashboard
+GOOGLE_SHEETS_PRIVATE_KEY_ID=269bed3e59d947f52c99b8ce8282aa6dce2e3bcc
+GOOGLE_SHEETS_CLIENT_EMAIL=farooqxf12x@farooq-dashboard.iam.gserviceaccount.com
+GOOGLE_SHEETS_CLIENT_ID=105207321611268343844
+GOOGLE_SHEETS_AUTH_URI=https://accounts.google.com/o/oauth2/auth
+GOOGLE_SHEETS_TOKEN_URI=https://oauth2.googleapis.com/token
+GOOGLE_SHEETS_AUTH_PROVIDER_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
+GOOGLE_SHEETS_CLIENT_CERT_URL=https://www.googleapis.com/robot/v1/metadata/x509/farooqxf12x%40farooq-dashboard.iam.gserviceaccount.com
+
+# PRIVATE KEY (copy entire key with newlines)
+# Replace the [FULL_KEY_HERE] below with the complete private_key from the JSON file
+GOOGLE_SHEETS_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC4ANc966oN1vHE\nI7U8Qo44S+ObL3qRiTGPr03InOCSpADrBFjg1BC9I8h+eE0pIOU2ei9Ef/yjyRfr\nOxUoe2BuktdC9Zpy8KTWYj4p70fFNJ8JMqtC0V8lj7rYuuojxhgBtjPEYfpYL5q3\no8nCSgbxkUO/1Qg8aw4XKXIQ500yYzsnBM54qGDEEc0ECjG0MMn0/v8fqZeIpGUo\nPZ9FUyoGKKFM2NgpRCWAzQSJF75k9pvNszj8Q+RuuZhmiJ7WZapqOE8EHkuxztP8\ndr407s/E7cX5+fe0Ru9QTN3ig/pcKWeMe184wfwidV4+AZ0hAopiKPT6D+E5bbMJ\nCvS9Z7bPAgMBAAECggEAHJVA2mUT5w93Qf08B47dMeCUDETNWPNDaCsWva2k8xKX\n8+oadl5q9T6sQ/0jG1r5UEOduRnaoIS5+vgUGtRDkBmuZ7/oTKeWK5laR8BcWUWJ\n2O9ujDQjAB46K7WpboI0s3tewkhoD6/hbFp8mnpOZtMmf5OzslL8/tsY1YhgxQ1C\noDNLVzppqKiHeCegRlIyfXDRoXJ9BFJ+S1un5bmaP88+rXoxw/LHNVhX2puv4cCN\nYSofRWZo8FsH8/0rnkdcB6YKtPvD/m8bCUph/nqEp3g2xl7R/kpE2IfrKJWJl3D9\nvO4T5wy6RK/c6rDCvTFweDFUEDAaEoiZpv7Rk6DRPQKBgQDjR2r3fjc0XyNDqFww\n0txGKCQIYf56gFOo6e6W63lzhOq9dtso9wxYZEStdN0mdOtretlqKZUkhdud+DMN\nBlkLivgIArlcCGdkHhRe02JH4dQ1wMADxxO9MM0re5wf+KBgip/qO6zqlsAnu7U+\neR7pqYrMDFhD+q7V6lz7OcqIKwKBgQDPQW8T6CEcbLjr/TdHII+M0v7rxT85k/08\nFwggcaa3nQ2yocc8puuEPCPTfZpGU9Z0POK5TB8H9YqfqmSEKN2teBzMwcmyfSG+\nytkHqY319usWU10Fw9P6A7fhkD2vVtWa+A4OIA6pLc8ZJkjDV44wl2E2Ov/qU7z8\nVhozpAR17QKBgQCBaPTbHx7HzzQBHigAFNAfklOSAlon3lHEaA7WGBX7VL9kSfzY\nAnMhEVaZfWU+tGwnsreA31Rwi1dVRzGqROcGz4YS6ZopcQ+NziLDK5FWZJu0T6AF\nhqESpGruS1/GRIbs8YHEmV4H5PZcqWC1xbl4SnUhYhYP/vj2DJAM7AcKKQKBgQDN\n1e67lo9L6668sX905KGs+uCyx/NC+/dE9prbngQ114UDJCj708uUSSZLpTLTJfCX\nAOErpq4q+XHzoQazOuLupZv0v4HSAvTAyDVDpuGWpuRUB/cbAqJEa+zz2I1q1pLO\nlg1fefcVjqlgEOWzHAHbwHyLn40K7J+E/P6IyxyjAQKBgQCp1Dd+o+qFj3pt6svu\nUwLci2WqRXcbLM4y85I0t3H6onfv656PXC+aKwQXJdPgSwzC1UYp14sZA4ZIScAa\nnORzYvHx89b0oUTXudbxX57etLCGtmBrtQeZ6pEAq+Ij415/bxqEqsSSdmcjG4mf\nwpy3OD1JLP93CVkIYnsEWPSdwQ==\n-----END PRIVATE KEY-----
+
+# REQUIRED: Your Google Sheet ID (find from the URL)
+# Example: https://docs.google.com/spreadsheets/d/[THIS_IS_YOUR_ID]/edit
+GOOGLE_SHEETS_SPREADSHEET_ID=[REPLACE_WITH_YOUR_SPREADSHEET_ID]
+
+# Data range (keep this as is)
+GOOGLE_SHEETS_RANGE=Sheet1!A:M
