@@ -290,47 +290,6 @@ export default function CreatorsPage() {
           </motion.div>
         </ErrorBoundary>
       ) : (
-          {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              className="flex items-center justify-center gap-2 mt-12"
-            >
-              <button
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="px-4 py-2 rounded-lg border border-neutral-700 text-neutral-400 hover:border-lime-400 hover:text-lime-400 disabled:opacity-50 disabled:cursor-not-allowed transition"
-              >
-                Previous
-              </button>
-              
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`px-3 py-2 rounded-lg transition ${
-                    currentPage === page
-                      ? 'bg-lime-400 text-neutral-950 font-semibold'
-                      : 'border border-neutral-700 text-neutral-400 hover:border-lime-400 hover:text-lime-400'
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
-              
-              <button
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="px-4 py-2 rounded-lg border border-neutral-700 text-neutral-400 hover:border-lime-400 hover:text-lime-400 disabled:opacity-50 disabled:cursor-not-allowed transition"
-              >
-                Next
-              </button>
-            </motion.div>
-          )}
-        </>
-      ) : (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -340,6 +299,46 @@ export default function CreatorsPage() {
           <Users className="w-12 h-12 text-neutral-600 mx-auto mb-4" />
           <p className="text-neutral-400 mb-2">No creators found matching your filters</p>
           <p className="text-sm text-neutral-500">Try adjusting your search criteria</p>
+        </motion.div>
+      )}
+
+      {/* Pagination Controls */}
+      {!loading && filteredCreators.length > 0 && totalPages > 1 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+          className="flex items-center justify-center gap-2 mt-12"
+        >
+          <button
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 rounded-lg border border-neutral-700 text-neutral-400 hover:border-lime-400 hover:text-lime-400 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          >
+            Previous
+          </button>
+          
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={`px-3 py-2 rounded-lg transition ${
+                currentPage === page
+                  ? 'bg-lime-400 text-neutral-950 font-semibold'
+                  : 'border border-neutral-700 text-neutral-400 hover:border-lime-400 hover:text-lime-400'
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+          
+          <button
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 rounded-lg border border-neutral-700 text-neutral-400 hover:border-lime-400 hover:text-lime-400 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          >
+            Next
+          </button>
         </motion.div>
       )}
 
