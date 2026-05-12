@@ -18,6 +18,7 @@ export default function Header() {
     { label: 'Time', href: '/dashboard/timeline', icon: Clock },
     { label: 'Cal', href: '/dashboard/calendar', icon: CalendarDays },
     { label: 'Docs', href: '/dashboard/reports', icon: FileText },
+    ...(isEditor ? [{ label: 'Settings', href: '/dashboard/settings', icon: FileText }] : []),
   ];
 
   return (

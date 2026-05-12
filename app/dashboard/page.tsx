@@ -134,6 +134,12 @@ export default function DashboardPage() {
                     </div>
                     <div className="text-right">
                        <p className="text-sm font-bold text-lime-400">{creator.approval_status}</p>
+                       {isEditor && (
+                          <div className="flex gap-2 text-[10px] mt-1">
+                              <span className={creator.client_approved_creator ? "text-green-500" : "text-red-500"}>Creator: {creator.client_approved_creator ? '✓' : '✗'}</span>
+                              <span className={creator.client_approved_video ? "text-green-500" : "text-red-500"}>Video: {creator.client_approved_video ? '✓' : '✗'}</span>
+                          </div>
+                       )}
                        <p className="text-xs text-neutral-600">{creator.progress_score}% Complete</p>
                     </div>
                   </button>
@@ -144,19 +150,6 @@ export default function DashboardPage() {
                       creatorId={creator.id}
                       approvalStatus={creator.approval_status}
                       videoLink={creator.video_link}
-                      publishedVideoLink={creator.published_video_link}
-                      views={creator.views}
-                      engagementRate={creator.engagement_rate}
-                      notes={getMockNotes(creator.id)}
-                      onAddNote={(content, isInternal) => {
-                        console.log(`Added note to ${creator.creator_name}: ${content}`);
-                      }}
-                      onApprove={() => {
-                        console.log(`Approved video for ${creator.creator_name}`);
-                      }}
-                      onRevisions={() => {
-                        console.log(`Requested revisions for ${creator.creator_name}`);
-                      }}
                       userRole={profile?.role || 'client'}
                     />
                   )}
