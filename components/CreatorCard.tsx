@@ -88,7 +88,9 @@ function CreatorCard({
               <Users className="w-3.5 h-3.5 text-neutral-400" />
               <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Audience</p>
             </div>
-            <p className="text-xl font-black text-neutral-50">{(followers / 1000).toFixed(1)}K</p>
+            <p className="text-xl font-black text-neutral-50">
+                {followers > 1000 ? `${(followers / 1000).toFixed(1)}K` : followers}
+            </p>
           </div>
 
           {/* Engagement Ratio */}
