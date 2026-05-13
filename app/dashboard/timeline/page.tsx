@@ -1,10 +1,8 @@
 'use client';
-export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, AlertCircle, CheckCircle } from 'lucide-react';
-import { createClient } from '../../../lib/supabase/client';
 
 const STATUS_COLORS: Record<string, string> = {
   'Ideation': 'bg-gray-600',
@@ -42,6 +40,7 @@ const getProgressPercentage = (fromDate: string, toDate: string) => {
 };
 
 export default function TimelinePage() {
+  const [mounted, setMounted] = useState(false);
   const [creators, setCreators] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -49,15 +48,22 @@ export default function TimelinePage() {
   const endDate = '2026-08-31';
 
   useEffect(() => {
+    setMounted(true);
     async function fetchCreators() {
-      const supabase = supabase;
-      const { data } = await supabase.from('creators').select('*');
-      if (data) setCreators(data);
-      setLoading(false);
+      try {
+        const { supabase } = await import('../../../lib/supabase/client');
+        const { data } = await supabase.from('creators').select('*');
+        if (data) setCreators(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     }
     fetchCreators();
   }, []);
 
+  if (!mounted) return null;
   if (loading) return <div className="p-10 text-white">Loading timeline...</div>;
 
   const sortedCreators = [...creators].sort((a, b) => {

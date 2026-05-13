@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase/client';
 
 export default function AnalyticsPage() {
   const [mounted, setMounted] = useState(false);
@@ -12,15 +11,22 @@ export default function AnalyticsPage() {
     setMounted(true);
     
     async function fetchData() {
-      const { data } = await supabase.from('creators').select('*');
-      if (data) setCreators(data);
-      setLoading(false);
+      try {
+        // Dynamically import supabase inside the client-side execution block.
+        // This prevents Next.js from evaluating the module during static build.
+        const { supabase } = await import('../../../lib/supabase/client');
+        const { data } = await supabase.from('creators').select('*');
+        if (data) setCreators(data);
+      } catch (err) {
+        console.error("Fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
     }
+    
     fetchData();
   }, []);
 
-  // CRITICAL FIX: If not mounted in the browser yet, return nothing.
-  // This completely stops Vercel's static builder from evaluating the code below and crashing.
   if (!mounted) return null;
 
   if (loading) return <div className="p-10 text-white">Loading analytics...</div>;

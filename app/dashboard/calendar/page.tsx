@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase/client';
 
 const STATUS_COLORS: Record<string, string> = {
   'Ideation': 'bg-gray-600',
@@ -33,14 +32,19 @@ export default function CalendarPage() {
     setMounted(true);
 
     async function fetchCreators() {
-      const { data } = await supabase.from('creators').select('*');
-      if (data) setCreators(data);
-      setLoading(false);
+      try {
+        const { supabase } = await import('../../../lib/supabase/client');
+        const { data } = await supabase.from('creators').select('*');
+        if (data) setCreators(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     }
     fetchCreators();
   }, []);
 
-  // CRITICAL FIX: Bypass Vercel static rendering
   if (!mounted) return null;
 
   if (loading) return <div className="p-10 text-white">Loading calendar...</div>;
