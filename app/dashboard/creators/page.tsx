@@ -5,7 +5,7 @@ import { Plus } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import CreatorCard from '@/components/CreatorCard';
 import CreatorModal from '@/components/CreatorModal';
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '../../../lib/supabase/client';
 import { Creator } from '@/types/creator';
 
 export default function CreatorsPage() {

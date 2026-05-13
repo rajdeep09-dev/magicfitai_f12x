@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import CalendarView from '@/components/CalendarView';
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '../../../lib/supabase/client';
 
 const STATUS_COLORS: Record<string, string> = {
   'Ideation': 'bg-gray-600',

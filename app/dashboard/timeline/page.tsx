@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, AlertCircle, CheckCircle } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '../../../lib/supabase/client';
 
 const STATUS_COLORS: Record<string, string> = {
   'Ideation': 'bg-gray-600',
