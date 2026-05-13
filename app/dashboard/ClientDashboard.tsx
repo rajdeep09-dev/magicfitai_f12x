@@ -28,7 +28,7 @@ export default function ClientDashboard() {
 
   if (loadingCreators || loadingProgress) {
     return (
-      <div className="p-8 text-blue-400 font-black tracking-widest uppercase text-xs bg-[#050505] min-h-screen flex items-center justify-center">
+      <div className="p-8 text-lime-400 font-black tracking-widest uppercase text-xs bg-[#050505] min-h-screen flex items-center justify-center">
         <div className="animate-pulse">Loading Campaign...</div>
       </div>
     );
@@ -63,7 +63,7 @@ export default function ClientDashboard() {
         <div className="flex gap-2">
           {['Ideation', 'Sourcing', 'Approvals', 'Production', 'Live'].map((phase, idx) => (
             <div key={phase} className="flex-1">
-              <div className={`h-2 rounded-full mb-2 ${idx <= 2 ? 'bg-blue-400' : 'bg-neutral-800'}`} />
+              <div className={`h-2 rounded-full mb-2 ${idx <= 2 ? 'bg-lime-400' : 'bg-neutral-800'}`} />
               <span className={`text-[10px] font-black uppercase tracking-widest ${idx <= 2 ? 'text-white' : 'text-neutral-600'}`}>{phase}</span>
             </div>
           ))}
@@ -82,7 +82,7 @@ export default function ClientDashboard() {
         </div>
         <div className="bg-neutral-900 rounded-xl p-6 border border-white/10">
           <p className="text-[10px] text-neutral-500 font-black uppercase tracking-widest flex items-center gap-2 mb-2"><Calendar className="w-4 h-4" /> Est. Go-Live</p>
-          <p className="text-3xl font-black text-blue-400">Jun 15</p>
+          <p className="text-3xl font-black text-lime-400">Jun 15</p>
         </div>
       </div>
 
@@ -112,7 +112,7 @@ export default function ClientDashboard() {
                 <div key={c.id} className="bg-neutral-900 rounded-xl border border-white/10 p-5 flex flex-col gap-4 relative overflow-hidden">
                   <div className="flex justify-between items-start">
                     <div className="flex gap-4 items-center">
-                      <div className="w-12 h-12 rounded-full bg-blue-400/20 text-blue-400 flex items-center justify-center font-black text-lg shrink-0 border border-blue-400/30">
+                      <div className="w-12 h-12 rounded-full bg-lime-400/20 text-lime-400 flex items-center justify-center font-black text-lg shrink-0 border border-lime-400/30">
                         {handleStr.charAt(0).toUpperCase()}
                       </div>
                       <div>
@@ -124,7 +124,7 @@ export default function ClientDashboard() {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                        <a href={platformUrl} target="_blank" rel="noreferrer" className="bg-neutral-800 hover:bg-neutral-700 text-blue-400 p-2 rounded transition">
+                        <a href={platformUrl} target="_blank" rel="noreferrer" className="bg-neutral-800 hover:bg-neutral-700 text-lime-400 p-2 rounded transition">
                            <Users className="w-4 h-4" />
                         </a>
                         <button 
@@ -139,15 +139,15 @@ export default function ClientDashboard() {
                   <div className="pt-4 border-t border-white/10">
                     <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-2">
                       <span>Progress Tracker</span>
-                      <span className="text-blue-400">{currentStage}</span>
+                      <span className="text-lime-400">{currentStage}</span>
                     </div>
                     <div className="flex gap-1 h-1.5 mb-4">
                       {stages.map((s, i) => (
-                        <div key={s} className={`flex-1 rounded-full ${i <= stageIdx ? 'bg-blue-400' : 'bg-neutral-800'}`} />
+                        <div key={s} className={`flex-1 rounded-full ${i <= stageIdx ? 'bg-lime-400' : 'bg-neutral-800'}`} />
                       ))}
                     </div>
                     {c.draft_reel_url && (
-                        <a href={c.draft_reel_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-blue-400 text-[10px] font-black uppercase tracking-widest hover:underline mb-4">
+                        <a href={c.draft_reel_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-lime-400 text-[10px] font-black uppercase tracking-widest hover:underline mb-4">
                           <Play className="w-3 h-3" /> Review Draft Video
                         </a>
                     )}
@@ -191,7 +191,7 @@ export default function ClientDashboard() {
             </div>
 
             <div className="flex items-center gap-4 mb-8">
-              <div className="w-16 h-16 rounded-full bg-blue-400/20 text-blue-400 flex items-center justify-center font-black text-2xl border border-blue-400/30 shrink-0">
+              <div className="w-16 h-16 rounded-full bg-lime-400/20 text-lime-400 flex items-center justify-center font-black text-2xl border border-lime-400/30 shrink-0">
                 {(selectedCreator.handle ?? selectedCreator.creator_name ?? '?').charAt(0).toUpperCase()}
               </div>
               <div>
@@ -211,8 +211,8 @@ export default function ClientDashboard() {
                 <span className="font-bold">{selectedCreator.content_type || 'N/A'}</span>
               </div>
               {selectedCreator.draft_reel_url && (
-                <div className="col-span-2 bg-[#050505] rounded-lg p-4 border border-blue-400/20">
-                    <a href={selectedCreator.draft_reel_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-blue-400 text-xs font-black uppercase tracking-widest hover:underline">
+                <div className="col-span-2 bg-[#050505] rounded-lg p-4 border border-lime-400/20">
+                    <a href={selectedCreator.draft_reel_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-lime-400 text-xs font-black uppercase tracking-widest hover:underline">
                       <Play className="w-4 h-4" /> Review Draft Video
                     </a>
                 </div>
@@ -230,7 +230,7 @@ export default function ClientDashboard() {
                       <div className="flex items-center justify-center w-4 h-4 rounded-full border border-neutral-700 bg-neutral-900 text-neutral-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2"></div>
                       <div className="w-[calc(100%-2rem)] md:w-[calc(50%-1.5rem)] bg-[#050505] p-4 rounded-lg border border-white/5 shadow">
                         <div className="flex items-center justify-between space-x-2 mb-1">
-                          <div className="font-bold text-sm text-blue-400">{p.stage}</div>
+                          <div className="font-bold text-sm text-lime-400">{p.stage}</div>
                           <time className="font-mono text-[9px] text-neutral-500">{new Date(p.updated_at).toLocaleDateString()}</time>
                         </div>
                         {p.notes && <div className="text-xs text-neutral-400 mt-2">{p.notes}</div>}
