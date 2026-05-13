@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useCampaign } from '@/contexts/CampaignContext';
 
+const STAGES = ['Brief Sent', 'Content Draft', 'In Review', 'Published', 'Approved'];
+
 export default function TimelinePage() {
   const [progressItems, setProgressItems] = useState<any[]>([]);
   const [loadingProgress, setLoadingProgress] = useState(true);
@@ -55,7 +57,6 @@ export default function TimelinePage() {
       }
       
       if (error) throw error;
-      
       await loadProgress();
     } catch (e: any) {
       console.error('Update failed:', e);
@@ -67,21 +68,12 @@ export default function TimelinePage() {
     return <div className="p-8 text-lime-400 font-black tracking-widest uppercase text-xs bg-[#050505] min-h-screen flex items-center justify-center animate-pulse">Loading Timeline...</div>;
   }
 
-  if (fetchError) {
-    return (
-      <div className="p-8 text-red-400 font-black tracking-widest uppercase text-xs bg-[#050505] min-h-screen flex items-center justify-center">
-        Error: {fetchError}
-      </div>
-    );
-  }
-
-  const approvedCreators = creators.filter(c => c.approval_status === 'Approved');
-  const stages = ['Brief Sent', 'Content Draft', 'In Review', 'Published'];
+  const approvedCreators = creators.filter(c => c.client_approved_creator === true);
 
   return (
     <div className="min-h-screen bg-[#050505] p-8 text-white relative font-sans">
       <h1 className="text-4xl font-black uppercase tracking-tighter mb-2">Campaign Timeline</h1>
-      <p className="text-neutral-400 mb-8">Track content production progress.</p>
+      <p className="text-neutral-400 mb-8">Track all 5 production stages for approved creators.</p>
 
       {approvedCreators.length === 0 ? (
         <div className="text-center text-neutral-600 text-xs uppercase tracking-widest py-20">No creators in production yet</div>
@@ -90,11 +82,9 @@ export default function TimelinePage() {
           {approvedCreators.map(c => {
             const prog = progressItems.find(p => p.creator_id === c.id);
             const currentStage = prog ? prog.stage : 'Brief Sent';
-            const stageIdx = stages.indexOf(currentStage);
+            const stageIdx = STAGES.indexOf(currentStage);
             const handleStr = c.handle ?? c.creator_name ?? '?';
             
-            const diffDays = prog ? Math.floor((new Date().getTime() - new Date(prog.updated_at).getTime()) / (1000 * 3600 * 24)) : 0;
-
             return (
               <div key={c.id} className="bg-neutral-900 border border-white/10 rounded-xl p-6 flex flex-col md:flex-row items-start md:items-center gap-6">
                 <div className="flex items-center gap-4 w-full md:w-64 shrink-0">
@@ -108,20 +98,16 @@ export default function TimelinePage() {
                 </div>
 
                 <div className="flex-1 w-full relative pt-2 pb-6">
-                  {/* Progress Line Background */}
                   <div className="absolute top-4 left-0 w-full h-1 bg-neutral-800 -z-10 rounded-full" />
-                  {/* Progress Line Foreground */}
                   <div 
                     className="absolute top-4 left-0 h-1 bg-lime-400 -z-10 rounded-full transition-all duration-500" 
-                    style={{ width: `${(stageIdx / (stages.length - 1)) * 100}%` }} 
+                    style={{ width: `${(stageIdx / (STAGES.length - 1)) * 100}%` }} 
                   />
 
                   <div className="flex justify-between relative">
-                    {stages.map((stage, i) => {
+                    {STAGES.map((stage, i) => {
                       const isCompleted = i < stageIdx;
                       const isCurrent = i === stageIdx;
-                      const isFuture = i > stageIdx;
-
                       return (
                         <div key={stage} className="flex flex-col items-center gap-2 cursor-pointer group" onClick={() => handleStageClick(c.id, stage)}>
                           <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${isCompleted ? 'bg-lime-400' : isCurrent ? 'bg-[#050505] border-2 border-lime-400' : 'bg-neutral-900 border-2 border-neutral-700 group-hover:border-neutral-500'}`}>
@@ -133,9 +119,6 @@ export default function TimelinePage() {
                         </div>
                       );
                     })}
-                  </div>
-                  <div className="absolute -bottom-2 left-0 text-[9px] font-bold text-neutral-500 uppercase tracking-widest">
-                    Last updated {diffDays === 0 ? 'today' : `${diffDays} days ago`}
                   </div>
                 </div>
               </div>
