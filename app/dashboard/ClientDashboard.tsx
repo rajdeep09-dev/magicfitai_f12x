@@ -141,11 +141,16 @@ export default function ClientDashboard() {
                       <span>Progress Tracker</span>
                       <span className="text-blue-400">{currentStage}</span>
                     </div>
-                    <div className="flex gap-1 h-1.5">
+                    <div className="flex gap-1 h-1.5 mb-4">
                       {stages.map((s, i) => (
                         <div key={s} className={`flex-1 rounded-full ${i <= stageIdx ? 'bg-blue-400' : 'bg-neutral-800'}`} />
                       ))}
                     </div>
+                    {c.draft_reel_url && (
+                        <a href={c.draft_reel_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-blue-400 text-[10px] font-black uppercase tracking-widest hover:underline mb-4">
+                          <Play className="w-3 h-3" /> Review Draft Video
+                        </a>
+                    )}
                   </div>
 
                   <div className="mt-4 p-4 bg-[#111] border border-white/10 rounded-xl text-xs space-y-2">
