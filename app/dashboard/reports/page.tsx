@@ -25,18 +25,15 @@ export default function ReportsPage() {
           if (data) setUserRole(data.role as 'editor' | 'client');
         }
 
-        const [creatorsRes, budgetRes, progressRes] = await Promise.all([
+        const [creatorsRes, progressRes] = await Promise.all([
           supabase.from('creators').select('*'),
-          supabase.from('campaign_budget').select('*'),
           supabase.from('creator_progress').select('*')
         ]);
 
         if (creatorsRes.error) throw creatorsRes.error;
-        if (budgetRes.error) throw budgetRes.error;
         if (progressRes.error) throw progressRes.error;
 
         setCreators(creatorsRes.data || []);
-        setBudgetItems(budgetRes.data || []);
         setProgressItems(progressRes.data || []);
       } catch (err: any) {
         setError(err.message || 'Failed to load reports data');
@@ -158,43 +155,7 @@ ${sortedTableData.map(d => `- @${d.handle} (${d.platform}): ${d.followers.toLoca
           </div>
         </div>
 
-        {/* BUDGET BREAKDOWN */}
-        <div className="bg-neutral-900 border border-white/10 rounded-xl p-6 overflow-x-auto">
-          <h2 className="text-xs font-black uppercase tracking-widest text-neutral-500 mb-6">Budget Breakdown</h2>
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="text-[10px] uppercase tracking-widest text-neutral-500 border-b border-white/10">
-                <th className="pb-2">Label</th>
-                <th className="pb-2 text-right">Allocated</th>
-                <th className="pb-2 text-right">Spent</th>
-                <th className="pb-2 text-right">Rem</th>
-                <th className="pb-2 text-right">% Used</th>
-              </tr>
-            </thead>
-            <tbody>
-              {budgetItems.map(item => {
-                const a = Number(item.amount);
-                const s = Number(item.spent);
-                const rem = a - s;
-                const pct = a > 0 ? (s / a) * 100 : 0;
-                let pctColor = 'text-lime-400';
-                if (pct >= 50 && pct <= 80) pctColor = 'text-yellow-400';
-                if (pct > 80) pctColor = 'text-red-400';
-
-                return (
-                  <tr key={item.id} className="border-b border-white/5">
-                    <td className="py-2 font-bold">{item.label}</td>
-                    <td className="py-2 text-right">${a.toLocaleString()}</td>
-                    <td className="py-2 text-right">${s.toLocaleString()}</td>
-                    <td className="py-2 text-right">${rem.toLocaleString()}</td>
-                    <td className={`py-2 text-right font-black ${pctColor}`}>{pct.toFixed(0)}%</td>
-                  </tr>
-                )
-              })}
-              {budgetItems.length === 0 && <tr><td colSpan={5} className="py-4 text-center text-xs text-neutral-500">No budget items found.</td></tr>}
-            </tbody>
-          </table>
-        </div>
+      {/* BUDGET BREAKDOWN - REMOVED AS TABLE MISSING */}
       </div>
 
       {/* CREATOR PROGRESS TABLE */}

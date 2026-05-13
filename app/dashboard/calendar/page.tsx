@@ -29,7 +29,15 @@ export default function CalendarPage() {
           if (data) setUserRole(data.role as 'editor' | 'client');
         }
         
-        const { data: eventsData, error: eventsError } = await supabase.from('campaign_events').select('*, creators(handle)');
+        const { data: eventsData, error: eventsError } = await supabase
+          .from('campaign_events')
+          .select(`
+            *,
+            creators (
+              id,
+              handle
+            )
+          `);
         if (eventsError) throw eventsError;
         setEvents(eventsData || []);
       } catch (err: any) {
