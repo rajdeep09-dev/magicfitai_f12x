@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -22,8 +24,8 @@ export default function DashboardLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
-        <div className="text-neutral-400">Loading...</div>
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+        <div className="text-lime-400 font-bold tracking-widest uppercase text-xs">Syncing...</div>
       </div>
     );
   }
@@ -34,7 +36,7 @@ export default function DashboardLayout({
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-neutral-950">
+      <div className="min-h-screen bg-[#050505]">
         <Header />
         <main className="pt-20">{children}</main>
       </div>
