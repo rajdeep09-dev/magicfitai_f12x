@@ -135,6 +135,18 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
             {isEditor && (
               <>
                 <div className="space-y-2">
+                  <Label htmlFor="followers" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Followers</Label>
+                  <Input
+                    id="followers"
+                    name="followers"
+                    type="number"
+                    value={formData.followers || 0}
+                    onChange={handleChange}
+                    className="bg-neutral-900 border-white/10 focus:border-lime-400 h-11"
+                  />
+                </div>
+                
+                <div className="space-y-2">
                   <Label htmlFor="base_price" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Base Price ($)</Label>
                   <Input
                     id="base_price"
