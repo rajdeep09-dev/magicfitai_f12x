@@ -1,12 +1,13 @@
-import React, { createContext, useContext, useState, useMemo } from 'react';
+import React, { createContext, useContext, useState, useMemo, useEffect } from 'react';
 import { Creator } from '@/types/creator';
+import { createClient } from '@/lib/supabase/client';
 
 interface CampaignContextType {
   budget: number;
   remainingBudget: number;
   creators: Creator[];
   setCreators: (c: Creator[]) => void;
-  loadCreators: () => Promise<void>; // Added
+  loadCreators: () => Promise<void>;
   approveCreator: (creatorId: string) => void;
   selectedCreators: Set<string>;
   toggleSelect: (id: string) => void;
@@ -19,7 +20,7 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
   const [creators, setCreators] = useState<Creator[]>([]);
   const [selectedCreators, setSelectedCreators] = useState<Set<string>>(new Set());
 
-  const supabase = supabase;
+  const supabase = createClient();
 
   const loadCreators = async () => {
     const { data, error } = await supabase.from('creators').select('*');
@@ -38,9 +39,8 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
   }, [creators, budget]);
 
   const approveCreator = (creatorId: string) => {
-    loadCreators(); // Refresh after action
+    loadCreators();
   };
-
 
   const toggleSelect = (id: string) => {
     const next = new Set(selectedCreators);
@@ -50,7 +50,7 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
   };
 
   return (
-    <CampaignContext.Provider value={{ budget, remainingBudget, creators, setCreators, approveCreator, selectedCreators, toggleSelect }}>
+    <CampaignContext.Provider value={{ budget, remainingBudget, creators, setCreators, loadCreators, approveCreator, selectedCreators, toggleSelect }}>
       {children}
     </CampaignContext.Provider>
   );
