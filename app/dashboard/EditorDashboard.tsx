@@ -92,17 +92,21 @@ export default function EditorDashboard() {
       const nextStage = STAGES[currentIndex + 1];
       
       const supabase = createClient();
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('creators')
         .update({ approval_status: nextStage })
-        .eq('id', creatorId);
+        .eq('id', creatorId)
+        .select()
+        .single();
       
       if (error) throw error;
-      await loadCreators(); // refresh after move
-      showToast(`Moved to ${nextStage}`, 'success');
-    } catch (err) {
-      showToast('Failed to move creator', 'error');
-      console.error(err);
+      if (!data) throw new Error('No rows updated');
+
+      await loadCreators();
+      showToast(`Progress updated to ${nextStage}`, 'success');
+    } catch (err: any) {
+      console.error('Update failed:', err);
+      showToast(`Failed to update: ${err.message}`, 'error');
     }
   };
 

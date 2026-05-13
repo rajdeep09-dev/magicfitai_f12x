@@ -44,15 +44,22 @@ export default function TimelinePage() {
     try {
       const supabase = createClient();
       const existing = progressItems.find(p => p.creator_id === creatorId);
+      
+      let error;
       if (existing) {
-        await supabase.from('creator_progress').update({ stage: newStage, updated_at: new Date().toISOString() }).eq('creator_id', creatorId);
+        const { error: err } = await supabase.from('creator_progress').update({ stage: newStage, updated_at: new Date().toISOString() }).eq('creator_id', creatorId).select().single();
+        error = err;
       } else {
-        await supabase.from('creator_progress').insert([{ creator_id: creatorId, stage: newStage }]);
+        const { error: err } = await supabase.from('creator_progress').insert([{ creator_id: creatorId, stage: newStage }]).select().single();
+        error = err;
       }
-      loadProgress();
-    } catch (e) {
-      console.error(e);
-      alert('Failed to update stage');
+      
+      if (error) throw error;
+      
+      await loadProgress();
+    } catch (e: any) {
+      console.error('Update failed:', e);
+      alert(`Failed to update stage: ${e.message}`);
     }
   };
 
