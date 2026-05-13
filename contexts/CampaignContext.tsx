@@ -12,6 +12,7 @@ export interface Creator {
   followers?: number;
   content_type?: string;
   approval_status?: string;
+  lang?: string;
   notes?: string;
   avatar_url?: string;
 }

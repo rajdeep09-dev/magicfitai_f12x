@@ -21,18 +21,19 @@ CREATE TABLE IF NOT EXISTS public.campaigns (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 3. Creators Table
+-- 3. Creators Table (Updated with handle and lang)
 CREATE TABLE IF NOT EXISTS public.creators (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   campaign_id UUID REFERENCES public.campaigns(id) ON DELETE CASCADE,
   handle TEXT NOT NULL,
+  lang TEXT,
   creator_name TEXT,
   platform TEXT,
   base_price NUMERIC DEFAULT 0,
   followers INTEGER DEFAULT 0,
   engagement_rate DECIMAL(5, 2) DEFAULT 0.00,
   content_type TEXT,
-  approval_status TEXT DEFAULT 'Sourced', -- Sourced, Outreach, Negotiating, Signed, Approved
+  approval_status TEXT DEFAULT 'Sourced',
   notes TEXT,
   avatar_url TEXT,
   payment_status TEXT DEFAULT 'pending',
@@ -53,7 +54,7 @@ CREATE TABLE IF NOT EXISTS public.campaign_budget (
 CREATE TABLE IF NOT EXISTS public.creator_progress (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   creator_id UUID REFERENCES public.creators(id) ON DELETE CASCADE,
-  stage TEXT DEFAULT 'Brief Sent', -- Brief Sent, Content Draft, In Review, Published
+  stage TEXT DEFAULT 'Brief Sent',
   notes TEXT,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -63,19 +64,13 @@ CREATE TABLE IF NOT EXISTS public.campaign_events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT NOT NULL,
   date DATE NOT NULL,
-  type TEXT DEFAULT 'deadline', -- deadline, shoot, review, publish
+  type TEXT DEFAULT 'deadline',
   creator_id UUID REFERENCES public.creators(id) ON DELETE SET NULL,
   notes TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 7. Normalize Existing Data
-UPDATE public.creators 
-SET approval_status = 'Sourced' 
-WHERE approval_status IS NULL 
-OR approval_status NOT IN ('Sourced', 'Outreach', 'Negotiating', 'Signed', 'Approved');
-
--- 8. Enable RLS and simple Read/Write policies
+-- 7. RLS
 DO $$ 
 DECLARE
     tbl_name TEXT;

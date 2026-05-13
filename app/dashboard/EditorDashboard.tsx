@@ -296,7 +296,7 @@ export default function EditorDashboard() {
                         <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded border border-neutral-700 text-neutral-400">{c.platform || 'N/A'}</span>
                       </div>
                       <div className="flex justify-between items-center text-xs text-neutral-400">
-                        <span>{c.content_type || 'Post'}</span>
+                        <span>{c.content_type || 'Post'} • {c.lang || 'N/A'}</span>
                         <span className="font-black text-lime-400">${c.base_price || 0}</span>
                       </div>
                       <div className="pt-2 flex gap-2">
