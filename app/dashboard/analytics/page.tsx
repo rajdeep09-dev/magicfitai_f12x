@@ -1,7 +1,5 @@
-export const dynamic = "force-dynamic";
 'use client';
-
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
@@ -22,7 +20,6 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     async function fetchData() {
-      const supabase = supabase;
       const { data } = await supabase.from('creators').select('*');
       if (data) setCreators(data);
       setLoading(false);

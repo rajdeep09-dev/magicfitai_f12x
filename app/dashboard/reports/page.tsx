@@ -1,5 +1,5 @@
-export const dynamic = "force-dynamic";
 'use client';
+export const dynamic = "force-dynamic";
 
 import { motion } from 'framer-motion';
 import { Download, FileText, BarChart3 } from 'lucide-react';
