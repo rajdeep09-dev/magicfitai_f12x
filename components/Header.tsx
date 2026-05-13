@@ -5,16 +5,14 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import Image from 'next/image';
-import { LayoutDashboard, Users, BarChart3, Clock, CalendarDays, FileText, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Users, Clock, CalendarDays, FileText } from 'lucide-react';
 
 export default function Header() {
   const { isEditor, logout } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
-
+  
   const navItems = [
     { label: 'Dash', href: '/dashboard', icon: LayoutDashboard },
     { label: 'Creators', href: '/dashboard/creators', icon: Users },
-    { label: 'Stats', href: '/dashboard/analytics', icon: BarChart3 },
     { label: 'Time', href: '/dashboard/timeline', icon: Clock },
     { label: 'Cal', href: '/dashboard/calendar', icon: CalendarDays },
     { label: 'Docs', href: '/dashboard/reports', icon: FileText },
@@ -29,7 +27,7 @@ export default function Header() {
             <Image src="/logos/f12x-logo.png" alt="F" width={28} height={28} className="w-7 h-7 rounded-full border border-white/20" />
             <Image src="/logos/magicfit-logo.png" alt="M" width={28} height={28} className="w-7 h-7 rounded-full border border-white/20" />
           </div>
-          <span className="text-white font-black tracking-tighter text-sm uppercase">F12X × MAGICFIT</span>
+          <span className="text-white font-bold tracking-tight text-sm uppercase">F12X × MF</span>
         </Link>
 
         {/* Desktop Nav */}
