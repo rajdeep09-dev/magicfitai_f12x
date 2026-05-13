@@ -18,7 +18,7 @@ export function useAuth() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const supabase = _supabase;
+  const supabase = supabase;
 
   useEffect(() => {
     async function fetchAuth() {

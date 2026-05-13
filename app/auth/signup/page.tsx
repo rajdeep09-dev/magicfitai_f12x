@@ -16,7 +16,7 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const supabase = _supabase;
+  const supabase = supabase;
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();

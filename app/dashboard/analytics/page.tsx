@@ -11,7 +11,7 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     async function fetchData() {
-      const supabase = _supabase;
+      const supabase = supabase;
       const { data } = await supabase.from('creators').select('*');
       if (data) setCreators(data);
       setLoading(false);

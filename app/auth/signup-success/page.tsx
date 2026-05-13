@@ -9,7 +9,7 @@ import { createClient } from '@/lib/supabase/client';
 export default function SignupSuccessPage() {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-  const supabase = _supabase;
+  const supabase = supabase;
 
   useEffect(() => {
     const checkEmail = async () => {
