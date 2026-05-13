@@ -5,7 +5,7 @@ import { Plus } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import CreatorCard from '@/components/CreatorCard';
 import CreatorModal from '@/components/CreatorModal';
-import { createClient } from '../../../lib/supabase/client';
+import { supabase } from '../../../lib/supabase/client';
 import { Creator } from '@/types/creator';
 
 export default function CreatorsPage() {
@@ -17,8 +17,6 @@ export default function CreatorsPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCreator, setSelectedCreator] = useState<any | null>(null);
-
-  const supabase = supabase;
 
   const loadCreators = async () => {
     setLoading(true);
