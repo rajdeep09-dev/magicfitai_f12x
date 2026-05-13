@@ -197,7 +197,7 @@ export default function CalendarPage() {
                 >
                   <option value="">No Creator</option>
                   {creators.map(c => (
-                    <option key={c.id} value={c.id}>@{c.handle}</option>
+                    <option key={c.id} value={c.id}>@{(c.handle ?? '').replace(/^@/, '')}</option>
                   ))}
                 </select>
 
@@ -223,7 +223,7 @@ export default function CalendarPage() {
                         <div className={`w-3 h-3 rounded-full shrink-0 mt-1 ${getTypeColor(ev.type)}`} />
                       </div>
                       {ev.creators && (
-                        <span className="text-xs text-neutral-400">@{ev.creators.handle}</span>
+                        <span className="text-xs text-neutral-400">@{(ev.creators.handle ?? '').replace(/^@/, '')}</span>
                       )}
                       {ev.notes && (
                         <p className="text-[10px] text-neutral-500 mt-2 bg-neutral-900 p-2 rounded">{ev.notes}</p>

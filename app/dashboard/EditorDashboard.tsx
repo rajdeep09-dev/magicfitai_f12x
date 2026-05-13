@@ -288,7 +288,7 @@ export default function EditorDashboard() {
                     return (
                     <div key={c.id} className="p-3 bg-neutral-900 rounded-lg border border-white/10 shadow-sm flex flex-col gap-2 relative group">
                       <div className="flex justify-between items-start">
-                        <span className="font-bold text-sm text-white truncate pr-2">@{handleStr}</span>
+                        <span className="font-bold text-sm text-white truncate pr-2">@{handleStr.replace(/^@/, '')}</span>
                         <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded border border-neutral-700 text-neutral-400">{c.platform || 'N/A'}</span>
                       </div>
                       <div className="flex justify-between items-center text-xs text-neutral-400">
@@ -364,7 +364,7 @@ export default function EditorDashboard() {
                       {handleStr.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="font-bold text-sm text-white">@{handleStr}</p>
+                      <p className="font-bold text-sm text-white">@{handleStr.replace(/^@/, '')}</p>
                       <p className="text-[10px] uppercase tracking-widest text-neutral-500">{c.platform || 'N/A'} • {(c.followers || 0).toLocaleString()} followers</p>
                     </div>
                   </div>

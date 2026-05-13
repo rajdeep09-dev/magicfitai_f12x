@@ -109,7 +109,7 @@ export default function ClientDashboard() {
                         {handleStr.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <p className="font-bold text-lg text-white">@{handleStr}</p>
+                        <p className="font-bold text-lg text-white">@{handleStr.replace(/^@/, '')}</p>
                         <div className="flex gap-2 text-[10px] font-black uppercase tracking-widest text-neutral-500 mt-1">
                           <span className="px-1.5 py-0.5 border border-neutral-700 rounded">{c.platform || 'N/A'}</span>
                           <span className="px-1.5 py-0.5 border border-neutral-700 rounded">{c.content_type || 'Content'}</span>
@@ -159,7 +159,7 @@ export default function ClientDashboard() {
                 {(selectedCreator.handle ?? selectedCreator.creator_name ?? '?').charAt(0).toUpperCase()}
               </div>
               <div>
-                <h3 className="text-2xl font-bold">@{(selectedCreator.handle ?? selectedCreator.creator_name ?? '?')}</h3>
+                <h3 className="text-2xl font-bold">@{(selectedCreator.handle ?? selectedCreator.creator_name ?? '?').replace(/^@/, '')}</h3>
                 <span className="text-xs font-black uppercase tracking-widest text-neutral-500">{selectedCreator.platform || 'N/A'}</span>
               </div>
             </div>

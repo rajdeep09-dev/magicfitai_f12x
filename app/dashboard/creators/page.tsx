@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useCampaign } from '@/contexts/CampaignContext';
 import CreatorCard from '@/components/CreatorCard';
 import CreatorModal from '@/components/CreatorModal';
 import { supabase } from '../../../lib/supabase/client';

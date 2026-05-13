@@ -213,7 +213,7 @@ ${sortedTableData.map(d => `- @${d.handle} (${d.platform}): ${d.followers.toLoca
           <tbody>
             {sortedTableData.map(row => (
               <tr key={row.id} className="border-b border-white/5 hover:bg-white/5">
-                <td className="py-3 font-bold">@{row.handle}</td>
+                <td className="py-3 font-bold">@{(row.handle ?? '').replace(/^@/, '')}</td>
                 <td className="py-3"><span className="text-[9px] uppercase border border-neutral-700 px-1.5 py-0.5 rounded">{row.platform}</span></td>
                 <td className="py-3 text-right font-mono text-xs">{row.followers.toLocaleString()}</td>
                 <td className="py-3 pl-4">

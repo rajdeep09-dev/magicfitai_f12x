@@ -95,7 +95,7 @@ export default function TimelinePage() {
                     {handleStr.charAt(0).toUpperCase()}
                   </div>
                   <div className="min-w-0">
-                    <p className="font-bold text-lg text-white truncate">@{handleStr}</p>
+                    <p className="font-bold text-lg text-white truncate">@{handleStr.replace(/^@/, '')}</p>
                     <span className="text-[10px] uppercase border border-neutral-700 px-1.5 py-0.5 rounded text-neutral-400 mt-1 inline-block">{c.platform || 'N/A'}</span>
                   </div>
                 </div>
