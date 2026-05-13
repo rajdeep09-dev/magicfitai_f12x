@@ -124,7 +124,7 @@ export default function EditorDashboard() {
   const totalAllocated = budgetItems.reduce((sum, item) => sum + Number(item.amount || 0), 0) || 5000;
   const totalSpentBudget = budgetItems.reduce((sum, item) => sum + Number(item.spent || 0), 0);
   const remainingBudget = totalAllocated - totalSpentBudget;
-  const pendingReview = creators.filter(c => c.approval_status !== 'Approved' && c.approval_status !== 'Signed').length;
+  const pendingReview = creators.filter(c => !c.approval_status || c.approval_status.toLowerCase() === 'sourced').length;
 
   const filteredCreators = creators.filter(c => {
     if (search && !c.handle?.toLowerCase().includes(search.toLowerCase())) return false;
@@ -135,12 +135,12 @@ export default function EditorDashboard() {
   const columns = ['Sourced', 'Outreach', 'Negotiating', 'Signed'];
 
   const getNextStatus = (current: string) => {
-    const idx = columns.indexOf(current);
+    const idx = columns.findIndex(col => col.toLowerCase() === current.toLowerCase());
     if (idx >= 0 && idx < columns.length - 1) return columns[idx + 1];
     return null;
   };
 
-  const approvedCreators = creators.filter(c => c.approval_status === 'Approved');
+  const approvedCreators = creators.filter(c => c.approval_status?.toLowerCase() === 'approved');
 
   return (
     <div className="min-h-screen bg-[#050505] p-8 text-white relative font-sans">
@@ -244,7 +244,7 @@ export default function EditorDashboard() {
         {/* PIPELINE COLUMNS */}
         <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
           {columns.map(col => {
-            const colCreators = filteredCreators.filter(c => c.approval_status === col);
+            const colCreators = filteredCreators.filter(c => c.approval_status?.toLowerCase() === col.toLowerCase());
             return (
               <div key={col} className="bg-neutral-900/40 rounded-xl p-3 border border-white/5 flex flex-col min-h-[400px]">
                 <div className="flex justify-between items-center mb-4 px-1">

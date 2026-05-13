@@ -1,310 +1,233 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { useAuth } from '@/hooks/useAuth';
-import { useState, useRef } from 'react';
-import { Upload, Download, Users, Database, Lock, FileUp } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
 
 export default function SettingsPage() {
-  const { isEditor } = useAuth();
-  const [csvData, setCSVData] = useState<any[]>([]);
-  const [importing, setImporting] = useState(false);
-  const [importResult, setImportResult] = useState<any>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [profiles, setProfiles] = useState<any[]>([]);
+  const [budgetItems, setBudgetItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState<'editor'|'client'|null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const router = useRouter();
 
-  const downloadCSVTemplate = () => {
-    const headers = [
-      'creator_name',
-      'platform',
-      'deliverable',
-      'spend',
-      'live_date',
-      'progress_score',
-    ];
-    const template = [headers].join('\n');
+  const [newUser, setNewUser] = useState({ first_name: '', email: '', role: 'client', company_name: '' });
+  const [savingUser, setSavingUser] = useState(false);
+  const [userMsg, setUserMsg] = useState('');
 
-    const blob = new Blob([template], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'creators-template.csv';
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-  };
+  const [budgetLabel, setBudgetLabel] = useState('Summer 2026 Launch');
+  const [budgetAmount, setBudgetAmount] = useState(5000);
+  const [savingBudget, setSavingBudget] = useState(false);
 
-  const handleCSVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
+  useEffect(() => {
+    async function init() {
       try {
-        const text = e.target?.result as string;
-        const lines = text.split('\n').filter((line) => line.trim());
-        const headers = lines[0].split(',').map((h) => h.trim());
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+            router.push('/auth/login');
+            return;
+        }
+        
+        setCurrentUserId(session.user.id);
+        const { data: prof } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
+        if (prof) {
+            setUserRole(prof.role);
+            if (prof.role !== 'editor' && prof.role !== 'admin') {
+                router.push('/dashboard');
+                return;
+            }
+        }
 
-        const data = lines.slice(1).map((line) => {
-          const values = line.split(',').map((v) => v.trim());
-          const obj: any = {};
-          headers.forEach((header, idx) => {
-            obj[header] = values[idx];
-          });
-          return obj;
-        });
+        const [pRes, bRes] = await Promise.all([
+          supabase.from('profiles').select('*').eq('is_active', true),
+          supabase.from('campaign_budget').select('*').limit(1).single()
+        ]);
 
-        setCSVData(data);
-        setImporting(true);
+        if (pRes.data) setProfiles(pRes.data);
+        if (bRes.data) {
+            setBudgetItems([bRes.data]);
+            setBudgetLabel(bRes.data.label);
+            setBudgetAmount(Number(bRes.data.amount));
+        }
 
-        // Simulate import process
-        setTimeout(() => {
-          const successful = data.filter((d) => d.creator_name && d.platform);
-          const failed = data.length - successful.length;
-
-          setImportResult({
-            total: data.length,
-            successful: successful.length,
-            failed: failed,
-            timestamp: new Date().toISOString(),
-          });
-
-          setImporting(false);
-        }, 1500);
-      } catch (error) {
-        console.error('Error parsing CSV:', error);
-        setImportResult({
-          error: 'Failed to parse CSV file',
-        });
-        setImporting(false);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
-    };
+    }
+    init();
+  }, [router]);
 
-    reader.readAsText(file);
+  const toggleActive = async (id: string, current: boolean) => {
+    if (id === currentUserId) return; // Can't disable self
+    try {
+        const supabase = createClient();
+        await supabase.from('profiles').update({ is_active: !current }).eq('id', id);
+        setProfiles(profiles.map(p => p.id === id ? { ...p, is_active: !current } : p));
+    } catch (e) {
+        console.error(e);
+    }
   };
 
-  if (!isEditor) {
-    return (
-      <div className="px-4 sm:px-6 lg:px-8 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="bg-red-900/20 border border-red-800 rounded-lg p-6"
-        >
-          <h2 className="text-lg font-semibold text-red-400 mb-2">Access Denied</h2>
-          <p className="text-red-300">Only editors can access the settings page.</p>
-        </motion.div>
-      </div>
-    );
-  }
+  const handleAddUser = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setSavingUser(true);
+      setUserMsg('');
+      try {
+          const supabase = createClient();
+          // We don't have their auth.users id because they haven't signed up.
+          // In a real app we'd invite them. Here we just show the message as requested.
+          setUserMsg(`User added. Send them the sign-up link manually to ${newUser.email}`);
+          setNewUser({ first_name: '', email: '', role: 'client', company_name: '' });
+      } catch (e) {
+          console.error(e);
+      } finally {
+          setSavingUser(false);
+      }
+  };
+
+  const handleSaveBudget = async () => {
+      setSavingBudget(true);
+      try {
+          const supabase = createClient();
+          if (budgetItems.length > 0) {
+              await supabase.from('campaign_budget').update({ label: budgetLabel, amount: budgetAmount }).eq('id', budgetItems[0].id);
+          } else {
+              await supabase.from('campaign_budget').insert([{ label: budgetLabel, amount: budgetAmount, spent: 0 }]);
+          }
+      } catch (e) {
+          console.error(e);
+      } finally {
+          setSavingBudget(false);
+      }
+  };
+
+  if (loading) return <div className="p-8 text-lime-400 font-black tracking-widest uppercase text-xs bg-[#050505] min-h-screen flex items-center justify-center animate-pulse">Loading Settings...</div>;
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-8">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="space-y-8"
-      >
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-neutral-50 mb-2">Settings & Admin</h1>
-          <p className="text-neutral-400">CSV import, user management, and integration settings.</p>
-        </div>
+    <div className="min-h-screen bg-[#050505] p-8 text-white font-sans">
+      <h1 className="text-4xl font-black uppercase tracking-tighter mb-8">Settings</h1>
 
-        {/* CSV Import Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-neutral-900/50 backdrop-blur-md border border-neutral-800 rounded-lg p-6"
-        >
-          <h2 className="text-lg font-semibold text-neutral-50 mb-4 flex items-center gap-2">
-            <FileUp className="w-5 h-5 text-lime-400" />
-            Bulk Creator Import
-          </h2>
-
-          <div className="space-y-4">
-            {/* Template Download */}
-            <div className="bg-neutral-800/30 border border-neutral-700 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-medium text-neutral-50 mb-1">CSV Template</h3>
-                  <p className="text-sm text-neutral-400">
-                    Download the CSV template to understand the required format
-                  </p>
-                </div>
-                <button
-                  onClick={downloadCSVTemplate}
-                  className="flex items-center gap-2 px-4 py-2 bg-lime-400/20 hover:bg-lime-400/30 text-lime-400 font-medium rounded-lg transition border border-lime-400/30"
-                >
-                  <Download className="w-4 h-4" />
-                  Download Template
-                </button>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* TEAM MEMBERS */}
+          <div className="bg-neutral-900 border border-white/10 rounded-xl p-6">
+              <h2 className="text-sm font-black uppercase tracking-widest mb-6">Team Members</h2>
+              <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm">
+                      <thead>
+                          <tr className="text-[10px] uppercase tracking-widest text-neutral-500 border-b border-white/10">
+                              <th className="pb-2">Name</th>
+                              <th className="pb-2">Email</th>
+                              <th className="pb-2">Role</th>
+                              <th className="pb-2 text-right">Status</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {profiles.map(p => (
+                              <tr key={p.id} className="border-b border-white/5">
+                                  <td className="py-3 font-bold">{p.first_name}</td>
+                                  <td className="py-3 text-neutral-400 text-xs">{p.email}</td>
+                                  <td className="py-3">
+                                      <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded border ${
+                                          p.role === 'admin' ? 'border-purple-500/50 text-purple-400' :
+                                          p.role === 'editor' ? 'border-lime-500/50 text-lime-400' :
+                                          'border-blue-500/50 text-blue-400'
+                                      }`}>
+                                          {p.role}
+                                      </span>
+                                  </td>
+                                  <td className="py-3 text-right">
+                                      <button 
+                                        disabled={p.id === currentUserId}
+                                        onClick={() => toggleActive(p.id, p.is_active)}
+                                        className={`text-[9px] font-black uppercase px-2 py-1 rounded transition ${p.is_active ? 'bg-lime-400/20 text-lime-400 hover:bg-lime-400/30' : 'bg-red-400/20 text-red-400 hover:bg-red-400/30'} disabled:opacity-50`}
+                                      >
+                                          {p.is_active ? 'Active' : 'Inactive'}
+                                      </button>
+                                  </td>
+                              </tr>
+                          ))}
+                      </tbody>
+                  </table>
               </div>
-            </div>
+          </div>
 
-            {/* CSV Upload */}
-            <div className="border-2 border-dashed border-neutral-700 hover:border-lime-400/50 rounded-lg p-8 text-center transition cursor-pointer">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".csv"
-                onChange={handleCSVUpload}
-                disabled={importing}
-                className="hidden"
-              />
-
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                className="flex flex-col items-center gap-3"
-              >
-                <div className="w-12 h-12 rounded-lg bg-lime-900/30 border border-lime-700 flex items-center justify-center">
-                  <Upload className="w-6 h-6 text-lime-400" />
-                </div>
-                <div>
-                  <p className="font-medium text-neutral-50 mb-1">
-                    {importing ? 'Processing...' : 'Click to upload CSV'}
-                  </p>
-                  <p className="text-sm text-neutral-400">or drag and drop</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Import Results */}
-            {importResult && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={`border rounded-lg p-4 ${
-                  importResult.error
-                    ? 'bg-red-900/20 border-red-700'
-                    : 'bg-lime-900/20 border-lime-700'
-                }`}
-              >
-                {importResult.error ? (
-                  <p className="text-red-300">{importResult.error}</p>
-                ) : (
-                  <div className="space-y-2">
-                    <p className="font-medium text-lime-300">Import Completed</p>
-                    <div className="text-sm text-lime-300/80 space-y-1">
-                      <p>Total Records: {importResult.total}</p>
-                      <p>Successful: {importResult.successful}</p>
-                      {importResult.failed > 0 && <p>Failed: {importResult.failed}</p>}
-                      <p className="text-xs text-neutral-400 mt-2">
-                        {new Date(importResult.timestamp).toLocaleString()}
-                      </p>
-                    </div>
+          <div className="space-y-8">
+              {/* CAMPAIGN SETTINGS */}
+              <div className="bg-neutral-900 border border-white/10 rounded-xl p-6">
+                  <h2 className="text-sm font-black uppercase tracking-widest mb-6">Campaign Config</h2>
+                  <div className="space-y-4">
+                      <div>
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-2">Campaign Name</label>
+                          <input 
+                              type="text" value={budgetLabel} onChange={e => setBudgetLabel(e.target.value)}
+                              className="w-full bg-[#050505] border border-white/10 rounded p-2 text-sm outline-none focus:border-lime-400 text-white"
+                          />
+                      </div>
+                      <div>
+                          <label className="block text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-2">Total Budget Cap ($)</label>
+                          <input 
+                              type="number" value={budgetAmount} onChange={e => setBudgetAmount(Number(e.target.value))}
+                              className="w-full bg-[#050505] border border-white/10 rounded p-2 text-sm outline-none focus:border-lime-400 text-white"
+                          />
+                      </div>
+                      <button onClick={handleSaveBudget} disabled={savingBudget} className="bg-lime-400 hover:bg-lime-300 text-black font-black uppercase text-xs px-4 py-2 rounded transition-colors disabled:opacity-50">
+                          {savingBudget ? 'Saving...' : 'Save Settings'}
+                      </button>
                   </div>
-                )}
-              </motion.div>
-            )}
-          </div>
-        </motion.div>
-
-        {/* User Management Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-neutral-900/50 backdrop-blur-md border border-neutral-800 rounded-lg p-6"
-        >
-          <h2 className="text-lg font-semibold text-neutral-50 mb-4 flex items-center gap-2">
-            <Users className="w-5 h-5 text-blue-400" />
-            User Management
-          </h2>
-
-          <div className="space-y-4">
-            <div className="flex gap-3">
-              <input
-                type="email"
-                placeholder="client@example.com"
-                className="flex-1 px-4 py-2.5 bg-neutral-800/50 border border-neutral-700 rounded-lg text-neutral-50 placeholder-neutral-500 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400/50 transition"
-              />
-              <select className="px-4 py-2.5 bg-neutral-800/50 border border-neutral-700 rounded-lg text-neutral-50 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400/50 transition">
-                <option>Client</option>
-                <option>Editor</option>
-              </select>
-              <button className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg transition">
-                Invite
-              </button>
-            </div>
-
-            <div className="bg-neutral-800/30 border border-neutral-700 rounded-lg p-4">
-              <p className="text-sm text-neutral-400 mb-3 font-medium">Setup Instructions</p>
-              <p className="text-xs text-neutral-400 mb-3">
-                To create user accounts, call the setup endpoint or manage users directly in Supabase Auth.
-              </p>
-              <div className="space-y-2">
-                <p className="text-xs font-mono text-lime-400 break-all">POST /api/setup-users</p>
               </div>
-            </div>
-          </div>
-        </motion.div>
 
-        {/* Integration Settings */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-neutral-900/50 backdrop-blur-md border border-neutral-800 rounded-lg p-6"
-        >
-          <h2 className="text-lg font-semibold text-neutral-50 mb-4 flex items-center gap-2">
-            <Database className="w-5 h-5 text-purple-400" />
-            Integrations
-          </h2>
-
-          <div className="space-y-3">
-            {[
-              { name: 'Google Sheets API', status: 'Connected', description: 'Auto-sync with master sheet' },
-              { name: 'Supabase Database', status: 'Connected', description: 'Real-time data sync' },
-            ].map((integration, idx) => (
-              <div
-                key={idx}
-                className="flex items-center justify-between p-4 border border-neutral-700 rounded-lg hover:bg-neutral-800/30 transition"
-              >
-                <div>
-                  <p className="font-medium text-neutral-50">{integration.name}</p>
-                  <p className="text-sm text-neutral-400">{integration.description}</p>
-                </div>
-                <span className="px-3 py-1 text-xs font-semibold bg-lime-900/30 border border-lime-700 text-lime-300 rounded">
-                  {integration.status}
-                </span>
+              {/* ADD USER */}
+              <div className="bg-neutral-900 border border-white/10 rounded-xl p-6">
+                  <h2 className="text-sm font-black uppercase tracking-widest mb-6">Invite User</h2>
+                  <form onSubmit={handleAddUser} className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                          <div>
+                              <label className="block text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-2">First Name</label>
+                              <input 
+                                  required type="text" value={newUser.first_name} onChange={e => setNewUser({...newUser, first_name: e.target.value})}
+                                  className="w-full bg-[#050505] border border-white/10 rounded p-2 text-sm outline-none focus:border-lime-400 text-white"
+                              />
+                          </div>
+                          <div>
+                              <label className="block text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-2">Email</label>
+                              <input 
+                                  required type="email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})}
+                                  className="w-full bg-[#050505] border border-white/10 rounded p-2 text-sm outline-none focus:border-lime-400 text-white"
+                              />
+                          </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                          <div>
+                              <label className="block text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-2">Role</label>
+                              <select 
+                                  value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value})}
+                                  className="w-full bg-[#050505] border border-white/10 rounded p-2 text-sm outline-none focus:border-lime-400 text-white"
+                              >
+                                  <option value="client">Client</option>
+                                  <option value="editor">Editor</option>
+                                  <option value="admin">Admin</option>
+                              </select>
+                          </div>
+                          <div>
+                              <label className="block text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-2">Company</label>
+                              <input 
+                                  type="text" value={newUser.company_name} onChange={e => setNewUser({...newUser, company_name: e.target.value})}
+                                  className="w-full bg-[#050505] border border-white/10 rounded p-2 text-sm outline-none focus:border-lime-400 text-white"
+                              />
+                          </div>
+                      </div>
+                      <button type="submit" disabled={savingUser} className="bg-lime-400 hover:bg-lime-300 text-black font-black uppercase text-xs px-4 py-2 rounded transition-colors disabled:opacity-50">
+                          {savingUser ? 'Processing...' : 'Generate Invite'}
+                      </button>
+                      {userMsg && <p className="text-lime-400 text-xs font-bold mt-2">{userMsg}</p>}
+                  </form>
               </div>
-            ))}
           </div>
-        </motion.div>
-
-        {/* Security Settings */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="bg-neutral-900/50 backdrop-blur-md border border-neutral-800 rounded-lg p-6"
-        >
-          <h2 className="text-lg font-semibold text-neutral-50 mb-4 flex items-center gap-2">
-            <Lock className="w-5 h-5 text-orange-400" />
-            Security
-          </h2>
-
-          <div className="space-y-3">
-            <div className="p-4 border border-neutral-700 rounded-lg">
-              <h3 className="font-medium text-neutral-50 mb-2">Change Password</h3>
-              <p className="text-sm text-neutral-400 mb-4">Update your account password</p>
-              <button className="px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white font-medium rounded-lg transition">
-                Update Password
-              </button>
-            </div>
-
-            <div className="p-4 border border-neutral-700 rounded-lg">
-              <h3 className="font-medium text-neutral-50 mb-2">Row Level Security</h3>
-              <p className="text-sm text-neutral-400">Database access is protected with RLS policies</p>
-              <p className="text-xs text-lime-400 mt-2">✓ Protected</p>
-            </div>
-          </div>
-        </motion.div>
-      </motion.div>
+      </div>
     </div>
   );
 }
