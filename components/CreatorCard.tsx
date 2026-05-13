@@ -69,7 +69,7 @@ function CreatorCard({
           <div className="relative">
             <div className="absolute -inset-1 bg-gradient-to-br from-lime-400 to-green-500 rounded-full blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
             <div className="relative w-14 h-14 rounded-full bg-neutral-950 border border-white/10 flex items-center justify-center flex-shrink-0 text-neutral-50 font-black text-xl shadow-xl">
-              {name.charAt(0)}
+              {(name ?? '?').charAt(0)}
             </div>
           </div>
           <div className="min-w-0">

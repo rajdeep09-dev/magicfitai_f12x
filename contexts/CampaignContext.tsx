@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 export interface Creator {
   id: string;
   handle: string;
+  creator_name?: string;
   platform?: string;
   base_price?: number;
   followers?: number;
@@ -20,6 +21,7 @@ interface CampaignContextType {
   remainingBudget: number;
   creators: Creator[];
   loadingCreators: boolean;
+  fetchError: string | null;
   setCreators: (c: Creator[]) => void;
   loadCreators: () => Promise<void>;
   approveCreator: (creatorId: string) => void;
@@ -34,19 +36,23 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
   const [creators, setCreators] = useState<Creator[]>([]);
   const [selectedCreators, setSelectedCreators] = useState<Set<string>>(new Set());
   const [loadingCreators, setLoadingCreators] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const loadCreators = async () => {
+    setLoadingCreators(true);
+    setFetchError(null);
     try {
-      setLoadingCreators(true);
       const supabase = createClient();
-      const { data, error } = await supabase.from('creators').select('*');
-      if (!error && data) {
-        setCreators(data);
-      } else if (error) {
-        console.error('Error fetching creators:', error);
-      }
-    } catch (err) {
-      console.error('Unexpected error loading creators:', err);
+      const { data, error } = await supabase
+        .from('creators')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setCreators(data ?? []);
+    } catch (err: any) {
+      setFetchError(err.message ?? 'Failed to load creators');
+      setCreators([]);
     } finally {
       setLoadingCreators(false);
     }
@@ -83,7 +89,7 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
   };
 
   return (
-    <CampaignContext.Provider value={{ budget, remainingBudget, creators, loadingCreators, setCreators, loadCreators, approveCreator, selectedCreators, toggleSelect }}>
+    <CampaignContext.Provider value={{ budget, remainingBudget, creators, loadingCreators, fetchError, setCreators, loadCreators, approveCreator, selectedCreators, toggleSelect }}>
       {children}
     </CampaignContext.Provider>
   );

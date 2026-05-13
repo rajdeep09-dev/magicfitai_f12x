@@ -8,7 +8,7 @@ export default function TimelinePage() {
   const [progressItems, setProgressItems] = useState<any[]>([]);
   const [loadingProgress, setLoadingProgress] = useState(true);
   const [userRole, setUserRole] = useState<'editor'|'client'|null>(null);
-  const { creators, loadingCreators } = useCampaign();
+  const { creators, loadingCreators, fetchError } = useCampaign();
 
   const loadProgress = async () => {
     try {
@@ -60,7 +60,15 @@ export default function TimelinePage() {
     return <div className="p-8 text-lime-400 font-black tracking-widest uppercase text-xs bg-[#050505] min-h-screen flex items-center justify-center animate-pulse">Loading Timeline...</div>;
   }
 
-  const approvedCreators = creators.filter(c => c.approval_status === 'Approved' || c.approval_status === 'Signed');
+  if (fetchError) {
+    return (
+      <div className="p-8 text-red-400 font-black tracking-widest uppercase text-xs bg-[#050505] min-h-screen flex items-center justify-center">
+        Error: {fetchError}
+      </div>
+    );
+  }
+
+  const approvedCreators = creators.filter(c => c.approval_status === 'Approved');
   const stages = ['Brief Sent', 'Content Draft', 'In Review', 'Published'];
 
   return (
@@ -76,6 +84,7 @@ export default function TimelinePage() {
             const prog = progressItems.find(p => p.creator_id === c.id);
             const currentStage = prog ? prog.stage : 'Brief Sent';
             const stageIdx = stages.indexOf(currentStage);
+            const handleStr = c.handle ?? c.creator_name ?? '?';
             
             const diffDays = prog ? Math.floor((new Date().getTime() - new Date(prog.updated_at).getTime()) / (1000 * 3600 * 24)) : 0;
 
@@ -83,10 +92,10 @@ export default function TimelinePage() {
               <div key={c.id} className="bg-neutral-900 border border-white/10 rounded-xl p-6 flex flex-col md:flex-row items-start md:items-center gap-6">
                 <div className="flex items-center gap-4 w-full md:w-64 shrink-0">
                   <div className="w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center text-lime-400 font-black text-xl shrink-0">
-                    {c.handle.charAt(0).toUpperCase()}
+                    {handleStr.charAt(0).toUpperCase()}
                   </div>
                   <div className="min-w-0">
-                    <p className="font-bold text-lg text-white truncate">@{c.handle}</p>
+                    <p className="font-bold text-lg text-white truncate">@{handleStr}</p>
                     <span className="text-[10px] uppercase border border-neutral-700 px-1.5 py-0.5 rounded text-neutral-400 mt-1 inline-block">{c.platform || 'N/A'}</span>
                   </div>
                 </div>

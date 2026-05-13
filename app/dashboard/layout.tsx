@@ -1,6 +1,6 @@
 'use client';
 
-
+import { CampaignProvider } from '@/contexts/CampaignContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -23,8 +23,8 @@ export default function DashboardLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-        <div className="text-lime-400 font-bold tracking-widest uppercase text-xs">Syncing...</div>
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center text-lime-400 font-black text-xs tracking-widest">
+        SYNCING...
       </div>
     );
   }
@@ -34,11 +34,13 @@ export default function DashboardLayout({
   }
 
   return (
-    <ErrorBoundary>
-      <div className="min-h-screen bg-[#050505]">
-        <Header />
-        <main className="pt-20">{children}</main>
-      </div>
-    </ErrorBoundary>
+    <CampaignProvider>
+      <ErrorBoundary>
+        <div className="min-h-screen bg-[#050505]">
+          <Header />
+          <main className="pt-20">{children}</main>
+        </div>
+      </ErrorBoundary>
+    </CampaignProvider>
   );
 }

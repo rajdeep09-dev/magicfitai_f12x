@@ -6,7 +6,7 @@ import { Users, Play, Calendar, X } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 export default function ClientDashboard() {
-  const { creators, loadingCreators } = useCampaign();
+  const { creators, loadingCreators, fetchError } = useCampaign();
   const [progressItems, setProgressItems] = useState<any[]>([]);
   const [loadingProgress, setLoadingProgress] = useState(true);
   const [selectedCreator, setSelectedCreator] = useState<any | null>(null);
@@ -30,6 +30,14 @@ export default function ClientDashboard() {
     return (
       <div className="p-8 text-blue-400 font-black tracking-widest uppercase text-xs bg-[#050505] min-h-screen flex items-center justify-center">
         <div className="animate-pulse">Loading Campaign...</div>
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="p-8 text-red-400 font-black tracking-widest uppercase text-xs bg-[#050505] min-h-screen flex items-center justify-center">
+        Error: {fetchError}
       </div>
     );
   }
@@ -91,16 +99,17 @@ export default function ClientDashboard() {
             {approvedCreators.map(c => {
               const currentStage = getCreatorStage(c.id);
               const stageIdx = stages.indexOf(currentStage);
+              const handleStr = c.handle ?? c.creator_name ?? '?';
 
               return (
                 <div key={c.id} className="bg-neutral-900 rounded-xl border border-white/10 p-5 flex flex-col gap-4 relative overflow-hidden">
                   <div className="flex justify-between items-start">
                     <div className="flex gap-4 items-center">
                       <div className="w-12 h-12 rounded-full bg-blue-400/20 text-blue-400 flex items-center justify-center font-black text-lg shrink-0 border border-blue-400/30">
-                        {c.handle.charAt(0).toUpperCase()}
+                        {handleStr.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <p className="font-bold text-lg text-white">@{c.handle}</p>
+                        <p className="font-bold text-lg text-white">@{handleStr}</p>
                         <div className="flex gap-2 text-[10px] font-black uppercase tracking-widest text-neutral-500 mt-1">
                           <span className="px-1.5 py-0.5 border border-neutral-700 rounded">{c.platform || 'N/A'}</span>
                           <span className="px-1.5 py-0.5 border border-neutral-700 rounded">{c.content_type || 'Content'}</span>
@@ -147,11 +156,11 @@ export default function ClientDashboard() {
 
             <div className="flex items-center gap-4 mb-8">
               <div className="w-16 h-16 rounded-full bg-blue-400/20 text-blue-400 flex items-center justify-center font-black text-2xl border border-blue-400/30 shrink-0">
-                {selectedCreator.handle.charAt(0).toUpperCase()}
+                {(selectedCreator.handle ?? selectedCreator.creator_name ?? '?').charAt(0).toUpperCase()}
               </div>
               <div>
-                <h3 className="text-2xl font-bold">@{selectedCreator.handle}</h3>
-                <span className="text-xs font-black uppercase tracking-widest text-neutral-500">{selectedCreator.platform}</span>
+                <h3 className="text-2xl font-bold">@{(selectedCreator.handle ?? selectedCreator.creator_name ?? '?')}</h3>
+                <span className="text-xs font-black uppercase tracking-widest text-neutral-500">{selectedCreator.platform || 'N/A'}</span>
               </div>
             </div>
 

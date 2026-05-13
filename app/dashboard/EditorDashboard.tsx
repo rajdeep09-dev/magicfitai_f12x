@@ -21,8 +21,10 @@ function Toast({ message, type, onClose }: { message: string, type: 'success'|'e
   );
 }
 
+const STAGES = ['Sourced', 'Outreach', 'Negotiating', 'Signed', 'Approved'];
+
 export default function EditorDashboard() {
-  const { creators, loadingCreators, loadCreators } = useCampaign();
+  const { creators, loadingCreators, fetchError, loadCreators, budget, remainingBudget } = useCampaign();
   
   const [budgetItems, setBudgetItems] = useState<any[]>([]);
   const [loadingBudget, setLoadingBudget] = useState(true);
@@ -82,22 +84,43 @@ export default function EditorDashboard() {
     }
   };
 
-  const handleStatusChange = async (id: string, newStatus: string) => {
+  const moveToNextStage = async (creatorId: string, currentStatus: string) => {
+    try {
+      const safeStatus = currentStatus || 'Sourced';
+      const currentIndex = STAGES.indexOf(safeStatus);
+      if (currentIndex === -1 || currentIndex === STAGES.length - 1) return;
+      const nextStage = STAGES[currentIndex + 1];
+      
+      const supabase = createClient();
+      const { error } = await supabase
+        .from('creators')
+        .update({ approval_status: nextStage })
+        .eq('id', creatorId);
+      
+      if (error) throw error;
+      await loadCreators(); // refresh after move
+      showToast(`Moved to ${nextStage}`, 'success');
+    } catch (err) {
+      showToast('Failed to move creator', 'error');
+      console.error(err);
+    }
+  };
+
+  const handleApprove = async (creatorId: string) => {
     try {
       const supabase = createClient();
-      const { error } = await supabase.from('creators').update({ approval_status: newStatus }).eq('id', id);
+      const { error } = await supabase.from('creators').update({ approval_status: 'Approved' }).eq('id', creatorId);
       if (error) throw error;
-      showToast(`Creator moved to ${newStatus}`, 'success');
-      loadCreators();
+      showToast('Creator Approved', 'success');
+      await loadCreators();
     } catch (e) {
-      showToast('Failed to update status', 'error');
+      showToast('Failed to approve creator', 'error');
     }
   };
 
   const handleUpdateProgress = async (creatorId: string, newStage: string) => {
     try {
       const supabase = createClient();
-      // Check if progress exists
       const existing = progressItems.find(p => p.creator_id === creatorId);
       if (existing) {
         const { error } = await supabase.from('creator_progress').update({ stage: newStage, updated_at: new Date().toISOString() }).eq('creator_id', creatorId);
@@ -121,26 +144,34 @@ export default function EditorDashboard() {
     );
   }
 
+  if (fetchError) {
+    return (
+      <div className="p-8 text-red-400 font-black tracking-widest uppercase text-xs bg-[#050505] min-h-screen flex items-center justify-center">
+        Error: {fetchError}
+      </div>
+    );
+  }
+
   const totalAllocated = budgetItems.reduce((sum, item) => sum + Number(item.amount || 0), 0) || 5000;
   const totalSpentBudget = budgetItems.reduce((sum, item) => sum + Number(item.spent || 0), 0);
-  const remainingBudget = totalAllocated - totalSpentBudget;
-  const pendingReview = creators.filter(c => !c.approval_status || c.approval_status.toLowerCase() === 'sourced').length;
+  const remainingBudgetCalc = totalAllocated - totalSpentBudget;
+  const pendingReview = creators.filter(c => !c.approval_status || c.approval_status === 'Sourced').length;
 
   const filteredCreators = creators.filter(c => {
-    if (search && !c.handle?.toLowerCase().includes(search.toLowerCase())) return false;
+    const handleStr = c.handle ?? c.creator_name ?? '';
+    if (search && !handleStr.toLowerCase().includes(search.toLowerCase())) return false;
     if (platformFilter && c.platform !== platformFilter) return false;
     return true;
   });
 
-  const columns = ['Sourced', 'Outreach', 'Negotiating', 'Signed'];
+  const COLUMNS = [
+    { label: 'SOURCED', status: 'Sourced' },
+    { label: 'OUTREACH', status: 'Outreach' },
+    { label: 'NEGOTIATING', status: 'Negotiating' },
+    { label: 'SIGNED', status: 'Signed' },
+  ];
 
-  const getNextStatus = (current: string) => {
-    const idx = columns.findIndex(col => col.toLowerCase() === current.toLowerCase());
-    if (idx >= 0 && idx < columns.length - 1) return columns[idx + 1];
-    return null;
-  };
-
-  const approvedCreators = creators.filter(c => c.approval_status?.toLowerCase() === 'approved');
+  const approvedCreators = creators.filter(c => c.approval_status === 'Approved');
 
   return (
     <div className="min-h-screen bg-[#050505] p-8 text-white relative font-sans">
@@ -164,7 +195,7 @@ export default function EditorDashboard() {
         </div>
         <div className="bg-neutral-900 rounded-xl p-4 border border-white/10">
           <div className="flex items-center gap-2 text-neutral-500 mb-2"><DollarSign className="w-4 h-4"/> <span className="text-[10px] font-black uppercase tracking-widest">Remaining</span></div>
-          <p className="text-2xl font-black text-lime-400">${remainingBudget.toLocaleString()}</p>
+          <p className="text-2xl font-black text-lime-400">${remainingBudgetCalc.toLocaleString()}</p>
         </div>
         <div className="bg-neutral-900 rounded-xl p-4 border border-white/10">
           <div className="flex items-center gap-2 text-neutral-500 mb-2"><Clock className="w-4 h-4"/> <span className="text-[10px] font-black uppercase tracking-widest">Pending Review</span></div>
@@ -213,7 +244,7 @@ export default function EditorDashboard() {
               <td className="pt-3">TOTAL</td>
               <td className="pt-3">${totalAllocated.toLocaleString()}</td>
               <td className="pt-3 text-red-400">${totalSpentBudget.toLocaleString()}</td>
-              <td className="pt-3">${remainingBudget.toLocaleString()}</td>
+              <td className="pt-3">${remainingBudgetCalc.toLocaleString()}</td>
               <td></td>
             </tr>
           </tfoot>
@@ -243,19 +274,21 @@ export default function EditorDashboard() {
       <div className="flex gap-6 items-start">
         {/* PIPELINE COLUMNS */}
         <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
-          {columns.map(col => {
-            const colCreators = filteredCreators.filter(c => c.approval_status?.toLowerCase() === col.toLowerCase());
+          {COLUMNS.map(col => {
+            const colCreators = filteredCreators.filter(c => (c.approval_status ?? 'Sourced') === col.status);
             return (
-              <div key={col} className="bg-neutral-900/40 rounded-xl p-3 border border-white/5 flex flex-col min-h-[400px]">
+              <div key={col.status} className="bg-neutral-900/40 rounded-xl p-3 border border-white/5 flex flex-col min-h-[400px]">
                 <div className="flex justify-between items-center mb-4 px-1">
-                  <h3 className="font-black text-[10px] uppercase text-neutral-500 tracking-widest">{col}</h3>
+                  <h3 className="font-black text-[10px] uppercase text-neutral-500 tracking-widest">{col.label}</h3>
                   <span className="text-[10px] font-black bg-neutral-800 text-neutral-400 px-2 py-0.5 rounded-full">{colCreators.length}</span>
                 </div>
                 <div className="space-y-3">
-                  {colCreators.map(c => (
+                  {colCreators.map(c => {
+                    const handleStr = c.handle ?? c.creator_name ?? '?';
+                    return (
                     <div key={c.id} className="p-3 bg-neutral-900 rounded-lg border border-white/10 shadow-sm flex flex-col gap-2 relative group">
                       <div className="flex justify-between items-start">
-                        <span className="font-bold text-sm text-white truncate pr-2">@{c.handle}</span>
+                        <span className="font-bold text-sm text-white truncate pr-2">@{handleStr}</span>
                         <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded border border-neutral-700 text-neutral-400">{c.platform || 'N/A'}</span>
                       </div>
                       <div className="flex justify-between items-center text-xs text-neutral-400">
@@ -263,25 +296,25 @@ export default function EditorDashboard() {
                         <span className="font-black text-lime-400">${c.base_price || 0}</span>
                       </div>
                       <div className="pt-2 flex gap-2">
-                        {getNextStatus(c.approval_status || '') && (
+                        {col.status !== 'Signed' && (
                           <button 
-                            onClick={() => handleStatusChange(c.id, getNextStatus(c.approval_status || '')!)}
+                            onClick={() => moveToNextStage(c.id, c.approval_status ?? 'Sourced')}
                             className="flex-1 bg-white/10 hover:bg-white/20 text-white font-black uppercase tracking-widest text-[9px] py-1.5 rounded transition flex items-center justify-center gap-1"
                           >
                             Move <ArrowRight className="w-3 h-3" />
                           </button>
                         )}
                         <button 
-                          onClick={() => handleStatusChange(c.id, 'Approved')}
+                          onClick={() => handleApprove(c.id)}
                           className="flex-1 bg-lime-400 hover:bg-lime-300 text-black font-black uppercase tracking-widest text-[9px] py-1.5 rounded transition flex items-center justify-center gap-1"
                         >
                           Approve <Check className="w-3 h-3" />
                         </button>
                       </div>
                     </div>
-                  ))}
+                  )})}
                   {colCreators.length === 0 && (
-                    <div className="text-center text-neutral-700 text-xs py-4 font-bold uppercase tracking-widest">Empty</div>
+                    <div className="text-center text-neutral-700 text-xs py-4 font-black uppercase tracking-widest">Empty</div>
                   )}
                 </div>
               </div>
@@ -322,16 +355,17 @@ export default function EditorDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {approvedCreators.map(c => {
             const prog = progressItems.find(p => p.creator_id === c.id)?.stage || 'Brief Sent';
+            const handleStr = c.handle ?? c.creator_name ?? '?';
             return (
               <div key={c.id} className="bg-neutral-900 border border-white/10 rounded-xl p-4 flex flex-col gap-3">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center text-lime-400 font-black">
-                      {c.handle.charAt(0).toUpperCase()}
+                      {handleStr.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="font-bold text-sm text-white">@{c.handle}</p>
-                      <p className="text-[10px] uppercase tracking-widest text-neutral-500">{c.platform} • {(c.followers || 0).toLocaleString()} followers</p>
+                      <p className="font-bold text-sm text-white">@{handleStr}</p>
+                      <p className="text-[10px] uppercase tracking-widest text-neutral-500">{c.platform || 'N/A'} • {(c.followers || 0).toLocaleString()} followers</p>
                     </div>
                   </div>
                   <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded border border-lime-400/50 text-lime-400 bg-lime-400/10">
@@ -341,11 +375,11 @@ export default function EditorDashboard() {
                 
                 <div className="bg-[#050505] p-3 rounded-lg border border-white/5 flex flex-col gap-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Deliverable</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-neutral-500">Deliverable</span>
                     <span className="text-xs text-white">{c.content_type || 'Content'}</span>
                   </div>
                   <div className="flex justify-between items-center mt-2">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">Progress</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-neutral-500">Progress</span>
                     <select
                       value={prog}
                       onChange={(e) => handleUpdateProgress(c.id, e.target.value)}

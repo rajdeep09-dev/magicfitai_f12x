@@ -10,33 +10,29 @@ import { Creator } from '@/types/creator';
 
 export default function CreatorsPage() {
   const { isEditor } = useAuth();
-  const [creators, setCreators] = useState<any[]>([]);
+  const { creators, loadingCreators, fetchError, loadCreators } = useCampaign();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('name');
   const [showRecommendedOnly, setShowRecommendedOnly] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCreator, setSelectedCreator] = useState<any | null>(null);
 
-  const loadCreators = async () => {
-    setLoading(true);
-    const { data, error } = await supabase.from('creators').select('*');
-    if (!error && data) setCreators(data);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    loadCreators();
-  }, []);
-
   const filteredCreators = creators
-    .filter(c => c.creator_name.toLowerCase().includes(searchQuery.toLowerCase()))
+    .filter(c => {
+      const handleStr = c.handle ?? c.creator_name ?? '';
+      return handleStr.toLowerCase().includes(searchQuery.toLowerCase());
+    })
     .filter(c => !showRecommendedOnly || c.is_recommended)
     .sort((a, b) => {
         if (sortBy === 'price') return (b.base_price || 0) - (a.base_price || 0);
         if (sortBy === 'followers') return (b.followers || 0) - (a.followers || 0);
-        return a.creator_name.localeCompare(b.creator_name);
+        const nameA = a.handle ?? a.creator_name ?? '';
+        const nameB = b.handle ?? b.creator_name ?? '';
+        return nameA.localeCompare(nameB);
     });
+
+  if (loadingCreators) return <div className="p-8 text-lime-400 font-black tracking-widest uppercase text-xs bg-[#050505] min-h-screen flex items-center justify-center animate-pulse">Loading Roster...</div>;
+  if (fetchError) return <div className="p-8 text-red-400 font-bold bg-[#050505] min-h-screen">Error: {fetchError}</div>;
 
   return (
     <div className="p-10 text-white min-h-screen bg-[#050505]">
@@ -77,25 +73,26 @@ export default function CreatorsPage() {
         </div>
       </div>
 
-      {loading ? (
-        <div className="text-neutral-500 font-bold tracking-widest uppercase text-xs">Loading Roster...</div>
-      ) : filteredCreators.length === 0 ? (
+      {filteredCreators.length === 0 ? (
         <div className="text-neutral-500 font-bold">No creators found</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCreators.map((c) => (
-            <div key={c.id} onClick={() => { setSelectedCreator(c); setIsModalOpen(true); }} className="cursor-pointer">
-              <CreatorCard
-                id={c.id}
-                name={c.creator_name}
-                platform={c.platform}
-                followers={c.followers || 0}
-                engagementRatio={Number(c.engagement_rate) || 0}
-                payoutStatus={c.payment_status || 'pending'}
-                activeOnCampaign={c.approval_status === 'Approved'}
-              />
-            </div>
-          ))}
+          {filteredCreators.map((c) => {
+            const handleStr = c.handle ?? c.creator_name ?? '?';
+            return (
+              <div key={c.id} onClick={() => { setSelectedCreator(c); setIsModalOpen(true); }} className="cursor-pointer">
+                <CreatorCard
+                  id={c.id}
+                  name={handleStr}
+                  platform={c.platform || ''}
+                  followers={c.followers || 0}
+                  engagementRatio={Number(c.engagement_rate) || 0}
+                  payoutStatus={c.payment_status || 'pending'}
+                  activeOnCampaign={c.approval_status === 'Approved'}
+                />
+              </div>
+            );
+          })}
         </div>
       )}
 
