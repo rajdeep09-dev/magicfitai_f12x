@@ -204,6 +204,13 @@ export default function ClientDashboard() {
                 <span className="text-[10px] font-black uppercase tracking-widest text-neutral-500 block mb-1">Deliverable</span>
                 <span className="font-bold">{selectedCreator.content_type || 'N/A'}</span>
               </div>
+              {selectedCreator.draft_reel_url && (
+                <div className="col-span-2 bg-[#050505] rounded-lg p-4 border border-blue-400/20">
+                    <a href={selectedCreator.draft_reel_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-blue-400 text-xs font-black uppercase tracking-widest hover:underline">
+                      <Play className="w-4 h-4" /> Review Draft Video
+                    </a>
+                </div>
+              )}
             </div>
 
             <div className="flex-1">
