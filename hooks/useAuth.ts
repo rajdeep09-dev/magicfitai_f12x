@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { User } from '@supabase/supabase-js';
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 
 interface UserProfile {
   id: string;
@@ -18,7 +18,6 @@ export function useAuth() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const supabase = createClient();
 
   useEffect(() => {
     async function fetchAuth() {
@@ -33,7 +32,7 @@ export function useAuth() {
         setLoading(false);
     }
     fetchAuth();
-  }, [supabase]);
+  }, []);
 
   return {
     user,
