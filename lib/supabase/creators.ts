@@ -12,7 +12,7 @@ export async function getCreators(options?: {
   forceRefresh?: boolean;
 }): Promise<Creator[]> {
   try {
-    const supabase = createClient();
+    const supabase = _supabase;
     // Check cache
     if (!options?.forceRefresh && creatorsCache && Date.now() - cacheTimestamp < CACHE_TTL_MS) {
       console.log('[v0] Returning creators from cache');
@@ -81,7 +81,7 @@ export async function getCreators(options?: {
 
 export async function getCreatorById(id: string): Promise<Creator | null> {
   try {
-    const supabase = createClient();
+    const supabase = _supabase;
     const { data, error } = await supabase
       .from('creators')
       .select('*')
@@ -102,7 +102,7 @@ export async function getCreatorById(id: string): Promise<Creator | null> {
 
 export async function createCreator(creator: Omit<Creator, 'id' | 'created_at' | 'updated_at'>): Promise<Creator | null> {
   try {
-    const supabase = createClient();
+    const supabase = _supabase;
     const { data, error } = await supabase
       .from('creators')
       .insert([creator])
@@ -126,7 +126,7 @@ export async function createCreator(creator: Omit<Creator, 'id' | 'created_at' |
 
 export async function updateCreator(id: string, updates: Partial<Creator>): Promise<Creator | null> {
   try {
-    const supabase = createClient();
+    const supabase = _supabase;
     const { data, error } = await supabase
       .from('creators')
       .update(updates)
@@ -151,7 +151,7 @@ export async function updateCreator(id: string, updates: Partial<Creator>): Prom
 
 export async function deleteCreator(id: string): Promise<boolean> {
   try {
-    const supabase = createClient();
+    const supabase = _supabase;
     const { error } = await supabase
       .from('creators')
       .delete()

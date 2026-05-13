@@ -18,7 +18,7 @@ export default function CreatorsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCreator, setSelectedCreator] = useState<any | null>(null);
 
-  const supabase = createClient();
+  const supabase = _supabase;
 
   const loadCreators = async () => {
     setLoading(true);

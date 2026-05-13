@@ -19,7 +19,7 @@ export async function getPayouts(options?: {
   status?: string;
 }): Promise<Payout[]> {
   try {
-    const supabase = createClient();
+    const supabase = _supabase;
     console.log('[v0] Fetching payouts from Supabase');
     
     let query = supabase.from('payouts').select('*');
@@ -54,7 +54,7 @@ export async function updatePayoutStatus(
   status: 'pending' | 'processing' | 'paid' | 'hold'
 ): Promise<Payout | null> {
   try {
-    const supabase = createClient();
+    const supabase = _supabase;
     const { data, error } = await supabase
       .from('payouts')
       .update({ status, paid_date: status === 'paid' ? new Date().toISOString().split('T')[0] : null })

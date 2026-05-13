@@ -49,7 +49,7 @@ export default function TimelinePage() {
 
   useEffect(() => {
     async function fetchCreators() {
-      const supabase = createClient();
+      const supabase = _supabase;
       const { data } = await supabase.from('creators').select('*');
       if (data) setCreators(data);
       setLoading(false);

@@ -19,7 +19,7 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
   const [creators, setCreators] = useState<Creator[]>([]);
   const [selectedCreators, setSelectedCreators] = useState<Set<string>>(new Set());
 
-  const supabase = createClient();
+  const supabase = _supabase;
 
   const loadCreators = async () => {
     const { data, error } = await supabase.from('creators').select('*');
