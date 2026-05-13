@@ -3,8 +3,10 @@ export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import CalendarView from '@/components/CalendarView';
-import { createClient } from '../../../lib/supabase/client';
+import dynamicImport from 'next/dynamic';
+import { supabase } from '@/lib/supabase/client';
+
+const DynamicCalendar = dynamicImport(() => import('@/components/CalendarWrapper'), { ssr: false });
 
 const STATUS_COLORS: Record<string, string> = {
   'Ideation': 'bg-gray-600',
@@ -26,7 +28,6 @@ export default function CalendarPage() {
 
   useEffect(() => {
     async function fetchCreators() {
-      const supabase = supabase;
       const { data } = await supabase.from('creators').select('*');
       if (data) setCreators(data);
       setLoading(false);
@@ -68,7 +69,7 @@ export default function CalendarPage() {
         </div>
 
         <div className="bg-neutral-900 border border-white/5 rounded-lg p-6">
-          <CalendarView events={events} />
+          <DynamicCalendar events={events} />
         </div>
       </motion.div>
     </div>
