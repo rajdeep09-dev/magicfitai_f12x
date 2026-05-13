@@ -25,10 +25,13 @@ const getDaysUntil = (dateString: string) => {
 };
 
 export default function CalendarPage() {
+  const [mounted, setMounted] = useState(false);
   const [creators, setCreators] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setMounted(true);
+
     async function fetchCreators() {
       const { data } = await supabase.from('creators').select('*');
       if (data) setCreators(data);
@@ -36,6 +39,9 @@ export default function CalendarPage() {
     }
     fetchCreators();
   }, []);
+
+  // CRITICAL FIX: Bypass Vercel static rendering
+  if (!mounted) return null;
 
   if (loading) return <div className="p-10 text-white">Loading calendar...</div>;
 

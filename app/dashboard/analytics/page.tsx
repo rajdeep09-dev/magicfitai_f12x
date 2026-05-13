@@ -4,10 +4,13 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase/client';
 
 export default function AnalyticsPage() {
+  const [mounted, setMounted] = useState(false);
   const [creators, setCreators] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setMounted(true);
+    
     async function fetchData() {
       const { data } = await supabase.from('creators').select('*');
       if (data) setCreators(data);
@@ -15,6 +18,10 @@ export default function AnalyticsPage() {
     }
     fetchData();
   }, []);
+
+  // CRITICAL FIX: If not mounted in the browser yet, return nothing.
+  // This completely stops Vercel's static builder from evaluating the code below and crashing.
+  if (!mounted) return null;
 
   if (loading) return <div className="p-10 text-white">Loading analytics...</div>;
 
