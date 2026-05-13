@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/supabase/client';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -15,8 +15,12 @@ export default function SignupPage() {
   const [role, setRole] = useState<'editor' | 'client'>('client');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [origin, setOrigin] = useState('');
   const router = useRouter();
-  const supabase = supabase;
+
+  useEffect(() => {
+      setOrigin(window.location.origin);
+  }, []);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,8 +43,7 @@ export default function SignupPage() {
         email,
         password,
         options: {
-          emailRedirectTo:
-            process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ?? `${window.location.origin}/auth/callback`,
+          emailRedirectTo: `${origin}/auth/callback`,
           data: {
             first_name: firstName,
             role: role,
@@ -54,7 +57,6 @@ export default function SignupPage() {
         return;
       }
       
-      // We don't need manual profile update anymore because the trigger now handles the role correctly from metadata
       if (data.user) {
         router.push('/auth/signup-success');
       }
@@ -63,6 +65,7 @@ export default function SignupPage() {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4">
