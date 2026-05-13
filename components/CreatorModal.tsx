@@ -187,11 +187,11 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="video_link" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Draft Video Link</Label>
+                  <Label htmlFor="draft_reel_url" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Draft Video Link</Label>
                   <Input
-                    id="video_link"
-                    name="video_link"
-                    value={formData.video_link || ''}
+                    id="draft_reel_url"
+                    name="draft_reel_url"
+                    value={formData.draft_reel_url || ''}
                     onChange={handleChange}
                     className="bg-neutral-900 border-white/10 focus:border-lime-400 h-11"
                   />
