@@ -100,6 +100,11 @@ export default function ClientDashboard() {
               const currentStage = getCreatorStage(c.id);
               const stageIdx = stages.indexOf(currentStage);
               const handleStr = c.handle ?? c.creator_name ?? '?';
+              
+              const basePrice = Number(c.base_price) || 0;
+              const f12xFee = basePrice * 0.20;
+              const payPalFee = (basePrice + f12xFee) * 0.05;
+              const finalTotal = basePrice + f12xFee + payPalFee;
 
               return (
                 <div key={c.id} className="bg-neutral-900 rounded-xl border border-white/10 p-5 flex flex-col gap-4 relative overflow-hidden">
@@ -133,6 +138,25 @@ export default function ClientDashboard() {
                       {stages.map((s, i) => (
                         <div key={s} className={`flex-1 rounded-full ${i <= stageIdx ? 'bg-blue-400' : 'bg-neutral-800'}`} />
                       ))}
+                    </div>
+                  </div>
+
+                  <div className="mt-4 p-4 bg-[#111] border border-white/10 rounded-xl text-xs space-y-2">
+                    <div className="flex justify-between text-white/70">
+                      <span>Base Creator Rate:</span>
+                      <span className="text-white font-medium">${basePrice.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-white/70">
+                      <span>F12X Agency Fee (20%):</span>
+                      <span className="text-white font-medium">${f12xFee.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-white/70">
+                      <span>Payment Processing (5%):</span>
+                      <span className="text-white font-medium">${payPalFee.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between border-t border-white/10 pt-2 mt-2 font-bold text-sm">
+                      <span className="text-lime-400">Total Client Investment:</span>
+                      <span className="text-lime-400">${finalTotal.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
