@@ -279,7 +279,7 @@ export default function EditorDashboard() {
         {/* PIPELINE COLUMNS */}
         <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
           {COLUMNS.map(col => {
-            const colCreators = filteredCreators.filter(c => (c.approval_status ?? 'Sourced') === col.status);
+            const colCreators = filteredCreators.filter(c => (c.approval_status ?? 'Sourced').toLowerCase() === col.status.toLowerCase());
             return (
               <div key={col.status} className="bg-neutral-900/40 rounded-xl p-3 border border-white/5 flex flex-col min-h-[400px]">
                 <div className="flex justify-between items-center mb-4 px-1">
