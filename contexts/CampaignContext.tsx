@@ -65,7 +65,7 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
 
   const remainingBudget = useMemo(() => {
     const spent = creators
-      .filter(c => c.approval_status?.toLowerCase() === 'approved')
+      .filter(c => c.client_approved_creator === true)
       .reduce((sum, c) => sum + (c.base_price || 0), 0);
     return budget - spent;
   }, [creators, budget]);

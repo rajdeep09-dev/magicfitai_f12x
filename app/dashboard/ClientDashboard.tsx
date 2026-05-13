@@ -42,7 +42,7 @@ export default function ClientDashboard() {
     );
   }
 
-  const approvedCreators = creators.filter(c => c.approval_status?.toLowerCase() === 'approved');
+  const approvedCreators = creators.filter(c => c.client_approved_creator === true);
   const estimatedReach = approvedCreators.reduce((sum, c) => sum + (c.followers || 0), 0);
 
   const getCreatorStage = (creatorId: string) => {

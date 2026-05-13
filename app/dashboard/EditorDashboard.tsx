@@ -175,7 +175,7 @@ export default function EditorDashboard() {
     { label: 'SIGNED', status: 'Signed' },
   ];
 
-  const approvedCreators = creators.filter(c => c.approval_status === 'Approved');
+  const approvedCreators = creators.filter(c => c.client_approved_creator === true);
 
   return (
     <div className="min-h-screen bg-[#050505] p-8 text-white relative font-sans">
