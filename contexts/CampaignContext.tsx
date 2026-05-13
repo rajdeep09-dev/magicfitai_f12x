@@ -1,12 +1,25 @@
+'use client';
+
 import React, { createContext, useContext, useState, useMemo, useEffect } from 'react';
-import { Creator } from '@/types/creator';
 import { createClient } from '@/lib/supabase/client';
+
+export interface Creator {
+  id: string;
+  handle: string;
+  platform?: string;
+  base_price?: number;
+  followers?: number;
+  content_type?: string;
+  approval_status?: string;
+  notes?: string;
+  avatar_url?: string;
+}
 
 interface CampaignContextType {
   budget: number;
   remainingBudget: number;
   creators: Creator[];
-  loading: boolean;
+  loadingCreators: boolean;
   setCreators: (c: Creator[]) => void;
   loadCreators: () => Promise<void>;
   approveCreator: (creatorId: string) => void;
@@ -20,11 +33,11 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
   const [budget] = useState(5000);
   const [creators, setCreators] = useState<Creator[]>([]);
   const [selectedCreators, setSelectedCreators] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(true);
+  const [loadingCreators, setLoadingCreators] = useState(true);
 
   const loadCreators = async () => {
     try {
-      setLoading(true);
+      setLoadingCreators(true);
       const supabase = createClient();
       const { data, error } = await supabase.from('creators').select('*');
       if (!error && data) {
@@ -35,7 +48,7 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
     } catch (err) {
       console.error('Unexpected error loading creators:', err);
     } finally {
-      setLoading(false);
+      setLoadingCreators(false);
     }
   };
 
@@ -50,8 +63,16 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
     return budget - spent;
   }, [creators, budget]);
 
-  const approveCreator = (creatorId: string) => {
-    loadCreators();
+  const approveCreator = async (creatorId: string) => {
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from('creators').update({ approval_status: 'Approved' }).eq('id', creatorId);
+      if (!error) {
+         loadCreators();
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const toggleSelect = (id: string) => {
@@ -62,7 +83,7 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
   };
 
   return (
-    <CampaignContext.Provider value={{ budget, remainingBudget, creators, loading, setCreators, loadCreators, approveCreator, selectedCreators, toggleSelect }}>
+    <CampaignContext.Provider value={{ budget, remainingBudget, creators, loadingCreators, setCreators, loadCreators, approveCreator, selectedCreators, toggleSelect }}>
       {children}
     </CampaignContext.Provider>
   );

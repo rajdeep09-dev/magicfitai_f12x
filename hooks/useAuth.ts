@@ -22,15 +22,22 @@ export function useAuth() {
 
   useEffect(() => {
     async function fetchAuth() {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) { setLoading(false); return; }
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error || !user) {
+          setLoading(false);
+          return;
+        }
         setUser(user);
 
         // Fetch FRESH profile data
         const { data: p } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-        console.log("DEBUG: Fetched Profile from DB:", p);
         setProfile(p);
+      } catch (err) {
+        console.error('Error fetching auth:', err);
+      } finally {
         setLoading(false);
+      }
     }
     fetchAuth();
   }, []);
