@@ -6,6 +6,7 @@ interface CampaignContextType {
   budget: number;
   remainingBudget: number;
   creators: Creator[];
+  loading: boolean;
   setCreators: (c: Creator[]) => void;
   loadCreators: () => Promise<void>;
   approveCreator: (creatorId: string) => void;
@@ -19,12 +20,23 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
   const [budget] = useState(5000);
   const [creators, setCreators] = useState<Creator[]>([]);
   const [selectedCreators, setSelectedCreators] = useState<Set<string>>(new Set());
-
-  const supabase = createClient();
+  const [loading, setLoading] = useState(true);
 
   const loadCreators = async () => {
-    const { data, error } = await supabase.from('creators').select('*');
-    if (!error && data) setCreators(data);
+    try {
+      setLoading(true);
+      const supabase = createClient();
+      const { data, error } = await supabase.from('creators').select('*');
+      if (!error && data) {
+        setCreators(data);
+      } else if (error) {
+        console.error('Error fetching creators:', error);
+      }
+    } catch (err) {
+      console.error('Unexpected error loading creators:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -50,7 +62,7 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
   };
 
   return (
-    <CampaignContext.Provider value={{ budget, remainingBudget, creators, setCreators, loadCreators, approveCreator, selectedCreators, toggleSelect }}>
+    <CampaignContext.Provider value={{ budget, remainingBudget, creators, loading, setCreators, loadCreators, approveCreator, selectedCreators, toggleSelect }}>
       {children}
     </CampaignContext.Provider>
   );
