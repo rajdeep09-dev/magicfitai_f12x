@@ -102,9 +102,11 @@ export default function ClientDashboard() {
               const handleStr = c.handle ?? c.creator_name ?? '?';
               
               const basePrice = Number(c.base_price) || 0;
-              const f12xFee = basePrice * 0.20;
+              const commissionRate = basePrice >= 100 ? 0.20 : 0.10;
+              const f12xFee = basePrice * commissionRate;
               const payPalFee = (basePrice + f12xFee) * 0.05;
               const finalTotal = basePrice + f12xFee + payPalFee;
+              const platformUrl = c.platform?.toLowerCase() === 'instagram' ? `https://instagram.com/${c.handle.replace(/^@/, '')}` : '#';
 
               return (
                 <div key={c.id} className="bg-neutral-900 rounded-xl border border-white/10 p-5 flex flex-col gap-4 relative overflow-hidden">
@@ -121,12 +123,17 @@ export default function ClientDashboard() {
                         </div>
                       </div>
                     </div>
-                    <button 
-                      onClick={() => setSelectedCreator(c)}
-                      className="bg-neutral-800 hover:bg-neutral-700 text-white font-black uppercase tracking-widest text-[9px] px-3 py-1.5 rounded transition"
-                    >
-                      View Profile
-                    </button>
+                    <div className="flex gap-2">
+                        <a href={platformUrl} target="_blank" rel="noreferrer" className="bg-neutral-800 hover:bg-neutral-700 text-blue-400 p-2 rounded transition">
+                           <Users className="w-4 h-4" />
+                        </a>
+                        <button 
+                          onClick={() => setSelectedCreator(c)}
+                          className="bg-neutral-800 hover:bg-neutral-700 text-white font-black uppercase tracking-widest text-[9px] px-3 py-1.5 rounded transition"
+                        >
+                          View Profile
+                        </button>
+                    </div>
                   </div>
 
                   <div className="pt-4 border-t border-white/10">
@@ -147,7 +154,7 @@ export default function ClientDashboard() {
                       <span className="text-white font-medium">${basePrice.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-white/70">
-                      <span>F12X Agency Fee (20%):</span>
+                      <span>F12X Agency Fee ({commissionRate * 100}%):</span>
                       <span className="text-white font-medium">${f12xFee.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-white/70">
