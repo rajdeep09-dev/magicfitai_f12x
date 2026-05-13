@@ -192,6 +192,7 @@ export default function ClientDashboard() {
               <div>
                 <h3 className="text-2xl font-bold">@{(selectedCreator.handle ?? selectedCreator.creator_name ?? '?').replace(/^@/, '')}</h3>
                 <span className="text-xs font-black uppercase tracking-widest text-neutral-500">{selectedCreator.platform || 'N/A'}</span>
+                <div className="hidden">{console.log('DEBUG: Selected Creator Object:', selectedCreator)}</div>
               </div>
             </div>
 
