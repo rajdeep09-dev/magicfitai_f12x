@@ -6,6 +6,7 @@ interface CampaignContextType {
   remainingBudget: number;
   creators: Creator[];
   setCreators: (c: Creator[]) => void;
+  loadCreators: () => Promise<void>; // Added
   approveCreator: (creatorId: string) => void;
   selectedCreators: Set<string>;
   toggleSelect: (id: string) => void;
@@ -18,6 +19,17 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
   const [creators, setCreators] = useState<Creator[]>([]);
   const [selectedCreators, setSelectedCreators] = useState<Set<string>>(new Set());
 
+  const supabase = createClient();
+
+  const loadCreators = async () => {
+    const { data, error } = await supabase.from('creators').select('*');
+    if (!error && data) setCreators(data);
+  };
+
+  useEffect(() => {
+    loadCreators();
+  }, []);
+
   const remainingBudget = useMemo(() => {
     const spent = creators
       .filter(c => c.approval_status === 'Approved')
@@ -26,8 +38,9 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
   }, [creators, budget]);
 
   const approveCreator = (creatorId: string) => {
-    // Logic to move to approved in Supabase
+    loadCreators(); // Refresh after action
   };
+
 
   const toggleSelect = (id: string) => {
     const next = new Set(selectedCreators);

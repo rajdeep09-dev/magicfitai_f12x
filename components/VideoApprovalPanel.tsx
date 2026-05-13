@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { CheckCircle, AlertCircle, Play, Loader2, FileDown, Mail } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import jsPDF from 'jspdf';
+import { useCampaign } from '@/contexts/CampaignContext';
 
 interface VideoApprovalPanelProps {
   creatorName: string;
@@ -22,6 +23,7 @@ export default function VideoApprovalPanel({
   userRole,
 }: VideoApprovalPanelProps) {
   const router = useRouter();
+  const { loadCreators } = useCampaign();
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
 
   if (!creatorId) return null;
@@ -35,6 +37,7 @@ export default function VideoApprovalPanel({
         body: JSON.stringify({ creatorId, action }),
       });
       if (response.ok) {
+        await loadCreators(); // Force refresh context data
         router.refresh(); 
       } else {
         alert('Action failed');
@@ -48,11 +51,13 @@ export default function VideoApprovalPanel({
 
   const generatePDF = () => {
     const doc = new jsPDF();
-    doc.setFontSize(18);
-    doc.text(`Revision Requirements: ${creatorName}`, 20, 20);
+    doc.setFontSize(22);
+    doc.text('F12X × MAGICFIT', 20, 20);
+    doc.setFontSize(16);
+    doc.text(`Revision Requirements: ${creatorName}`, 20, 40);
     doc.setFontSize(12);
-    doc.text(`Video Link: ${videoLink || 'N/A'}`, 20, 40);
-    doc.text(`Status: ${approvalStatus}`, 20, 50);
+    doc.text(`Video Link: ${videoLink || 'N/A'}`, 20, 50);
+    doc.text('PLEASE SEND THIS DOCUMENT TO THE CAMPAIGN MANAGER', 20, 80);
     doc.save(`Revision_${creatorName}.pdf`);
   };
 
@@ -102,10 +107,10 @@ export default function VideoApprovalPanel({
 
       {isClient && (
         <div className="grid grid-cols-2 gap-3 pt-4 border-t border-white/5">
-           <button onClick={generatePDF} className="bg-white/5 hover:bg-white/10 text-white py-3 rounded-lg font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 border border-white/5">
+           <button onClick={generatePDF} className="bg-white/5 hover:bg-white/10 text-white py-3 rounded-lg font-bold text-xs uppercase flex items-center justify-center gap-2 border border-white/5">
             <FileDown className="w-4 h-4" /> Export PDF
           </button>
-          <a href="mailto:?subject=Revision Request&body=Please address the attached requirements." className="bg-neutral-800 hover:bg-neutral-700 text-white py-3 rounded-lg font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 border border-white/5 text-center">
+          <a href="mailto:?subject=Revision Request&body=Please see the attached requirements." className="bg-neutral-800 hover:bg-neutral-700 text-white py-3 rounded-lg font-bold text-xs uppercase flex items-center justify-center gap-2 border border-white/5 text-center">
             <Mail className="w-4 h-4" /> Send Email
           </a>
         </div>
