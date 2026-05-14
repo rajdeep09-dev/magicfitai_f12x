@@ -48,7 +48,7 @@ interface CampaignContextType {
 const CampaignContext = createContext<CampaignContextType | undefined>(undefined);
 
 export const CampaignProvider = ({ children }: { children: React.ReactNode }) => {
-  const [budget] = useState(5000);
+  const [budget, setBudget] = useState(0);
   const [creators, setCreators] = useState<Creator[]>([]);
   const [selectedCreators, setSelectedCreators] = useState<Set<string>>(new Set());
   const [loadingCreators, setLoadingCreators] = useState(true);
@@ -68,6 +68,13 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
       
       if (error) throw error;
       setCreators(data ?? []);
+
+      // Fetch campaign budget
+      const { data: budgetData } = await supabase.from('campaign_budget').select('amount').limit(1).single();
+      if (budgetData) {
+        setBudget(Number(budgetData.amount) || 0);
+      }
+
     } catch (err: any) {
       setFetchError(err.message ?? 'Failed to load creators');
       setCreators([]);

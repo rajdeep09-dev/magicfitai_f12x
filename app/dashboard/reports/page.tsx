@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Users, DollarSign, Activity, Copy, Check } from 'lucide-react';
+import { STAGES } from '@/lib/constants';
 
 export default function ReportsPage() {
   const [creators, setCreators] = useState<any[]>([]);
@@ -56,7 +57,7 @@ export default function ReportsPage() {
   const budgetUtilization = totalAllocated > 0 ? (totalSpent / totalAllocated) * 100 : 0;
 
   // FUNNEL
-  const funnelStages = ['Sourced', 'Outreach', 'Negotiating', 'Signed', 'Approved'];
+  const funnelStages = STAGES;
   const maxInFunnel = Math.max(...funnelStages.map(s => creators.filter(c => c.approval_status === s).length), 1);
 
   // PROGRESS TABLE

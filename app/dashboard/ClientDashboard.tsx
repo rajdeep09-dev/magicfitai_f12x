@@ -6,6 +6,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { Users, Play, Calendar, X } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
+import { STAGES } from '@/lib/constants';
+
 export default function ClientDashboard() {
   const { creators, loadingCreators, fetchError } = useCampaign();
   const { profile } = useAuth();
@@ -54,7 +56,7 @@ export default function ClientDashboard() {
     return prog ? prog.stage : 'Brief Sent';
   };
 
-  const stages = ['Brief Sent', 'Content Draft', 'In Review', 'Published'];
+  const stagesList = STAGES;
 
   return (
     <div className="min-h-screen bg-[#050505] p-8 text-white relative overflow-x-hidden font-sans">
@@ -80,9 +82,9 @@ export default function ClientDashboard() {
           <p className="text-[10px] text-neutral-500 font-black uppercase tracking-widest flex items-center gap-2 mb-2"><Users className="w-4 h-4" /> Approved Creators</p>
           <p className="text-3xl font-black text-white">{approvedCreators.length}</p>
         </div>
-        <div className="bg-neutral-900 rounded-xl p-6 border border-white/10">
-          <p className="text-[10px] text-neutral-500 font-black uppercase tracking-widest flex items-center gap-2 mb-2"><Play className="w-4 h-4" /> Est. Total Reach</p>
-          <p className="text-3xl font-black text-white">{(estimatedReach / 1000000).toFixed(1)}M</p>
+        <div className="bg-neutral-900 rounded-xl p-6 border border-white/10 shadow-lg">
+          <p className="text-[10px] text-neutral-500 font-black uppercase tracking-widest flex items-center gap-2 mb-2"><Play className="w-4 h-4 text-lime-400" /> Est. Total Reach</p>
+          <p className="text-3xl font-black text-white">{(estimatedReach / 1000).toFixed(1)}K</p>
         </div>
         <div className="bg-neutral-900 rounded-xl p-6 border border-white/10">
           <p className="text-[10px] text-neutral-500 font-black uppercase tracking-widest flex items-center gap-2 mb-2"><Calendar className="w-4 h-4" /> Est. Go-Live</p>
@@ -102,7 +104,7 @@ export default function ClientDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {approvedCreators.map(c => {
               const currentStage = getCreatorStage(c.id);
-              const stageIdx = stages.indexOf(currentStage);
+              const stageIdx = STAGES.indexOf(currentStage);
               const handleStr = c.handle ?? c.creator_name ?? '?';
               
               const basePrice = Number(c.base_price) || 0;
@@ -146,7 +148,7 @@ export default function ClientDashboard() {
                       <span className="text-lime-400">{currentStage}</span>
                     </div>
                     <div className="flex gap-1 h-1.5 mb-4">
-                      {stages.map((s, i) => (
+                      {STAGES.map((s, i) => (
                         <div key={s} className={`flex-1 rounded-full ${i <= stageIdx ? 'bg-lime-400' : 'bg-neutral-800'}`} />
                       ))}
                     </div>
@@ -197,12 +199,19 @@ export default function ClientDashboard() {
             </div>
 
             <div className="flex items-center gap-4 mb-8">
-              <div className="w-16 h-16 rounded-full bg-lime-400/20 text-lime-400 flex items-center justify-center font-black text-2xl border border-lime-400/30 shrink-0">
+              <a 
+                href={selectedCreator.platform?.toLowerCase() === 'instagram' ? `https://instagram.com/${(selectedCreator.handle ?? selectedCreator.creator_name ?? '?').replace(/^@/, '')}` : 
+                      selectedCreator.platform?.toLowerCase() === 'twitter' ? `https://twitter.com/${(selectedCreator.handle ?? selectedCreator.creator_name ?? '?').replace(/^@/, '')}` : '#'} 
+                target="_blank" 
+                rel="noreferrer" 
+                className="w-16 h-16 rounded-full bg-lime-400/20 text-lime-400 flex items-center justify-center font-black text-2xl border border-lime-400/50 shrink-0 hover:scale-110 hover:bg-lime-400 hover:text-black transition-all shadow-[0_0_15px_rgba(163,230,53,0.3)]"
+                title={`View ${selectedCreator.platform} Profile`}
+              >
                 {(selectedCreator.handle ?? selectedCreator.creator_name ?? '?').charAt(0).toUpperCase()}
-              </div>
+              </a>
               <div>
-                <h3 className="text-2xl font-bold">@{(selectedCreator.handle ?? selectedCreator.creator_name ?? '?').replace(/^@/, '')}</h3>
-                <span className="text-xs font-black uppercase tracking-widest text-neutral-500">{selectedCreator.platform || 'N/A'}</span>
+                <h3 className="text-3xl font-black tracking-tight">@{(selectedCreator.handle ?? selectedCreator.creator_name ?? '?').replace(/^@/, '')}</h3>
+                <span className="text-xs font-black uppercase tracking-widest text-lime-400">{selectedCreator.platform || 'N/A'}</span>
                 <div className="hidden">{console.log('DEBUG: Selected Creator Object:', selectedCreator)}</div>
               </div>
             </div>

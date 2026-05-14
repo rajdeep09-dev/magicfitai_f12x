@@ -13,6 +13,8 @@ import { Creator } from '@/types/creator';
 import { useAuth } from '@/hooks/useAuth';
 import { createClient } from '@/lib/supabase/client';
 
+import { STAGES } from '@/lib/constants';
+
 interface CreatorModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -84,7 +86,7 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
         followers: 0,
         engagement_rate: 0,
         base_price: 0,
-        approval_status: 'Ideation',
+        approval_status: STAGES[0],
         campaign_id: campaigns.length > 0 ? campaigns[0].id : '',
         draft_reel_url: '',
         video_link: '',
@@ -254,6 +256,22 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                     className="bg-neutral-900 border-white/10 focus:border-lime-400 h-11"
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="approval_status" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Pipeline Stage</Label>
+                  <select
+                    id="approval_status"
+                    name="approval_status"
+                    value={formData.approval_status || STAGES[0]}
+                    onChange={handleChange}
+                    disabled={!isEditor}
+                    className="flex h-11 w-full rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm focus:outline-none focus:border-lime-400"
+                  >
+                    {STAGES.map((stage) => (
+                      <option key={stage} value={stage}>{stage}</option>
+                    ))}
+                  </select>
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="campaign_id" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Campaign</Label>
                   <select

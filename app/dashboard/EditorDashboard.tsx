@@ -168,12 +168,7 @@ export default function EditorDashboard() {
     return true;
   });
 
-  const COLUMNS = [
-    { label: 'SOURCED', status: 'Sourced' },
-    { label: 'OUTREACH', status: 'Outreach' },
-    { label: 'NEGOTIATING', status: 'Negotiating' },
-    { label: 'SIGNED', status: 'Signed' },
-  ];
+  const COLUMNS = STAGES.map(s => ({ label: s.toUpperCase(), status: s }));
 
   const approvedCreators = creators.filter(c => c.client_approved_creator === true);
 
@@ -394,10 +389,9 @@ export default function EditorDashboard() {
                       onChange={(e) => handleUpdateProgress(c.id, e.target.value)}
                       className="bg-neutral-800 border border-white/10 text-white text-xs px-2 py-1 rounded outline-none focus:border-lime-400"
                     >
-                      <option value="Brief Sent">Brief Sent</option>
-                      <option value="Content Draft">Content Draft</option>
-                      <option value="In Review">In Review</option>
-                      <option value="Published">Published</option>
+                      {STAGES.map(stage => (
+                         <option key={stage} value={stage}>{stage}</option>
+                      ))}
                     </select>
                   </div>
                 </div>
