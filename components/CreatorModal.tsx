@@ -68,16 +68,17 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
     e.preventDefault();
     setLoading(true);
     
-    // Calculate final price: base_price + 20% commission + 5% tax
     const base = formData.base_price || 0;
-    const commission = base * 0.20;
-    const tax = (base + commission) * 0.05;
-    const final_price = base + commission + tax;
+    const f12xFee = formData.include_agency_fee ? base * 0.20 : 0;
+    const payPalFee = formData.include_processing_fee ? (base + f12xFee) * 0.05 : 0;
+    const final_price = base + f12xFee + payPalFee;
 
     const dataToSave = {
       ...formData,
       final_price,
-      campaign_id: '00000000-0000-0000-0000-000000000000', // Ensure campaign_id is present
+      campaign_id: formData.campaign_id || '00000000-0000-0000-0000-000000000000',
+      creator_name: formData.creator_name || formData.handle || 'Unknown',
+      approval_status: formData.approval_status || 'Sourced',
       id: creator?.id 
     };
     
@@ -104,32 +105,25 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div className="grid grid-cols-2 gap-5">
             <div className="space-y-2">
-              <Label htmlFor="creator_name" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Creator Name</Label>
+              <Label htmlFor="handle" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Creator Handle (@)</Label>
+              <Input
+                id="handle"
+                name="handle"
+                value={formData.handle || ''}
+                onChange={handleChange}
+                required
+                className="bg-neutral-900 border-white/10 focus:border-lime-400 h-11"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="creator_name" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Display Name</Label>
               <Input
                 id="creator_name"
                 name="creator_name"
                 value={formData.creator_name || ''}
                 onChange={handleChange}
-                disabled={!isEditor && !!creator}
-                required
                 className="bg-neutral-900 border-white/10 focus:border-lime-400 h-11"
               />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="platform" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Platform</Label>
-              <select
-                id="platform"
-                name="platform"
-                value={formData.platform || 'Instagram'}
-                onChange={handleChange}
-                disabled={!isEditor && !!creator}
-                className="flex h-11 w-full rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm focus:outline-none focus:border-lime-400"
-              >
-                <option value="Instagram">Instagram</option>
-                <option value="TikTok">TikTok</option>
-                <option value="YouTube">YouTube</option>
-              </select>
             </div>
 
             {isEditor && (
