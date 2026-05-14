@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useCampaign } from '@/contexts/CampaignContext';
 import { Play } from 'lucide-react';
 
-const STAGES = ['Brief Sent', 'Content Draft', 'In Review', 'Published', 'Approved'];
+import { STAGES } from "@/lib/constants";
 
 export default function TimelinePage() {
   const [progressItems, setProgressItems] = useState<any[]>([]);

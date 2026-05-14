@@ -21,7 +21,7 @@ function Toast({ message, type, onClose }: { message: string, type: 'success'|'e
   );
 }
 
-const STAGES = ['Sourced', 'Outreach', 'Negotiating', 'Signed', 'Approved'];
+import { STAGES } from "@/lib/constants";
 
 export default function EditorDashboard() {
   const { creators, loadingCreators, fetchError, loadCreators, budget, remainingBudget, includeAgencyFee, setIncludeAgencyFee, includeProcessingFee, setIncludeProcessingFee } = useCampaign();
