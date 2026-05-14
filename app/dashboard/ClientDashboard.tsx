@@ -9,7 +9,7 @@ import { createClient } from '@/lib/supabase/client';
 import { STAGES } from '@/lib/constants';
 
 export default function ClientDashboard() {
-  const { creators, loadingCreators, fetchError } = useCampaign();
+  const { creators, loadingCreators, fetchError, includeAgencyFee, includeProcessingFee } = useCampaign();
   const { profile } = useAuth();
   const [progressItems, setProgressItems] = useState<any[]>([]);
   const [loadingProgress, setLoadingProgress] = useState(true);
@@ -109,8 +109,8 @@ export default function ClientDashboard() {
               
               const basePrice = Number(c.base_price) || 0;
               const commissionRate = basePrice >= 100 ? 0.20 : 0.10;
-              const f12xFee = basePrice * commissionRate;
-              const payPalFee = (basePrice + f12xFee) * 0.05;
+              const f12xFee = includeAgencyFee ? basePrice * commissionRate : 0;
+              const payPalFee = includeProcessingFee ? (basePrice + f12xFee) * 0.05 : 0;
               const finalTotal = basePrice + f12xFee + payPalFee;
               const platformUrl = c.platform?.toLowerCase() === 'instagram' ? `https://instagram.com/${c.handle.replace(/^@/, '')}` : '#';
 
