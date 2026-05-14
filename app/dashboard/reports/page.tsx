@@ -48,7 +48,7 @@ export default function ReportsPage() {
   if (error) return <div className="p-8 text-red-400 font-bold bg-[#050505] min-h-screen">Error: {error}</div>;
 
   // METRICS
-  const approvedCreators = creators.filter(c => c.approval_status === 'Approved' || c.approval_status === 'Signed');
+  const approvedCreators = creators.filter(c => c.client_approved_creator === true);
   const estReach = approvedCreators.reduce((sum, c) => sum + (c.followers || 0), 0);
   
   const totalAllocated = budgetItems.reduce((sum, b) => sum + Number(b.amount || 0), 0);
@@ -130,7 +130,7 @@ ${sortedTableData.map(d => `- @${d.handle} (${d.platform}): ${d.followers.toLoca
         </div>
         <div className="bg-neutral-900 rounded-xl p-4 border border-white/10">
           <div className="flex items-center gap-2 text-neutral-500 mb-2"><Activity className="w-4 h-4"/> <span className="text-[10px] font-black uppercase tracking-widest">Est Reach</span></div>
-          <p className="text-2xl font-black text-blue-400">{(estReach / 1000000).toFixed(2)}M</p>
+          <p className="text-2xl font-black text-lime-400">{(estReach / 1000000).toFixed(2)}M</p>
         </div>
       </div>
 
@@ -178,7 +178,7 @@ ${sortedTableData.map(d => `- @${d.handle} (${d.platform}): ${d.followers.toLoca
                 <td className="py-3"><span className="text-[9px] uppercase border border-neutral-700 px-1.5 py-0.5 rounded">{row.platform}</span></td>
                 <td className="py-3 text-right font-mono text-xs">{row.followers.toLocaleString()}</td>
                 <td className="py-3 pl-4">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-blue-400">{row.stage}</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-lime-400">{row.stage}</span>
                 </td>
                 <td className="py-3 text-right text-xs text-neutral-400">{row.updated_at.toLocaleDateString()}</td>
               </tr>
