@@ -10,17 +10,16 @@ export async function POST(req: Request) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Dynamic Pricing Calculation
-    let final_price = data.base_price;
-    const commissionRate = (data.base_price >= 100) ? 0.20 : 0.10;
-    const commission = data.base_price * commissionRate;
-    const tax = (data.base_price + commission) * 0.05;
-    final_price = data.base_price + commission + tax;
+    // Dynamic Pricing Calculation based on toggles
+    const base = Number(data.base_price) || 0;
+    const f12xFee = data.include_agency_fee ? base * 0.20 : 0;
+    const payPalFee = data.include_processing_fee ? (base + f12xFee) * 0.05 : 0;
+    const final_price = base + f12xFee + payPalFee;
 
     const payload = {
         ...data,
-        final_price: final_price,
-        campaign_id: '00000000-0000-0000-0000-000000000000'
+        final_price,
+        campaign_id: data.campaign_id || '00000000-0000-0000-0000-000000000000'
     };
 
     let response;
