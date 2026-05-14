@@ -87,9 +87,9 @@ export default function EditorDashboard() {
   const moveToNextStage = async (creatorId: string, currentStatus: string) => {
     try {
       const safeStatus = currentStatus || 'Sourced';
-      const currentIndex = STAGES.indexOf(safeStatus);
-      if (currentIndex === -1 || currentIndex === STAGES.length - 1) return;
-      const nextStage = STAGES[currentIndex + 1];
+      const currentIndex = KANBAN_STAGES.indexOf(safeStatus);
+      if (currentIndex === -1 || currentIndex === KANBAN_STAGES.length - 1) return;
+      const nextStage = KANBAN_STAGES[currentIndex + 1];
       
       const supabase = createClient();
       const { data, error } = await supabase
@@ -168,7 +168,8 @@ export default function EditorDashboard() {
     return true;
   });
 
-  const COLUMNS = STAGES.map(s => ({ label: s.toUpperCase(), status: s }));
+  const KANBAN_STAGES = ['Sourced', 'Outreach', 'Negotiating', 'Approved'];
+  const COLUMNS = KANBAN_STAGES.map(s => ({ label: s.toUpperCase(), status: s }));
 
   const approvedCreators = creators.filter(c => c.client_approved_creator === true);
 

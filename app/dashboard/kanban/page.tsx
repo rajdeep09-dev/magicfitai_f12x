@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useCampaign } from '@/contexts/CampaignContext';
-import { Search, Filter, Check, ArrowRight, X, Plus } from 'lucide-react';
+import { Search, Filter, Check, ArrowRight, ArrowLeft, Trash2, X, Plus } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import CreatorModal from '@/components/CreatorModal';
 
@@ -49,6 +49,51 @@ export default function KanbanPage() {
     } catch (err: any) {
       console.error('Update failed:', err);
       showToast(`Failed to update: ${err.message}`, 'error');
+    }
+  };
+
+  const moveBackStage = async (creatorId: string, currentStatus: string) => {
+    try {
+      const safeStatus = currentStatus || 'Sourced';
+      const currentIndex = KANBAN_STAGES.indexOf(safeStatus);
+      if (currentIndex <= 0) return;
+      const prevStage = KANBAN_STAGES[currentIndex - 1];
+      
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('creators')
+        .update({ approval_status: prevStage })
+        .eq('id', creatorId)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      if (!data) throw new Error('No rows updated');
+
+      await loadCreators();
+      showToast(`Moved back to ${prevStage}`, 'success');
+    } catch (err: any) {
+      console.error('Update failed:', err);
+      showToast(`Failed to move back: ${err.message}`, 'error');
+    }
+  };
+
+  const handleDeleteCreator = async (creatorId: string) => {
+    if (!window.confirm("Are you sure you want to permanently delete this creator?")) return;
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from('creators')
+        .delete()
+        .eq('id', creatorId);
+      
+      if (error) throw error;
+
+      await loadCreators();
+      showToast(`Creator deleted successfully`, 'success');
+    } catch (err: any) {
+      console.error('Delete failed:', err);
+      showToast(`Failed to delete: ${err.message}`, 'error');
     }
   };
 
@@ -142,24 +187,42 @@ export default function KanbanPage() {
                         <span>{c.content_type || 'Post'}</span>
                         <span className="font-black text-lime-400">${c.base_price || 0}</span>
                       </div>
-                      <div className="pt-2 flex gap-2">
-                        {col !== 'Approved' && (
+                      {isEditor && (
+                        <div className="pt-2 flex gap-2">
                           <button 
-                            onClick={() => moveToNextStage(c.id, c.approval_status ?? 'Sourced')}
-                            className="flex-1 bg-white/10 hover:bg-white/20 text-white font-black uppercase tracking-widest text-[9px] py-1.5 rounded transition flex items-center justify-center gap-1"
+                            onClick={() => handleDeleteCreator(c.id)}
+                            className="bg-red-500/10 hover:bg-red-500/20 text-red-400 p-1.5 rounded transition flex items-center justify-center"
+                            title="Delete Creator"
                           >
-                            Move <ArrowRight className="w-3 h-3" />
+                            <Trash2 className="w-3 h-3" />
                           </button>
-                        )}
-                        {col === 'Negotiating' && (
-                           <button 
-                             onClick={() => moveToNextStage(c.id, 'Approved')}
-                             className="flex-1 bg-lime-400 hover:bg-lime-300 text-black font-black uppercase tracking-widest text-[9px] py-1.5 rounded transition flex items-center justify-center gap-1"
-                           >
-                             Approve <Check className="w-3 h-3" />
-                           </button>
-                        )}
-                      </div>
+                          {col !== 'Sourced' && (
+                            <button 
+                              onClick={() => moveBackStage(c.id, c.approval_status ?? 'Sourced')}
+                              className="bg-white/5 hover:bg-white/10 text-white p-1.5 rounded transition flex items-center justify-center"
+                              title="Move Back"
+                            >
+                              <ArrowLeft className="w-3 h-3" />
+                            </button>
+                          )}
+                          {col !== 'Approved' && (
+                            <button 
+                              onClick={() => moveToNextStage(c.id, c.approval_status ?? 'Sourced')}
+                              className="flex-1 bg-white/10 hover:bg-white/20 text-white font-black uppercase tracking-widest text-[9px] py-1.5 rounded transition flex items-center justify-center gap-1"
+                            >
+                              Move <ArrowRight className="w-3 h-3" />
+                            </button>
+                          )}
+                          {col === 'Negotiating' && (
+                             <button 
+                               onClick={() => moveToNextStage(c.id, 'Approved')}
+                               className="flex-1 bg-lime-400 hover:bg-lime-300 text-black font-black uppercase tracking-widest text-[9px] py-1.5 rounded transition flex items-center justify-center gap-1"
+                             >
+                               Approve <Check className="w-3 h-3" />
+                             </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )})}
                   {colCreators.length === 0 && (
