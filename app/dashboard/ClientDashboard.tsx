@@ -213,8 +213,16 @@ export default function ClientDashboard() {
                 <span className="font-bold">{(selectedCreator.followers || 0).toLocaleString()}</span>
               </div>
               <div className="bg-[#050505] rounded-lg p-4 border border-white/5">
-                <span className="text-[10px] font-black uppercase tracking-widest text-neutral-500 block mb-1">Deliverable</span>
-                <span className="font-bold">{selectedCreator.content_type || 'N/A'}</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-neutral-500 block mb-1">Engagement</span>
+                <span className="font-bold">{selectedCreator.engagement_rate || '0'}%</span>
+              </div>
+              <div className="bg-[#050505] rounded-lg p-4 border border-white/5">
+                <span className="text-[10px] font-black uppercase tracking-widest text-neutral-500 block mb-1">Language</span>
+                <span className="font-bold">{selectedCreator.lang || 'N/A'}</span>
+              </div>
+              <div className="bg-[#050505] rounded-lg p-4 border border-white/5">
+                <span className="text-[10px] font-black uppercase tracking-widest text-neutral-500 block mb-1">Platform</span>
+                <span className="font-bold">{selectedCreator.platform || 'N/A'}</span>
               </div>
               {selectedCreator.draft_reel_url && (
                 <div className="col-span-2 bg-[#050505] rounded-lg p-4 border border-lime-400/20">
