@@ -216,37 +216,21 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
               <div className="space-y-4 col-span-2 p-5 bg-white/5 rounded-xl border border-white/5">
                 <h4 className="font-bold text-sm tracking-wide text-neutral-200">Pricing & Approval</h4>
                 <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                     <label className="flex items-center gap-2 cursor-pointer text-xs font-bold uppercase text-neutral-400">
+                        <input type="checkbox" name="include_agency_fee" checked={formData.include_agency_fee} onChange={handleChange} className="text-lime-400 rounded" />
+                        Include 20% Agency Fee
+                     </label>
+                     <label className="flex items-center gap-2 cursor-pointer text-xs font-bold uppercase text-neutral-400">
+                        <input type="checkbox" name="include_processing_fee" checked={formData.include_processing_fee} onChange={handleChange} className="text-lime-400 rounded" />
+                        Include 5% Processing Fee
+                     </label>
+                  </div>
                   <div>
                     <Label className="text-neutral-500 text-[10px] font-bold uppercase tracking-widest">Final Price</Label>
                     <p className="text-2xl font-black text-lime-400">
-                      ${creator.final_price?.toFixed(2) || '0.00'}
+                      ${((formData.base_price || 0) + (formData.include_agency_fee ? (formData.base_price || 0) * 0.2 : 0) + ((formData.base_price || 0) + (formData.include_agency_fee ? (formData.base_price || 0) * 0.2 : 0)) * (formData.include_processing_fee ? 0.05 : 0)).toFixed(2)}
                     </p>
-                  </div>
-                  
-                  <div className="flex flex-col gap-2">
-                    <label className="flex items-center gap-2 cursor-pointer group">
-                      <input
-                        type="checkbox"
-                        name="client_approved_creator"
-                        checked={formData.client_approved_creator || false}
-                        onChange={handleChange}
-                        disabled={!isClient}
-                        className="rounded border-neutral-700 text-lime-400 focus:ring-lime-400 bg-neutral-900"
-                      />
-                      <span className="text-xs font-semibold text-neutral-300 group-hover:text-neutral-50">Approve Creator</span>
-                    </label>
-                    
-                    <label className="flex items-center gap-2 cursor-pointer group">
-                      <input
-                        type="checkbox"
-                        name="client_approved_video"
-                        checked={formData.client_approved_video || false}
-                        onChange={handleChange}
-                        disabled={!isClient}
-                        className="rounded border-neutral-700 text-lime-400 focus:ring-lime-400 bg-neutral-900"
-                      />
-                      <span className="text-xs font-semibold text-neutral-300 group-hover:text-neutral-50">Approve Video</span>
-                    </label>
                   </div>
                 </div>
 
