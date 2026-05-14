@@ -237,14 +237,18 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                 <h4 className="font-bold text-sm tracking-wide text-neutral-200">Pricing & Approval</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                     <label className="flex items-center gap-2 cursor-pointer text-xs font-bold uppercase text-neutral-400">
-                        <input type="checkbox" name="include_agency_fee" checked={formData.include_agency_fee} onChange={handleChange} className="text-lime-400 rounded" />
-                        Include Agency Fee
-                     </label>
-                     <label className="flex items-center gap-2 cursor-pointer text-xs font-bold uppercase text-neutral-400">
-                        <input type="checkbox" name="include_processing_fee" checked={formData.include_processing_fee} onChange={handleChange} className="text-lime-400 rounded" />
-                        Include 5% Processing Fee
-                     </label>
+                     {isEditor && (
+                       <>
+                         <label className="flex items-center gap-2 cursor-pointer text-xs font-bold uppercase text-neutral-400">
+                            <input type="checkbox" name="include_agency_fee" checked={formData.include_agency_fee} onChange={handleChange} className="text-lime-400 rounded" />
+                            Include Agency Fee
+                         </label>
+                         <label className="flex items-center gap-2 cursor-pointer text-xs font-bold uppercase text-neutral-400">
+                            <input type="checkbox" name="include_processing_fee" checked={formData.include_processing_fee} onChange={handleChange} className="text-lime-400 rounded" />
+                            Include 5% Processing Fee
+                         </label>
+                       </>
+                     )}
                   </div>
                   <div>
                     <Label className="text-neutral-500 text-[10px] font-bold uppercase tracking-widest">Final Price</Label>
