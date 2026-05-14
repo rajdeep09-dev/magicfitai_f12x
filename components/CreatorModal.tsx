@@ -69,31 +69,37 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
   }, []);
 
   useEffect(() => {
-    if (creator) {
-      setFormData({
-        ...creator,
-        include_agency_fee: creator.include_agency_fee ?? true,
-        include_processing_fee: creator.include_processing_fee ?? true,
-      });
-    } else {
-      setFormData({
-        creator_name: '',
-        platform: 'Instagram',
-        deliverable: '',
-        approval_status: 'Ideation',
-        campaign_id: campaigns.length > 0 ? campaigns[0].id : '',
-        base_price: 0,
-        draft_reel_url: '',
-        video_link: '',
-        published_video_link: '',
-        recommended_for_batch: '',        client_approved_creator: false,
-        client_approved_video: false,
-        include_agency_fee: true,
-        include_processing_fee: true,
-        payment_status: 'pending',
-      });
-    }
-  }, [creator, isOpen, campaigns]);
+    useEffect(() => {
+      if (creator) {
+        setFormData({
+          ...creator,
+          include_agency_fee: creator.include_agency_fee ?? true,
+          include_processing_fee: creator.include_processing_fee ?? true,
+        });
+      } else {
+        setFormData({
+          creator_name: '',
+          handle: '',
+          lang: '',
+          platform: 'Instagram',
+          followers: 0,
+          engagement_rate: 0,
+          base_price: 0,
+          approval_status: 'Ideation',
+          campaign_id: campaigns.length > 0 ? campaigns[0].id : '',
+          draft_reel_url: '',
+          video_link: '',
+          published_video_link: '',
+          recommended_for_batch: '',
+          is_recommended: false,
+          client_approved_creator: false,
+          client_approved_video: false,
+          include_agency_fee: true,
+          include_processing_fee: true,
+          payment_status: 'pending',
+        });
+      }
+    }, [creator, isOpen, campaigns]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
