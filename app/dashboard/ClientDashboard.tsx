@@ -115,7 +115,7 @@ export default function ClientDashboard() {
               const platformUrl = c.platform?.toLowerCase() === 'instagram' ? `https://instagram.com/${c.handle.replace(/^@/, '')}` : '#';
 
               return (
-                <div key={c.id} className="bg-neutral-900 rounded-xl border border-white/10 p-5 flex flex-col gap-4 relative overflow-hidden">
+                <div key={c.id} className="bg-neutral-900 rounded-xl border border-white/10 p-5 flex flex-col gap-4 relative overflow-hidden cursor-pointer hover:border-lime-400/50 transition-all" onClick={() => setSelectedCreator(c)}>
                   <div className="flex justify-between items-start">
                     <div className="flex gap-4 items-center">
                       <div className="w-12 h-12 rounded-full bg-lime-400/20 text-lime-400 flex items-center justify-center font-black text-lg shrink-0 border border-lime-400/30">
@@ -129,53 +129,10 @@ export default function ClientDashboard() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex gap-2">
-                        <a href={platformUrl} target="_blank" rel="noreferrer" className="bg-neutral-800 hover:bg-neutral-700 text-lime-400 p-2 rounded transition">
-                           <Users className="w-4 h-4" />
-                        </a>
-                        <button 
-                          onClick={() => setSelectedCreator(c)}
-                          className="bg-neutral-800 hover:bg-neutral-700 text-white font-black uppercase tracking-widest text-[9px] px-3 py-1.5 rounded transition"
-                        >
-                          View Profile
-                        </button>
+                    <div className="text-right">
+                       <span className="text-[10px] font-black uppercase tracking-widest text-neutral-500 block mb-1">Total Cost</span>
+                       <span className="font-black text-lime-400 text-xl">${c.final_price?.toFixed(2) || '0.00'}</span>
                     </div>
-                  </div>
-
-                  <div className="pt-4 border-t border-white/10">
-                    <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-2">
-                      <span>Progress Tracker</span>
-                      <span className="text-lime-400">{currentStage}</span>
-                    </div>
-                    <div className="flex gap-1 h-1.5 mb-4">
-                      {STAGES.map((s, i) => (
-                        <div key={s} className={`flex-1 rounded-full ${i <= stageIdx ? 'bg-lime-400' : 'bg-neutral-800'}`} />
-                      ))}
-                    </div>
-                    {c.draft_reel_url && c.draft_reel_url.trim() !== '' && (
-                        <a href={c.draft_reel_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-lime-400 text-[10px] font-black uppercase tracking-widest hover:underline mb-4">
-                          <Play className="w-3 h-3" /> Review Draft Video
-                        </a>
-                    )}
-                  </div>
-
-                  <div className="mt-4 p-4 bg-[#111] border border-white/10 rounded-xl text-xs space-y-2">
-                      <div className="flex justify-between text-white/70">
-                      <span>Base Creator Rate:</span>
-                      <span className="text-white font-medium">${basePrice.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between text-white/70">
-                      <span>F12X Agency Fee ({commissionRate * 100}%):</span>
-                      <span className="text-white font-medium">${f12xFee.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between text-white/70">
-                      <span>Payment Processing (5%):</span>
-                      <span className="text-white font-medium">${payPalFee.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between border-t border-white/10 pt-2 mt-2 font-bold text-sm">
-                      <span className="text-lime-400">Total Client Investment:</span>
-                      <span className="text-lime-400">${finalTotal.toFixed(2)}</span>
-                      </div>
                   </div>
                 </div>
               );
@@ -238,6 +195,44 @@ export default function ClientDashboard() {
                     </a>
                 </div>
               )}
+            </div>
+
+            {/* FULL PRICING BREAKDOWN */}
+            <div className="mb-8 p-5 bg-[#111] border border-white/10 rounded-xl text-xs space-y-3">
+                <h4 className="font-black uppercase tracking-widest text-neutral-500 mb-2 border-b border-white/5 pb-2">Pricing Breakdown</h4>
+                <div className="flex justify-between text-white/70">
+                   <span>Base Creator Rate:</span>
+                   <span className="text-white font-medium">${(Number(selectedCreator.base_price) || 0).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-white/70">
+                   <span>F12X Agency Fee:</span>
+                   <span className="text-white font-medium">${(includeAgencyFee ? (Number(selectedCreator.base_price) || 0) * ((Number(selectedCreator.base_price) || 0) >= 100 ? 0.20 : 0.10) : 0).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-white/70">
+                   <span>Payment Processing (5%):</span>
+                   <span className="text-white font-medium">${(includeProcessingFee ? ((Number(selectedCreator.base_price) || 0) + (includeAgencyFee ? (Number(selectedCreator.base_price) || 0) * ((Number(selectedCreator.base_price) || 0) >= 100 ? 0.20 : 0.10) : 0)) * 0.05 : 0).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between border-t border-white/10 pt-3 mt-2 font-black text-sm">
+                   <span className="text-lime-400">Total Client Investment:</span>
+                   <span className="text-lime-400">${(
+                      (Number(selectedCreator.base_price) || 0) + 
+                      (includeAgencyFee ? (Number(selectedCreator.base_price) || 0) * ((Number(selectedCreator.base_price) || 0) >= 100 ? 0.20 : 0.10) : 0) + 
+                      (includeProcessingFee ? ((Number(selectedCreator.base_price) || 0) + (includeAgencyFee ? (Number(selectedCreator.base_price) || 0) * ((Number(selectedCreator.base_price) || 0) >= 100 ? 0.20 : 0.10) : 0)) * 0.05 : 0)
+                   ).toFixed(2)}</span>
+                </div>
+            </div>
+
+            {/* 6-STAGE TRACKER */}
+            <div className="mb-8 p-5 bg-[#111] border border-white/10 rounded-xl">
+                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-neutral-500 mb-4">
+                  <span>Production Pipeline</span>
+                  <span className="text-lime-400">{getCreatorStage(selectedCreator.id)}</span>
+                </div>
+                <div className="flex gap-1 h-2">
+                  {STAGES.map((s, i) => (
+                    <div key={s} className={`flex-1 rounded-full ${i <= STAGES.indexOf(getCreatorStage(selectedCreator.id)) ? 'bg-lime-400' : 'bg-neutral-800'}`} />
+                  ))}
+                </div>
             </div>
 
             <div className="flex-1">
