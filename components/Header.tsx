@@ -12,7 +12,7 @@ export default function Header() {
   
   const navItems = [
     { label: 'Dash', href: '/dashboard', icon: LayoutDashboard },
-    ...(isEditor ? [{ label: 'Kanban', href: '/dashboard/kanban', icon: Users }] : []),
+    { label: 'Kanban', href: '/dashboard/kanban', icon: Users },
     { label: 'Creators', href: '/dashboard/creators', icon: Users },
     { label: 'Time', href: '/dashboard/timeline', icon: Clock },
     { label: 'Cal', href: '/dashboard/calendar', icon: CalendarDays },
