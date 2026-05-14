@@ -17,13 +17,19 @@ export const metadata: Metadata = {
   description: 'Premium influencer marketing dashboard for F12X × MAGICFIT campaigns.',
   generator: 'next',
   icons: {
-    icon: [
-      {
-        url: '/logos/magicfit-logo.png',
-        sizes: '32x32',
-      },
-    ],
-    apple: '/apple-icon.png',
+    icon: '/logos/magicfit-logo.png',
+    apple: '/logos/magicfit-logo.png',
+  },
+  openGraph: {
+    title: 'F12X × MAGICFIT | Client Dashboard',
+    description: 'Premium influencer marketing dashboard for F12X × MAGICFIT campaigns.',
+    images: ['/logos/magicfit-logo.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'F12X × MAGICFIT | Client Dashboard',
+    description: 'Premium influencer marketing dashboard for F12X × MAGICFIT campaigns.',
+    images: ['/logos/magicfit-logo.png'],
   },
 }
 
