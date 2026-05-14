@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { useCampaign } from '@/contexts/CampaignContext';
-import { Search, Filter, Check, ArrowRight, X } from 'lucide-react';
+import { Search, Filter, Check, ArrowRight, X, Plus } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import CreatorModal from '@/components/CreatorModal';
 
 export default function KanbanPage() {
   const { creators, loadingCreators, fetchError, loadCreators } = useCampaign();
@@ -12,6 +13,8 @@ export default function KanbanPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [platformFilter, setPlatformFilter] = useState('');
   const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCreator, setSelectedCreator] = useState<any | null>(null);
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({ message, type });
@@ -84,6 +87,9 @@ export default function KanbanPage() {
             <p className="text-neutral-400 text-sm mt-1">Move creators from Sourced through Approved.</p>
         </div>
         <div className="flex items-center gap-3 w-full md:w-auto">
+          <button onClick={() => { setSelectedCreator(null); setIsModalOpen(true); }} className="bg-lime-400 text-black font-black uppercase text-xs px-4 py-2 rounded-xl hover:bg-lime-300 transition-colors flex items-center gap-2">
+            <Plus className="w-4 h-4" /> Add Creator
+          </button>
           <div className="relative flex-1 md:w-64">
             <Search className="w-4 h-4 absolute left-3 top-2.5 text-neutral-500" />
             <input 
@@ -187,6 +193,13 @@ export default function KanbanPage() {
           </div>
         )}
       </div>
+
+      <CreatorModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={async () => { setIsModalOpen(false); await loadCreators(); }}
+        creator={selectedCreator}
+      />
     </div>
   );
 }

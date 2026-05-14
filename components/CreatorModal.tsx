@@ -261,11 +261,14 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                   <select
                     id="approval_status"
                     name="approval_status"
-                    value={formData.approval_status || STAGES[0]}
+                    value={formData.approval_status || 'Sourced'}
                     onChange={handleChange}
                     disabled={!isEditor}
                     className="flex h-11 w-full rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm focus:outline-none focus:border-lime-400"
                   >
+                    <option value="Sourced">Sourced</option>
+                    <option value="Outreach">Outreach</option>
+                    <option value="Negotiating">Negotiating</option>
                     {STAGES.map((stage) => (
                       <option key={stage} value={stage}>{stage}</option>
                     ))}
