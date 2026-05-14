@@ -97,6 +97,60 @@ export default function KanbanPage() {
     }
   };
 
+  const handleCSVImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const text = event.target?.result as string;
+        const rows = text.split('\n').map(row => row.split(','));
+        const headers = rows[0].map(h => h.trim());
+        
+        const creatorsToInsert = [];
+        for (let i = 1; i < rows.length; i++) {
+          if (!rows[i] || rows[i].length < 2) continue;
+          const row = rows[i];
+          const obj: any = {};
+          headers.forEach((header, index) => {
+            if (row[index] !== undefined && row[index] !== '\r') {
+               obj[header] = row[index].trim();
+            }
+          });
+
+          if (!obj.handle) continue;
+
+          creatorsToInsert.push({
+            campaign_id: obj.campaign_id || '00000000-0000-0000-0000-000000000000',
+            handle: obj.handle,
+            creator_name: obj.creator_name || obj.handle,
+            platform: obj.platform || 'Instagram',
+            followers: parseInt(obj.followers) || 0,
+            engagement_rate: parseFloat(obj.engagement_rate) || 0,
+            base_price: parseFloat(obj.base_price) || 0,
+            final_price: parseFloat(obj.final_price) || 0,
+            approval_status: obj.approval_status || 'Sourced',
+            lang: obj.lang || 'English'
+          });
+        }
+
+        if (creatorsToInsert.length === 0) throw new Error("No valid creators found in CSV");
+
+        const supabase = createClient();
+        const { error } = await supabase.from('creators').insert(creatorsToInsert);
+        if (error) throw error;
+        
+        await loadCreators();
+        showToast(`Successfully imported ${creatorsToInsert.length} creators`, 'success');
+      } catch (err: any) {
+        showToast(`Import failed: ${err.message}`, 'error');
+      }
+      e.target.value = ''; // reset input
+    };
+    reader.readAsText(file);
+  };
+
   if (loadingCreators) {
     return (
       <div className="p-8 text-lime-400 font-black tracking-widest uppercase text-xs bg-[#050505] min-h-screen flex items-center justify-center">
@@ -136,9 +190,15 @@ export default function KanbanPage() {
         </div>
         <div className="flex items-center gap-3 w-full md:w-auto">
           {isEditor && (
-            <button onClick={() => { setSelectedCreator(null); setIsModalOpen(true); }} className="bg-lime-400 text-black font-black uppercase text-xs px-4 py-2 rounded-xl hover:bg-lime-300 transition-colors flex items-center gap-2">
-              <Plus className="w-4 h-4" /> Add Creator
-            </button>
+            <>
+              <button onClick={() => { setSelectedCreator(null); setIsModalOpen(true); }} className="bg-lime-400 text-black font-black uppercase text-xs px-4 py-2 rounded-xl hover:bg-lime-300 transition-colors flex items-center gap-2">
+                <Plus className="w-4 h-4" /> Add Creator
+              </button>
+              <label className="bg-white/5 border border-white/10 hover:bg-white/10 text-white font-black uppercase text-[10px] tracking-widest px-4 py-2 rounded-xl transition-colors flex items-center justify-center cursor-pointer">
+                 Import CSV
+                 <input type="file" accept=".csv" className="hidden" onChange={handleCSVImport} />
+              </label>
+            </>
           )}
           <div className="relative flex-1 md:w-64">
             <Search className="w-4 h-4 absolute left-3 top-2.5 text-neutral-500" />

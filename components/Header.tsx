@@ -1,14 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import Image from 'next/image';
-import { LayoutDashboard, Users, Clock, CalendarDays, FileText } from 'lucide-react';
+import { LayoutDashboard, Users, Clock, CalendarDays, FileText, Menu, X } from 'lucide-react';
 
 export default function Header() {
   const { isEditor, logout } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
   
   const navItems = [
     { label: 'Dash', href: '/dashboard', icon: LayoutDashboard },
@@ -33,20 +35,53 @@ export default function Header() {
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex gap-6">
-          {navItems.map((item) => (
-            <Link key={item.href} href={item.href} className="text-[10px] font-bold text-neutral-400 hover:text-white uppercase tracking-widest flex items-center gap-1.5">
-              <item.icon className="w-3 h-3" /> {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link key={item.href} href={item.href} className={`text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-colors ${isActive ? 'text-lime-400' : 'text-neutral-400 hover:text-white'}`}>
+                <item.icon className="w-3 h-3" /> {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="flex items-center gap-4">
-          <span className={`text-[10px] font-black uppercase px-2 py-1 rounded border ${isEditor ? 'border-purple-500/50 text-purple-400' : 'border-blue-500/50 text-blue-400'}`}>
+          <span className={`hidden md:inline-block text-[10px] font-black uppercase px-2 py-1 rounded border ${isEditor ? 'border-purple-500/50 text-purple-400' : 'border-blue-500/50 text-blue-400'}`}>
             {isEditor ? 'EDITOR' : 'CLIENT'}
           </span>
-          <button onClick={logout} className="text-[10px] font-bold text-neutral-500 hover:text-red-400 uppercase tracking-widest">Logout</button>
+          <button onClick={logout} className="hidden md:block text-[10px] font-bold text-neutral-500 hover:text-red-400 uppercase tracking-widest">Logout</button>
+          
+          {/* Mobile Menu Toggle */}
+          <button className="md:hidden text-white" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Nav Dropdown */}
+      {mobileMenuOpen && (
+        <div className="md:hidden absolute top-16 left-0 right-0 bg-[#050505] border-b border-white/10 p-4 flex flex-col gap-4 shadow-2xl">
+          {navItems.map((item) => {
+             const isActive = pathname === item.href;
+             return (
+              <Link 
+                key={item.href} 
+                href={item.href} 
+                onClick={() => setMobileMenuOpen(false)}
+                className={`text-xs font-bold uppercase tracking-widest flex items-center gap-2 p-3 rounded-lg ${isActive ? 'bg-white/5 text-lime-400' : 'text-neutral-400 hover:text-white hover:bg-white/5'}`}
+              >
+                <item.icon className="w-4 h-4" /> {item.label}
+              </Link>
+             );
+          })}
+          <div className="flex justify-between items-center mt-4 pt-4 border-t border-white/10">
+             <span className={`text-[10px] font-black uppercase px-2 py-1 rounded border ${isEditor ? 'border-purple-500/50 text-purple-400' : 'border-blue-500/50 text-blue-400'}`}>
+               {isEditor ? 'EDITOR' : 'CLIENT'}
+             </span>
+             <button onClick={logout} className="text-xs font-bold text-red-400 uppercase tracking-widest">Logout</button>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

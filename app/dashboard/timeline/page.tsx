@@ -93,7 +93,7 @@ export default function TimelinePage() {
             const currentStage = prog ? prog.stage : 'Brief Sent';
             const stageIdx = STAGES.indexOf(currentStage);
             const handleStr = c.handle ?? c.creator_name ?? '?';
-            const showVideoLink = stageIdx >= 1 && c.draft_reel_url;
+            const showVideoLink = stageIdx >= 1 && c.draft_reel_url && c.draft_reel_url.trim() !== '';
             
             return (
               <div key={c.id} className="bg-neutral-900 border border-white/10 rounded-xl p-6 flex flex-col md:flex-row items-start md:items-center gap-6">

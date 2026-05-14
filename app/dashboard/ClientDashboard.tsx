@@ -152,33 +152,31 @@ export default function ClientDashboard() {
                         <div key={s} className={`flex-1 rounded-full ${i <= stageIdx ? 'bg-lime-400' : 'bg-neutral-800'}`} />
                       ))}
                     </div>
-                    {c.draft_reel_url && (
+                    {c.draft_reel_url && c.draft_reel_url.trim() !== '' && (
                         <a href={c.draft_reel_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-lime-400 text-[10px] font-black uppercase tracking-widest hover:underline mb-4">
                           <Play className="w-3 h-3" /> Review Draft Video
                         </a>
                     )}
                   </div>
 
-                  {userRole === 'editor' && (
-                    <div className="mt-4 p-4 bg-[#111] border border-white/10 rounded-xl text-xs space-y-2">
-                        <div className="flex justify-between text-white/70">
-                        <span>Base Creator Rate:</span>
-                        <span className="text-white font-medium">${basePrice.toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between text-white/70">
-                        <span>F12X Agency Fee ({commissionRate * 100}%):</span>
-                        <span className="text-white font-medium">${f12xFee.toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between text-white/70">
-                        <span>Payment Processing (5%):</span>
-                        <span className="text-white font-medium">${payPalFee.toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between border-t border-white/10 pt-2 mt-2 font-bold text-sm">
-                        <span className="text-lime-400">Total Client Investment:</span>
-                        <span className="text-lime-400">${finalTotal.toFixed(2)}</span>
-                        </div>
-                    </div>
-                  )}
+                  <div className="mt-4 p-4 bg-[#111] border border-white/10 rounded-xl text-xs space-y-2">
+                      <div className="flex justify-between text-white/70">
+                      <span>Base Creator Rate:</span>
+                      <span className="text-white font-medium">${basePrice.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-white/70">
+                      <span>F12X Agency Fee ({commissionRate * 100}%):</span>
+                      <span className="text-white font-medium">${f12xFee.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-white/70">
+                      <span>Payment Processing (5%):</span>
+                      <span className="text-white font-medium">${payPalFee.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between border-t border-white/10 pt-2 mt-2 font-bold text-sm">
+                      <span className="text-lime-400">Total Client Investment:</span>
+                      <span className="text-lime-400">${finalTotal.toFixed(2)}</span>
+                      </div>
+                  </div>
                 </div>
               );
             })}
@@ -233,7 +231,7 @@ export default function ClientDashboard() {
                 <span className="text-[10px] font-black uppercase tracking-widest text-neutral-500 block mb-1">Platform</span>
                 <span className="font-bold">{selectedCreator.platform || 'N/A'}</span>
               </div>
-              {selectedCreator.draft_reel_url && (
+              {selectedCreator.draft_reel_url && selectedCreator.draft_reel_url.trim() !== '' && (
                 <div className="col-span-2 bg-[#050505] rounded-lg p-4 border border-lime-400/20">
                     <a href={selectedCreator.draft_reel_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-lime-400 text-xs font-black uppercase tracking-widest hover:underline">
                       <Play className="w-4 h-4" /> Review Draft Video
