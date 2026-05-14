@@ -41,10 +41,16 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
 
   useEffect(() => {
     async function loadCampaigns() {
-      const supabase = createClient();
-      const { data } = await supabase.from('campaigns').select('id, name');
-      if (data) {
-        setCampaigns(data);
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase.from('campaigns').select('id, name');
+        if (data) {
+          setCampaigns(data);
+        } else {
+          console.error('Error fetching campaigns:', error);
+        }
+      } catch (err) {
+        console.error('Failed to load campaigns:', err);
       }
     }
     loadCampaigns();
