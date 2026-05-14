@@ -13,9 +13,9 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: 'F12X Studio x Magicfit Client Portal',
-  description: 'Premium influencer marketing client portal for Magicfit',
-  generator: 'v0.app',
+  title: 'F12X × MAGICFIT | Client Dashboard',
+  description: 'Premium influencer marketing dashboard for F12X × MAGICFIT campaigns.',
+  generator: 'next',
   icons: {
     icon: [
       {
