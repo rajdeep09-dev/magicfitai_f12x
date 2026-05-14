@@ -32,24 +32,23 @@ export async function POST(req: Request) {
         response = await supabase.from('creators').insert(payload).select();
     }
 
-    // ... previous logic ...
     if (response.error) throw response.error;
     const updatedCreator = response.data[0];
 
-    // Deduct from campaign budget if client_approved_creator becomes true
-    if (updatedCreator.client_approved_creator === true) {
-        const { data: budgetData } = await supabase
+    // Robustly recalculate the campaign budget spent total
+    if (updatedCreator.campaign_id) {
+        const { data: allApproved } = await supabase
+            .from('creators')
+            .select('final_price')
+            .eq('campaign_id', updatedCreator.campaign_id)
+            .eq('client_approved_creator', true);
+            
+        const newSpent = (allApproved || []).reduce((sum, c) => sum + (Number(c.final_price) || 0), 0);
+
+        await supabase
             .from('campaign_budget')
-            .select('*')
-            .eq('id', updatedCreator.campaign_id)
-            .single();
-        
-        if (budgetData) {
-            await supabase
-                .from('campaign_budget')
-                .update({ spent: Number(budgetData.spent || 0) + Number(updatedCreator.final_price) })
-                .eq('id', budgetData.id);
-        }
+            .update({ spent: newSpent })
+            .eq('id', updatedCreator.campaign_id);
     }
 
     return NextResponse.json({ success: true, creator: updatedCreator });

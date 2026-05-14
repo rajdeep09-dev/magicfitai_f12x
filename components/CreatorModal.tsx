@@ -351,6 +351,30 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                       ${((formData.base_price || 0) + (formData.include_agency_fee ? (formData.base_price || 0) * ((formData.base_price || 0) >= 100 ? 0.2 : 0.1) : 0) + ((formData.base_price || 0) + (formData.include_agency_fee ? (formData.base_price || 0) * ((formData.base_price || 0) >= 100 ? 0.2 : 0.1) : 0)) * (formData.include_processing_fee ? 0.05 : 0)).toFixed(2)}
                     </p>
                   </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="flex items-center gap-2 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        name="client_approved_creator"
+                        checked={formData.client_approved_creator || false}
+                        onChange={handleChange}
+                        disabled={!isClient && !isEditor}
+                        className="rounded border-neutral-700 text-lime-400 focus:ring-lime-400 bg-neutral-900"
+                      />
+                      <span className="text-xs font-semibold text-neutral-300 group-hover:text-neutral-50">Approve Creator</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        name="client_approved_video"
+                        checked={formData.client_approved_video || false}
+                        onChange={handleChange}
+                        disabled={!isClient && !isEditor}
+                        className="rounded border-neutral-700 text-lime-400 focus:ring-lime-400 bg-neutral-900"
+                      />
+                      <span className="text-xs font-semibold text-neutral-300 group-hover:text-neutral-50">Approve Video</span>
+                    </label>
+                  </div>
                 </div>
 
                 {isClient && formData.client_approved_video && formData.client_approved_creator && (
