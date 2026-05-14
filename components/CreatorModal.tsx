@@ -45,11 +45,16 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
       try {
         const supabase = createClient();
         const { data, error } = await supabase.from('campaigns').select('id, name');
-        if (data) {
-          setCampaigns(data);
-        } else {
-          console.error('Error fetching campaigns:', error);
+        
+        let allCampaigns = data || [];
+        const defaultCampaign = { id: '00000000-0000-0000-0000-000000000000', name: 'Default Campaign' };
+        
+        // Add default campaign if not exists
+        if (!allCampaigns.find(c => c.id === defaultCampaign.id)) {
+            allCampaigns = [defaultCampaign, ...allCampaigns];
         }
+        
+        setCampaigns(allCampaigns);
       } catch (err) {
         console.error('Failed to load campaigns:', err);
       }
