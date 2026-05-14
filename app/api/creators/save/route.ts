@@ -30,8 +30,27 @@ export async function POST(req: Request) {
         response = await supabase.from('creators').insert(payload).select();
     }
 
+    // ... previous logic ...
     if (response.error) throw response.error;
-    return NextResponse.json({ success: true, creator: response.data[0] });
+    const updatedCreator = response.data[0];
+
+    // Deduct from campaign budget if client_approved_creator becomes true
+    if (updatedCreator.client_approved_creator === true) {
+        const { data: budgetData } = await supabase
+            .from('campaign_budget')
+            .select('*')
+            .eq('id', updatedCreator.campaign_id)
+            .single();
+        
+        if (budgetData) {
+            await supabase
+                .from('campaign_budget')
+                .update({ spent: Number(budgetData.spent || 0) + Number(updatedCreator.final_price) })
+                .eq('id', budgetData.id);
+        }
+    }
+
+    return NextResponse.json({ success: true, creator: updatedCreator });
   } catch (error: any) {
     console.error('Save error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
