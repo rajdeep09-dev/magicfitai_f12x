@@ -115,18 +115,32 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
     e.preventDefault();
     setLoading(true);
     
-    const base = formData.base_price || 0;
+    const base = Number(formData.base_price) || 0;
     const f12xFee = formData.include_agency_fee ? base * (base >= 100 ? 0.20 : 0.10) : 0;
     const payPalFee = formData.include_processing_fee ? (base + f12xFee) * 0.05 : 0;
     const final_price = base + f12xFee + payPalFee;
 
     const dataToSave = {
-      ...formData,
-      final_price,
+      id: creator?.id || undefined,
       campaign_id: formData.campaign_id || '00000000-0000-0000-0000-000000000000',
+      handle: formData.handle || '',
       creator_name: formData.creator_name || formData.handle || 'Unknown',
-      approval_status: formData.approval_status || 'Sourced',
-      id: creator?.id 
+      platform: formData.platform || 'Instagram',
+      followers: Number(formData.followers) || 0,
+      engagement_rate: Number(formData.engagement_rate) || 0,
+      base_price: base,
+      final_price: final_price,
+      approval_status: formData.approval_status || 'Ideation',
+      progress_score: 0,
+      video_link: formData.video_link || null,
+      published_video_link: formData.published_video_link || null,
+      draft_reel_url: formData.draft_reel_url || null,
+      is_recommended: !!formData.is_recommended,
+      payment_status: formData.payment_status || 'pending',
+      client_approved_creator: !!formData.client_approved_creator,
+      client_approved_video: !!formData.client_approved_video,
+      lang: formData.lang || 'English',
+      notes: formData.notes || '',
     };
     
     await fetch('/api/creators/save', {
