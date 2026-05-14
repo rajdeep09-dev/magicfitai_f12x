@@ -24,7 +24,7 @@ function Toast({ message, type, onClose }: { message: string, type: 'success'|'e
 const STAGES = ['Sourced', 'Outreach', 'Negotiating', 'Signed', 'Approved'];
 
 export default function EditorDashboard() {
-  const { creators, loadingCreators, fetchError, loadCreators, budget, remainingBudget } = useCampaign();
+  const { creators, loadingCreators, fetchError, loadCreators, budget, remainingBudget, includeAgencyFee, setIncludeAgencyFee, includeProcessingFee, setIncludeProcessingFee } = useCampaign();
   
   const [budgetItems, setBudgetItems] = useState<any[]>([]);
   const [loadingBudget, setLoadingBudget] = useState(true);

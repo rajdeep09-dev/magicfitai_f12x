@@ -34,6 +34,10 @@ interface CampaignContextType {
   creators: Creator[];
   loadingCreators: boolean;
   fetchError: string | null;
+  includeAgencyFee: boolean;
+  setIncludeAgencyFee: (val: boolean) => void;
+  includeProcessingFee: boolean;
+  setIncludeProcessingFee: (val: boolean) => void;
   setCreators: (c: Creator[]) => void;
   loadCreators: () => Promise<void>;
   approveCreator: (creatorId: string) => void;
@@ -49,6 +53,8 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
   const [selectedCreators, setSelectedCreators] = useState<Set<string>>(new Set());
   const [loadingCreators, setLoadingCreators] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [includeAgencyFee, setIncludeAgencyFee] = useState(true);
+  const [includeProcessingFee, setIncludeProcessingFee] = useState(true);
 
   const loadCreators = async () => {
     setLoadingCreators(true);
@@ -101,7 +107,22 @@ export const CampaignProvider = ({ children }: { children: React.ReactNode }) =>
   };
 
   return (
-    <CampaignContext.Provider value={{ budget, remainingBudget, creators, loadingCreators, fetchError, setCreators, loadCreators, approveCreator, selectedCreators, toggleSelect }}>
+    <CampaignContext.Provider value={{ 
+        budget, 
+        remainingBudget, 
+        creators, 
+        loadingCreators, 
+        fetchError, 
+        includeAgencyFee, 
+        setIncludeAgencyFee, 
+        includeProcessingFee, 
+        setIncludeProcessingFee, 
+        setCreators, 
+        loadCreators, 
+        approveCreator, 
+        selectedCreators, 
+        toggleSelect 
+    }}>
       {children}
     </CampaignContext.Provider>
   );
