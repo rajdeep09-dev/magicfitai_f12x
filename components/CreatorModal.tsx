@@ -143,6 +143,7 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
     };
     
     try {
+      console.log('DEBUG: Sending data to save:', dataToSave);
       const res = await fetch('/api/creators/save', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
@@ -150,9 +151,10 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
       });
       
       const result = await res.json();
+      console.log('DEBUG: API Response:', result);
       
       if (!res.ok) {
-        throw new Error(result.error || 'Failed to save creator');
+        throw new Error(result.error || result.message || 'Failed to save creator');
       }
       
       await onSave(dataToSave);
