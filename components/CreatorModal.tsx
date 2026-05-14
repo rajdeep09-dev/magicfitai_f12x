@@ -143,15 +143,27 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
       notes: formData.notes || '',
     };
     
-    await fetch('/api/creators/save', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(dataToSave)
-    });
-    
-    await onSave(dataToSave);
-    setLoading(false);
-    onClose();
+    try {
+      const res = await fetch('/api/creators/save', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(dataToSave)
+      });
+      
+      const result = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(result.error || 'Failed to save creator');
+      }
+      
+      await onSave(dataToSave);
+      onClose();
+    } catch (err: any) {
+      console.error('Save error:', err);
+      alert(`Error saving creator: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
