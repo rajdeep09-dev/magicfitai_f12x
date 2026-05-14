@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useCampaign } from '@/contexts/CampaignContext';
+import { Play } from 'lucide-react';
 
 const STAGES = ['Brief Sent', 'Content Draft', 'In Review', 'Published', 'Approved'];
 
@@ -68,6 +69,14 @@ export default function TimelinePage() {
     return <div className="p-8 text-lime-400 font-black tracking-widest uppercase text-xs bg-[#050505] min-h-screen flex items-center justify-center animate-pulse">Loading Timeline...</div>;
   }
 
+  if (fetchError) {
+    return (
+      <div className="p-8 text-red-400 font-black tracking-widest uppercase text-xs bg-[#050505] min-h-screen flex items-center justify-center">
+        Error: {fetchError}
+      </div>
+    );
+  }
+
   const approvedCreators = creators.filter(c => c.client_approved_creator === true);
 
   return (
@@ -84,6 +93,7 @@ export default function TimelinePage() {
             const currentStage = prog ? prog.stage : 'Brief Sent';
             const stageIdx = STAGES.indexOf(currentStage);
             const handleStr = c.handle ?? c.creator_name ?? '?';
+            const showVideoLink = stageIdx >= 1 && c.draft_reel_url;
             
             return (
               <div key={c.id} className="bg-neutral-900 border border-white/10 rounded-xl p-6 flex flex-col md:flex-row items-start md:items-center gap-6">
@@ -93,7 +103,14 @@ export default function TimelinePage() {
                   </div>
                   <div className="min-w-0">
                     <p className="font-bold text-lg text-white truncate">@{handleStr.replace(/^@/, '')}</p>
-                    <span className="text-[10px] uppercase border border-neutral-700 px-1.5 py-0.5 rounded text-neutral-400 mt-1 inline-block">{c.platform || 'N/A'}</span>
+                    <div className="flex flex-col gap-1 mt-1">
+                      <span className="text-[10px] uppercase border border-neutral-700 px-1.5 py-0.5 rounded text-neutral-400 inline-block w-fit">{c.platform || 'N/A'}</span>
+                      {showVideoLink && (
+                        <a href={c.draft_reel_url} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-lime-400 text-[10px] font-black uppercase tracking-widest hover:underline">
+                          <Play className="w-3 h-3" /> Review Draft
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
 
