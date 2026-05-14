@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Creator } from '@/types/creator';
 import { useAuth } from '@/hooks/useAuth';
+import { createClient } from '@/lib/supabase/client';
 
 interface CreatorModalProps {
   isOpen: boolean;
@@ -97,7 +98,7 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
     setLoading(true);
     
     const base = formData.base_price || 0;
-    const f12xFee = formData.include_agency_fee ? base * 0.20 : 0;
+    const f12xFee = formData.include_agency_fee ? base * (base >= 100 ? 0.20 : 0.10) : 0;
     const payPalFee = formData.include_processing_fee ? (base + f12xFee) * 0.05 : 0;
     const final_price = base + f12xFee + payPalFee;
 
@@ -209,6 +210,23 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                     {campaigns.map((c) => (
                       <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="platform" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Platform</Label>
+                  <select
+                    id="platform"
+                    name="platform"
+                    value={formData.platform || 'Instagram'}
+                    onChange={handleChange}
+                    disabled={!isEditor}
+                    className="flex h-11 w-full rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm focus:outline-none focus:border-lime-400"
+                  >
+                    <option value="Instagram">Instagram</option>
+                    <option value="TikTok">TikTok</option>
+                    <option value="YouTube">YouTube</option>
+                    <option value="Twitter">Twitter</option>
                   </select>
                 </div>
 
