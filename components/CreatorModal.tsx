@@ -199,6 +199,7 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                     disabled={!isEditor}
                     className="flex h-11 w-full rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm focus:outline-none focus:border-lime-400"
                   >
+                    <option value="">Select a Campaign</option>
                     {campaigns.map((c) => (
                       <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
