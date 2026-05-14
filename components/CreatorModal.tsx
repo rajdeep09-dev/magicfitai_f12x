@@ -139,7 +139,6 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
       client_approved_creator: !!formData.client_approved_creator,
       client_approved_video: !!formData.client_approved_video,
       lang: formData.lang || 'English',
-      notes: formData.notes || '',
     };
     
     try {
