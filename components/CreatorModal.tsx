@@ -213,7 +213,7 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                   <div className="space-y-2">
                      <label className="flex items-center gap-2 cursor-pointer text-xs font-bold uppercase text-neutral-400">
                         <input type="checkbox" name="include_agency_fee" checked={formData.include_agency_fee} onChange={handleChange} className="text-lime-400 rounded" />
-                        Include 20% Agency Fee
+                        Include Agency Fee
                      </label>
                      <label className="flex items-center gap-2 cursor-pointer text-xs font-bold uppercase text-neutral-400">
                         <input type="checkbox" name="include_processing_fee" checked={formData.include_processing_fee} onChange={handleChange} className="text-lime-400 rounded" />
@@ -223,7 +223,7 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                   <div>
                     <Label className="text-neutral-500 text-[10px] font-bold uppercase tracking-widest">Final Price</Label>
                     <p className="text-2xl font-black text-lime-400">
-                      ${((formData.base_price || 0) + (formData.include_agency_fee ? (formData.base_price || 0) * 0.2 : 0) + ((formData.base_price || 0) + (formData.include_agency_fee ? (formData.base_price || 0) * 0.2 : 0)) * (formData.include_processing_fee ? 0.05 : 0)).toFixed(2)}
+                      ${((formData.base_price || 0) + (formData.include_agency_fee ? (formData.base_price || 0) * ((formData.base_price || 0) >= 100 ? 0.2 : 0.1) : 0) + ((formData.base_price || 0) + (formData.include_agency_fee ? (formData.base_price || 0) * ((formData.base_price || 0) >= 100 ? 0.2 : 0.1) : 0)) * (formData.include_processing_fee ? 0.05 : 0)).toFixed(2)}
                     </p>
                   </div>
                 </div>
