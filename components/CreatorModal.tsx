@@ -134,6 +134,7 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                 value={formData.handle || ''}
                 onChange={handleChange}
                 required
+                disabled={!isEditor}
                 className="bg-neutral-900 border-white/10 focus:border-lime-400 h-11"
               />
             </div>
@@ -144,6 +145,7 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                 name="creator_name"
                 value={formData.creator_name || ''}
                 onChange={handleChange}
+                disabled={!isEditor}
                 className="bg-neutral-900 border-white/10 focus:border-lime-400 h-11"
               />
             </div>
@@ -158,6 +160,7 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                     type="number"
                     value={formData.followers || 0}
                     onChange={handleChange}
+                    disabled={!isEditor}
                     className="bg-neutral-900 border-white/10 focus:border-lime-400 h-11"
                   />
                 </div>
@@ -170,6 +173,7 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                     type="number"
                     value={formData.base_price || 0}
                     onChange={handleChange}
+                    disabled={!isEditor}
                     className="bg-neutral-900 border-white/10 focus:border-lime-400 h-11"
                   />
                 </div>
@@ -181,6 +185,7 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                     name="recommended_for_batch"
                     value={formData.recommended_for_batch || ''}
                     onChange={handleChange}
+                    disabled={!isEditor}
                     className="bg-neutral-900 border-white/10 focus:border-lime-400 h-11"
                   />
                 </div>
@@ -191,6 +196,7 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                     name="campaign_id"
                     value={formData.campaign_id || ''}
                     onChange={handleChange}
+                    disabled={!isEditor}
                     className="flex h-11 w-full rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm focus:outline-none focus:border-lime-400"
                   >
                     {campaigns.map((c) => (
@@ -206,6 +212,7 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                     name="draft_reel_url"
                     value={formData.draft_reel_url || ''}
                     onChange={handleChange}
+                    disabled={!isEditor}
                     className="bg-neutral-900 border-white/10 focus:border-lime-400 h-11"
                   />
                 </div>
