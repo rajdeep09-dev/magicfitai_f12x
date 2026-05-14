@@ -22,37 +22,59 @@ interface CreatorModalProps {
 export default function CreatorModal({ isOpen, onClose, onSave, creator }: CreatorModalProps) {
   const { isEditor, isClient } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [campaigns, setCampaigns] = useState<any[]>([]);
   const [formData, setFormData] = useState<Partial<Creator>>({
     creator_name: '',
     platform: 'Instagram',
     deliverable: '',
     approval_status: 'Ideation',
+    campaign_id: '',
     base_price: 0,
     draft_reel_url: '',
     recommended_for_batch: '',
     client_approved_creator: false,
     client_approved_video: false,
+    include_agency_fee: true,
+    include_processing_fee: true,
     payment_status: 'pending',
   });
 
   useEffect(() => {
+    async function loadCampaigns() {
+      const supabase = createClient();
+      const { data } = await supabase.from('campaigns').select('id, name');
+      if (data) {
+        setCampaigns(data);
+      }
+    }
+    loadCampaigns();
+  }, []);
+
+  useEffect(() => {
     if (creator) {
-      setFormData(creator);
+      setFormData({
+        ...creator,
+        include_agency_fee: creator.include_agency_fee ?? true,
+        include_processing_fee: creator.include_processing_fee ?? true,
+      });
     } else {
       setFormData({
         creator_name: '',
         platform: 'Instagram',
         deliverable: '',
         approval_status: 'Ideation',
+        campaign_id: campaigns.length > 0 ? campaigns[0].id : '',
         base_price: 0,
         draft_reel_url: '',
         recommended_for_batch: '',
         client_approved_creator: false,
         client_approved_video: false,
+        include_agency_fee: true,
+        include_processing_fee: true,
         payment_status: 'pending',
       });
     }
-  }, [creator, isOpen]);
+  }, [creator, isOpen, campaigns]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -163,20 +185,17 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="approval_status" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Approval Status</Label>
+                  <Label htmlFor="campaign_id" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Campaign</Label>
                   <select
-                    id="approval_status"
-                    name="approval_status"
-                    value={formData.approval_status || 'Ideation'}
+                    id="campaign_id"
+                    name="campaign_id"
+                    value={formData.campaign_id || ''}
                     onChange={handleChange}
                     className="flex h-11 w-full rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm focus:outline-none focus:border-lime-400"
                   >
-                    <option value="Ideation">Ideation</option>
-                    <option value="Script Sent">Script Sent</option>
-                    <option value="Video Pending Approval">Video Pending Approval</option>
-                    <option value="Revisions Requested">Revisions Requested</option>
-                    <option value="Approved">Approved</option>
-                    <option value="Published">Published</option>
+                    {campaigns.map((c) => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
                   </select>
                 </div>
 
