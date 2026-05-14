@@ -23,6 +23,8 @@ export async function POST(req: Request) {
         campaign_id: data.campaign_id || '00000000-0000-0000-0000-000000000000'
     };
 
+    console.log('DEBUG: API Payload being saved:', payload);
+
     let response;
     if (id) {
         response = await supabase.from('creators').update(payload).eq('id', id).select();
