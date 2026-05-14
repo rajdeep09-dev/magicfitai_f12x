@@ -26,13 +26,19 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [formData, setFormData] = useState<Partial<Creator>>({
     creator_name: '',
+    handle: '',
+    lang: '',
     platform: 'Instagram',
-    deliverable: '',
+    followers: 0,
+    engagement_rate: 0,
+    base_price: 0,
     approval_status: 'Ideation',
     campaign_id: '',
-    base_price: 0,
     draft_reel_url: '',
+    video_link: '',
+    published_video_link: '',
     recommended_for_batch: '',
+    is_recommended: false,
     client_approved_creator: false,
     client_approved_video: false,
     include_agency_fee: true,
@@ -250,11 +256,35 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="draft_reel_url" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Draft Video Link</Label>
+                  <Label htmlFor="lang" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Language</Label>
                   <Input
-                    id="draft_reel_url"
-                    name="draft_reel_url"
-                    value={formData.draft_reel_url || ''}
+                    id="lang"
+                    name="lang"
+                    value={formData.lang || ''}
+                    onChange={handleChange}
+                    disabled={!isEditor}
+                    className="bg-neutral-900 border-white/10 focus:border-lime-400 h-11"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="video_link" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Video Link</Label>
+                  <Input
+                    id="video_link"
+                    name="video_link"
+                    value={formData.video_link || ''}
+                    onChange={handleChange}
+                    disabled={!isEditor}
+                    className="bg-neutral-900 border-white/10 focus:border-lime-400 h-11"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="published_video_link" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Published Link</Label>
+                  <Input
+                    id="published_video_link"
+                    name="published_video_link"
+                    value={formData.published_video_link || ''}
                     onChange={handleChange}
                     disabled={!isEditor}
                     className="bg-neutral-900 border-white/10 focus:border-lime-400 h-11"
