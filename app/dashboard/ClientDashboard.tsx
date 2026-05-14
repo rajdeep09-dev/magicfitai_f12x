@@ -2,14 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { useCampaign } from '@/contexts/CampaignContext';
+import { useAuth } from '@/hooks/useAuth';
 import { Users, Play, Calendar, X } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 export default function ClientDashboard() {
   const { creators, loadingCreators, fetchError } = useCampaign();
+  const { profile } = useAuth();
   const [progressItems, setProgressItems] = useState<any[]>([]);
   const [loadingProgress, setLoadingProgress] = useState(true);
   const [selectedCreator, setSelectedCreator] = useState<any | null>(null);
+  
+  const userRole = profile?.role || 'client';
 
   useEffect(() => {
     async function loadProgress() {
