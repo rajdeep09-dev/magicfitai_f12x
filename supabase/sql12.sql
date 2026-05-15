@@ -105,5 +105,5 @@ CREATE POLICY "Clients read their campaigns" ON campaigns FOR SELECT USING (crea
 CREATE POLICY "Editors/Admins manage creators" ON creators USING (public.get_user_role() IN ('admin', 'editor'));
 CREATE POLICY "Clients read creators" ON creators FOR SELECT USING (approval_status IN ('Approved', 'Published') OR public.get_user_role() IN ('admin', 'editor'));
 CREATE POLICY "Editors/Admins manage budget" ON campaign_budget USING (public.get_user_role() IN ('admin', 'editor'));
-CREATE POLICY "Editors/Admins manage progress" ON creator_progress USING (public.get_user_role() IN ('admin', 'editor'));
+CREATE POLICY "Editors/Admins manage progress" ON creator_progress FOR ALL USING (public.get_user_role() IN ('admin', 'editor')) WITH CHECK (public.get_user_role() IN ('admin', 'editor'));
 CREATE POLICY "Editors/Admins/Clients read/write notes" ON notes FOR ALL USING (public.get_user_role() IN ('admin', 'editor', 'client'));
