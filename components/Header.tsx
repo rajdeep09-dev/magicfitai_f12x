@@ -24,6 +24,8 @@ export default function Header() {
 
   const clientNav = [
     { label: 'Campaign', href: '/dashboard', icon: LayoutDashboard },
+    { label: 'Kanban', href: '/dashboard/kanban', icon: Users },
+    { label: 'Roster', href: '/dashboard/creators', icon: Users },
     { label: 'Timeline', href: '/dashboard/timeline', icon: Clock },
     { label: 'Calendar', href: '/dashboard/calendar', icon: CalendarDays },
     { label: 'Reports', href: '/dashboard/reports', icon: FileText },
