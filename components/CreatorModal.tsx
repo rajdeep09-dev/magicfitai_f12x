@@ -206,12 +206,14 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
             {isEditor && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="engagement_rate" className="text-xs font-bold uppercase tracking-wider text-neutral-400">Engagement Rate (%)</Label>
+                  <Label htmlFor="engagement_rate" className="text-xs font-bold uppercase tracking-wider text-neutral-400">
+                    {formData.platform?.toLowerCase() === 'twitter' || formData.platform?.toLowerCase() === 'x' ? 'Avg Views' : 'Engagement Rate (%)'}
+                  </Label>
                   <Input
                     id="engagement_rate"
                     name="engagement_rate"
                     type="number"
-                    step="0.01"
+                    step={formData.platform?.toLowerCase() === 'twitter' || formData.platform?.toLowerCase() === 'x' ? "1" : "0.01"}
                     value={formData.engagement_rate || 0}
                     onChange={handleChange}
                     disabled={!isEditor}

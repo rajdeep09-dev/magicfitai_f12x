@@ -93,13 +93,19 @@ function CreatorCard({
             </p>
           </div>
 
-          {/* Engagement Ratio */}
+          {/* Engagement / Avg Views */}
           <div className="bg-white/5 rounded-xl p-3.5 border border-white/5 group-hover:bg-white/10 transition-colors">
             <div className="flex items-center gap-2 mb-1.5">
               <TrendingUp className="w-3.5 h-3.5 text-lime-400" />
-              <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Engage</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                {platform.toLowerCase() === 'twitter' || platform.toLowerCase() === 'x' ? 'Avg Views' : 'Engage'}
+              </p>
             </div>
-            <p className="text-xl font-black text-lime-400">{engagementRatio.toFixed(1)}%</p>
+            <p className="text-xl font-black text-lime-400">
+              {platform.toLowerCase() === 'twitter' || platform.toLowerCase() === 'x' 
+                ? (engagementRatio >= 1000 ? `${(engagementRatio / 1000).toFixed(1)}K` : engagementRatio.toString()) 
+                : `${engagementRatio.toFixed(1)}%`}
+            </p>
           </div>
         </div>
 

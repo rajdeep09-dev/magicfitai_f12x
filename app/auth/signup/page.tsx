@@ -17,6 +17,7 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [origin, setOrigin] = useState('');
   const router = useRouter();
+  const supabase = createClient();
 
   useEffect(() => {
       setOrigin(window.location.origin);
