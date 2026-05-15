@@ -33,3 +33,7 @@ CREATE POLICY "Clients read progress" ON creator_progress FOR SELECT USING (true
 
 -- Notes
 CREATE POLICY "Everyone read/write notes" ON notes FOR ALL USING (public.get_user_role() IN ('admin', 'editor', 'client'));
+
+-- Create policy for calendar events
+CREATE POLICY "Everyone read events" ON campaign_events FOR SELECT USING (true);
+CREATE POLICY "Admins/Editors manage events" ON campaign_events USING (public.get_user_role() IN ('admin', 'editor'));
