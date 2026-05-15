@@ -98,11 +98,11 @@ function CreatorCard({
             <div className="flex items-center gap-2 mb-1.5">
               <TrendingUp className="w-3.5 h-3.5 text-lime-400" />
               <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
-                {platform.toLowerCase() === 'twitter' || platform.toLowerCase() === 'x' ? 'Avg Views' : 'Engage'}
+                {platform?.toLowerCase().trim() === 'twitter' || platform?.toLowerCase().trim() === 'x' ? 'Avg Views' : 'Engage'}
               </p>
             </div>
             <p className="text-xl font-black text-lime-400">
-              {platform.toLowerCase() === 'twitter' || platform.toLowerCase() === 'x' 
+              {platform?.toLowerCase().trim() === 'twitter' || platform?.toLowerCase().trim() === 'x' 
                 ? (engagementRatio >= 1000 ? `${(engagementRatio / 1000).toFixed(1)}K` : engagementRatio.toString()) 
                 : `${engagementRatio.toFixed(1)}%`}
             </p>

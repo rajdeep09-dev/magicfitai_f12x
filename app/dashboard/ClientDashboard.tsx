@@ -177,8 +177,14 @@ export default function ClientDashboard() {
                 <span className="font-bold">{(selectedCreator.followers || 0).toLocaleString()}</span>
               </div>
               <div className="bg-[#050505] rounded-lg p-4 border border-white/5">
-                <span className="text-[10px] font-black uppercase tracking-widest text-neutral-500 block mb-1">Engagement</span>
-                <span className="font-bold">{selectedCreator.engagement_rate || '0'}%</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-neutral-500 block mb-1">
+                  {selectedCreator.platform?.toLowerCase().trim() === 'twitter' || selectedCreator.platform?.toLowerCase().trim() === 'x' ? 'Avg Views' : 'Engagement'}
+                </span>
+                <span className="font-bold">
+                  {selectedCreator.platform?.toLowerCase().trim() === 'twitter' || selectedCreator.platform?.toLowerCase().trim() === 'x' 
+                    ? (selectedCreator.engagement_rate >= 1000 ? `${(selectedCreator.engagement_rate / 1000).toFixed(1)}K` : selectedCreator.engagement_rate || '0')
+                    : `${selectedCreator.engagement_rate || '0'}%`}
+                </span>
               </div>
               <div className="bg-[#050505] rounded-lg p-4 border border-white/5">
                 <span className="text-[10px] font-black uppercase tracking-widest text-neutral-500 block mb-1">Language</span>
