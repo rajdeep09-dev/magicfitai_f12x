@@ -17,7 +17,11 @@ export async function POST(req: Request) {
         if (role !== 'client') return NextResponse.json({ error: 'Only clients can approve' }, { status: 403 });
         const { data: updatedCreator, error: updateError } = await supabase
             .from('creators')
-            .update({ approval_status: 'Approved', client_approved_video: true })
+            .update({ 
+                approval_status: 'Approved', 
+                client_approved_video: true,
+                client_approved_creator: true 
+            })
             .eq('id', creatorId)
             .select()
             .single();
