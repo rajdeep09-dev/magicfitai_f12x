@@ -107,6 +107,13 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData(prev => ({ ...prev, [name]: checked }));
+    } else if ((name === 'engagement_rate' || name === 'followers') && typeof value === 'string' && value.toLowerCase().endsWith('k')) {
+       const num = parseFloat(value.replace(/k/i, ''));
+       if (!isNaN(num)) {
+          setFormData(prev => ({ ...prev, [name]: num * 1000 }));
+       } else {
+          setFormData(prev => ({ ...prev, [name]: value }));
+       }
     } else {
       setFormData(prev => ({ ...prev, [name]: type === 'number' ? parseFloat(value) || 0 : value }));
     }
@@ -212,7 +219,7 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                   <Input
                     id="engagement_rate"
                     name="engagement_rate"
-                    type="number"
+                    type={formData.platform?.toLowerCase() === 'twitter' || formData.platform?.toLowerCase() === 'x' ? "text" : "number"}
                     step={formData.platform?.toLowerCase() === 'twitter' || formData.platform?.toLowerCase() === 'x' ? "1" : "0.01"}
                     value={formData.engagement_rate || 0}
                     onChange={handleChange}
@@ -226,7 +233,7 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
                   <Input
                     id="followers"
                     name="followers"
-                    type="number"
+                    type="text"
                     value={formData.followers || 0}
                     onChange={handleChange}
                     disabled={!isEditor}

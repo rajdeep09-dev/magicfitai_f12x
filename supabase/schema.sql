@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS creators (
   creator_name TEXT NOT NULL,
   platform TEXT NOT NULL CHECK (platform IN ('Instagram', 'TikTok', 'YouTube')),
   followers INTEGER DEFAULT 0,
-  engagement_rate DECIMAL(5, 2) DEFAULT 0.00,
+  engagement_rate NUMERIC DEFAULT 0.00,
   email TEXT,
   phone TEXT,
   deliverable TEXT,

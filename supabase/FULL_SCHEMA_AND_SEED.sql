@@ -39,7 +39,7 @@ CREATE TABLE creators (
   creator_name TEXT NOT NULL,
   platform TEXT NOT NULL,
   followers INTEGER DEFAULT 0,
-  engagement_rate DECIMAL(5, 2) DEFAULT 0.00,
+  engagement_rate NUMERIC DEFAULT 0.00,
   base_price DECIMAL(12, 2) DEFAULT 0.00,
   final_price DECIMAL(12, 2) DEFAULT 0.00,
   approval_status TEXT DEFAULT 'Ideation',

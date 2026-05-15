@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS public.creators (
   base_price NUMERIC DEFAULT 0,
   final_price NUMERIC DEFAULT 0,
   followers INTEGER DEFAULT 0,
-  engagement_rate DECIMAL(5, 2) DEFAULT 0.00,
+  engagement_rate NUMERIC DEFAULT 0.00,
   content_type TEXT DEFAULT 'Content',
   approval_status TEXT DEFAULT 'Brief Sent',
   draft_reel_url TEXT,

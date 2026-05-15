@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS public.creators (
   platform TEXT,
   base_price NUMERIC DEFAULT 0,
   followers INTEGER DEFAULT 0,
-  engagement_rate DECIMAL(5, 2) DEFAULT 0.00,
+  engagement_rate NUMERIC DEFAULT 0.00,
   content_type TEXT,
   approval_status TEXT DEFAULT 'Sourced',
   notes TEXT,
