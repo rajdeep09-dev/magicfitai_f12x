@@ -66,10 +66,21 @@ function CreatorCard({
       <div className="p-6">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
-          <div className="relative">
-            <div className="absolute -inset-1 bg-gradient-to-br from-lime-400 to-green-500 rounded-full blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
-            <div className="relative w-14 h-14 rounded-full bg-neutral-950 border border-white/10 flex items-center justify-center flex-shrink-0 text-neutral-50 font-black text-xl shadow-xl">
-              {(name ?? '?').charAt(0)}
+          <div className="relative group/avatar cursor-pointer" onClick={(e) => {
+             e.stopPropagation();
+             const p = platform?.toLowerCase().trim();
+             const h = (name || '').replace(/^@/, '');
+             let url = '#';
+             if (p === 'instagram') url = `https://instagram.com/${h}`;
+             else if (p === 'twitter' || p === 'x') url = `https://twitter.com/${h}`;
+             else if (p === 'tiktok') url = `https://tiktok.com/@${h}`;
+             else if (p === 'youtube') url = `https://youtube.com/@${h}`;
+             
+             if (url !== '#') window.open(url, '_blank');
+          }}>
+            <div className="absolute -inset-1 bg-gradient-to-br from-lime-400 to-green-500 rounded-full blur opacity-20 group-hover/avatar:opacity-100 transition duration-500 group-hover/avatar:scale-110"></div>
+            <div className="relative w-14 h-14 rounded-full bg-neutral-950 border border-white/10 flex items-center justify-center flex-shrink-0 text-neutral-50 font-black text-xl shadow-xl hover:text-lime-400 transition-colors">
+              {(name ?? '?').charAt(name?.startsWith('@') ? 1 : 0).toUpperCase()}
             </div>
           </div>
           <div className="min-w-0">

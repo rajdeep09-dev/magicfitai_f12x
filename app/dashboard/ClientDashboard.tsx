@@ -9,7 +9,7 @@ import { createClient } from '@/lib/supabase/client';
 import { STAGES } from '@/lib/constants';
 
 export default function ClientDashboard() {
-  const { creators, loadingCreators, fetchError, includeAgencyFee, includeProcessingFee } = useCampaign();
+  const { creators, loadingCreators, fetchError, includeProcessingFee } = useCampaign();
   const { profile } = useAuth();
   const [progressItems, setProgressItems] = useState<any[]>([]);
   const [loadingProgress, setLoadingProgress] = useState(true);
@@ -108,10 +108,8 @@ export default function ClientDashboard() {
               const handleStr = c.handle ?? c.creator_name ?? '?';
               
               const basePrice = Number(c.base_price) || 0;
-              const commissionRate = basePrice >= 100 ? 0.20 : 0.10;
-              const f12xFee = includeAgencyFee ? basePrice * commissionRate : 0;
-              const payPalFee = includeProcessingFee ? (basePrice + f12xFee) * 0.05 : 0;
-              const finalTotal = basePrice + f12xFee + payPalFee;
+              const payPalFee = includeProcessingFee ? basePrice * 0.05 : 0;
+              const finalTotal = basePrice + payPalFee;
               const platformUrl = c.platform?.toLowerCase() === 'instagram' ? `https://instagram.com/${c.handle.replace(/^@/, '')}` : '#';
 
               return (
@@ -211,19 +209,14 @@ export default function ClientDashboard() {
                    <span className="text-white font-medium">${(Number(selectedCreator.base_price) || 0).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-white/70">
-                   <span>F12X Agency Fee:</span>
-                   <span className="text-white font-medium">${(includeAgencyFee ? (Number(selectedCreator.base_price) || 0) * ((Number(selectedCreator.base_price) || 0) >= 100 ? 0.20 : 0.10) : 0).toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-white/70">
                    <span>Payment Processing (5%):</span>
-                   <span className="text-white font-medium">${(includeProcessingFee ? ((Number(selectedCreator.base_price) || 0) + (includeAgencyFee ? (Number(selectedCreator.base_price) || 0) * ((Number(selectedCreator.base_price) || 0) >= 100 ? 0.20 : 0.10) : 0)) * 0.05 : 0).toFixed(2)}</span>
+                   <span className="text-white font-medium">${(includeProcessingFee ? (Number(selectedCreator.base_price) || 0) * 0.05 : 0).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between border-t border-white/10 pt-3 mt-2 font-black text-sm">
                    <span className="text-lime-400">Total Client Investment:</span>
                    <span className="text-lime-400">${(
                       (Number(selectedCreator.base_price) || 0) + 
-                      (includeAgencyFee ? (Number(selectedCreator.base_price) || 0) * ((Number(selectedCreator.base_price) || 0) >= 100 ? 0.20 : 0.10) : 0) + 
-                      (includeProcessingFee ? ((Number(selectedCreator.base_price) || 0) + (includeAgencyFee ? (Number(selectedCreator.base_price) || 0) * ((Number(selectedCreator.base_price) || 0) >= 100 ? 0.20 : 0.10) : 0)) * 0.05 : 0)
+                      (includeProcessingFee ? (Number(selectedCreator.base_price) || 0) * 0.05 : 0)
                    ).toFixed(2)}</span>
                 </div>
             </div>

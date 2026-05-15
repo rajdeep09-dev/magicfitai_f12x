@@ -24,7 +24,7 @@ function Toast({ message, type, onClose }: { message: string, type: 'success'|'e
 import { STAGES } from "@/lib/constants";
 
 export default function EditorDashboard() {
-  const { creators, loadingCreators, fetchError, loadCreators, budget, remainingBudget, includeAgencyFee, setIncludeAgencyFee, includeProcessingFee, setIncludeProcessingFee } = useCampaign();
+  const { creators, loadingCreators, fetchError, loadCreators, budget, remainingBudget, includeProcessingFee, setIncludeProcessingFee } = useCampaign();
   
   const [budgetItems, setBudgetItems] = useState<any[]>([]);
   const [loadingBudget, setLoadingBudget] = useState(true);

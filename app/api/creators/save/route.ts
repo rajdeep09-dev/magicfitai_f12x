@@ -12,13 +12,11 @@ export async function POST(req: Request) {
 
     // Dynamic Pricing Calculation based on toggles
     const base = Number(data.base_price) || 0;
-    const commissionRate = base >= 100 ? 0.20 : 0.10;
-    const f12xFee = data.include_agency_fee ? base * commissionRate : 0;
-    const payPalFee = data.include_processing_fee ? (base + f12xFee) * 0.05 : 0;
-    const final_price = base + f12xFee + payPalFee;
+    const payPalFee = data.include_processing_fee ? base * 0.05 : 0;
+    const final_price = base + payPalFee;
 
-    const payload = {
-        ...data,
+    const dataToSave = {
+      campaign_id: data.campaign_id,
         final_price,
         campaign_id: data.campaign_id || '00000000-0000-0000-0000-000000000000'
     };
