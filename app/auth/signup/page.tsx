@@ -12,7 +12,6 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [firstName, setFirstName] = useState('');
-  const [role, setRole] = useState<'editor' | 'client'>('client');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [origin, setOrigin] = useState('');
@@ -47,7 +46,7 @@ export default function SignupPage() {
           emailRedirectTo: `${origin}/auth/callback`,
           data: {
             first_name: firstName,
-            role: role,
+            role: 'client', // Security Fix: Force all self-signups to be 'client' to prevent privilege escalation.
           },
         },
       });
@@ -131,22 +130,6 @@ export default function SignupPage() {
                 className="w-full px-4 py-2.5 bg-neutral-800/50 border border-neutral-700 rounded-lg text-neutral-50 placeholder-neutral-500 focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400/50 transition"
                 required
               />
-            </div>
-            
-            {/* Role Input */}
-            <div>
-              <label htmlFor="role" className="block text-neutral-50 text-sm font-medium mb-2">
-                I am a...
-              </label>
-              <select
-                id="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value as 'editor' | 'client')}
-                className="w-full px-4 py-2.5 bg-neutral-800/50 border border-neutral-700 rounded-lg text-neutral-50 focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400/50 transition"
-              >
-                <option value="client">Client</option>
-                <option value="editor">Editor</option>
-              </select>
             </div>
 
             {/* Password Input */}

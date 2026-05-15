@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     author_name: profile?.first_name || 'User',
     author_role: profile?.role || 'client',
     content,
-    is_internal: isInternal || false
+    is_internal: profile?.role === 'client' ? false : (isInternal || false)
   });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
