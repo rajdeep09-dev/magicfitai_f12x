@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Info, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useCampaign } from '@/contexts/CampaignContext';
 import CreatorCard from '@/components/CreatorCard';
 import CreatorModal from '@/components/CreatorModal';
-import { supabase } from '../../../lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { Creator } from '@/types/creator';
+import Papa from 'papaparse';
 
 export default function CreatorsPage() {
   const { isEditor } = useAuth();
@@ -17,6 +18,70 @@ export default function CreatorsPage() {
   const [showRecommendedOnly, setShowRecommendedOnly] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCreator, setSelectedCreator] = useState<any | null>(null);
+  const [showCSVInfo, setShowCSVInfo] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const parseKNumber = (val: any): number => {
+    if (typeof val === 'string' && val.toLowerCase().endsWith('k')) {
+      const num = parseFloat(val.replace(/k/i, ''));
+      return isNaN(num) ? 0 : num * 1000;
+    }
+    return parseFloat(val) || 0;
+  };
+
+  const handleCSVImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        try {
+          const rows: any[] = results.data;
+          const creatorsToInsert = [];
+          
+          for (const obj of rows) {
+            if (!obj.handle && !obj.creator_name) continue;
+
+            creatorsToInsert.push({
+              campaign_id: obj.campaign_id || '00000000-0000-0000-0000-000000000000',
+              handle: obj.handle || '',
+              creator_name: obj.creator_name || obj.handle || 'Unknown',
+              platform: obj.platform || 'Instagram',
+              followers: parseKNumber(obj.followers),
+              engagement_rate: parseKNumber(obj.engagement_rate),
+              base_price: parseFloat(obj.base_price) || 0,
+              final_price: parseFloat(obj.final_price) || parseFloat(obj.base_price) || 0,
+              approval_status: obj.approval_status || 'Sourced',
+              lang: obj.lang || 'English'
+            });
+          }
+
+          if (creatorsToInsert.length === 0) throw new Error("No valid creators found in CSV");
+
+          const supabase = createClient();
+          const { error } = await supabase.from('creators').insert(creatorsToInsert);
+          if (error) throw error;
+          
+          await loadCreators();
+          showToast(`Successfully imported ${creatorsToInsert.length} creators`, 'success');
+        } catch (err: any) {
+          showToast(`Import failed: ${err.message}`, 'error');
+        }
+        e.target.value = ''; // reset input
+      },
+      error: (error) => {
+        showToast(`CSV Parse error: ${error.message}`, 'error');
+        e.target.value = ''; // reset input
+      }
+    });
+  };
 
   const filteredCreators = creators
     .filter(c => {
@@ -64,15 +129,36 @@ export default function CreatorsPage() {
                 F12X Picks
             </button>
             {isEditor && (
-            <button 
-                onClick={() => { setSelectedCreator(null); setIsModalOpen(true); }}
-                className="bg-white text-black px-6 py-3 rounded-lg font-bold uppercase text-xs tracking-widest hover:bg-neutral-200 flex items-center gap-2"
-            >
-                <Plus className="w-4 h-4" /> Add
-            </button>
+            <>
+              <button 
+                  onClick={() => { setSelectedCreator(null); setIsModalOpen(true); }}
+                  className="bg-white text-black px-6 py-3 rounded-lg font-bold uppercase text-xs tracking-widest hover:bg-neutral-200 flex items-center gap-2"
+              >
+                  <Plus className="w-4 h-4" /> Add
+              </button>
+              <div className="flex items-center gap-1">
+                <label className="bg-white/5 border border-white/10 hover:bg-white/10 text-white font-black uppercase text-xs tracking-widest px-6 py-3 rounded-lg transition-colors flex items-center justify-center cursor-pointer">
+                   Import CSV
+                   <input type="file" accept=".csv" className="hidden" onChange={handleCSVImport} />
+                </label>
+                <button 
+                  onClick={() => setShowCSVInfo(!showCSVInfo)}
+                  className="bg-white/5 border border-white/10 hover:bg-white/10 text-neutral-400 hover:text-white p-3 rounded-lg transition-colors"
+                  title="CSV Format Info"
+                >
+                  <Info className="w-5 h-5" />
+                </button>
+              </div>
+            </>
             )}
         </div>
       </div>
+
+      {toast && (
+        <div className={`fixed bottom-4 right-4 px-4 py-3 rounded-xl border font-bold text-xs shadow-lg z-50 transition-all flex items-center gap-2 ${toast.type === 'success' ? 'bg-lime-400 text-black border-lime-500' : 'bg-red-500 text-white border-red-600'}`}>
+          {toast.message}
+        </div>
+      )}
 
       {filteredCreators.length === 0 ? (
         <div className="text-neutral-500 font-bold">No creators found</div>
@@ -103,6 +189,36 @@ export default function CreatorsPage() {
         onSave={async () => { setIsModalOpen(false); await loadCreators(); }}
         creator={selectedCreator}
       />
+
+      {/* CSV Info Modal */}
+      {showCSVInfo && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-neutral-950 border border-white/10 rounded-2xl p-6 max-w-lg w-full relative">
+            <button 
+              onClick={() => setShowCSVInfo(false)}
+              className="absolute top-4 right-4 text-neutral-400 hover:text-white"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <h3 className="text-lg font-black text-white mb-2">CSV Import Format</h3>
+            <p className="text-sm text-neutral-400 mb-4">
+              Your CSV file must include headers in the first row. Here are the expected column names:
+            </p>
+            <div className="bg-[#050505] border border-white/5 rounded-xl p-4 text-xs font-mono text-neutral-300 space-y-2 mb-6">
+              <p><span className="text-lime-400">handle</span> (Required) - Creator's handle</p>
+              <p><span className="text-lime-400">creator_name</span> (Optional) - Display name</p>
+              <p><span className="text-lime-400">platform</span> (Optional) - Instagram, TikTok, YouTube, Twitter</p>
+              <p><span className="text-lime-400">followers</span> (Optional) - Number or 'k' format (e.g. 15k)</p>
+              <p><span className="text-lime-400">engagement_rate</span> (Optional) - Number or 'k' format (e.g. 12k or 5.2)</p>
+              <p><span className="text-lime-400">base_price</span> (Optional) - Number</p>
+              <p><span className="text-lime-400">approval_status</span> (Optional) - e.g. Sourced, Outreach</p>
+            </div>
+            <div className="bg-lime-400/10 border border-lime-400/20 text-lime-400/80 p-3 rounded-lg text-xs font-bold">
+              Tip: You can use 'k' suffixes for large numbers (e.g. 15k will become 15000).
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

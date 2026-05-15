@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { useCampaign } from '@/contexts/CampaignContext';
-import { Search, Filter, Check, ArrowRight, ArrowLeft, Trash2, X, Plus } from 'lucide-react';
+import { Search, Filter, Check, ArrowRight, ArrowLeft, Trash2, X, Plus, Info } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import CreatorModal from '@/components/CreatorModal';
+import Papa from 'papaparse';
 
 import { useAuth } from '@/hooks/useAuth';
 
@@ -18,6 +19,7 @@ export default function KanbanPage() {
   const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCreator, setSelectedCreator] = useState<any | null>(null);
+  const [showCSVInfo, setShowCSVInfo] = useState(false);
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({ message, type });
@@ -97,58 +99,61 @@ export default function KanbanPage() {
     }
   };
 
+  const parseKNumber = (val: any): number => {
+    if (typeof val === 'string' && val.toLowerCase().endsWith('k')) {
+      const num = parseFloat(val.replace(/k/i, ''));
+      return isNaN(num) ? 0 : num * 1000;
+    }
+    return parseFloat(val) || 0;
+  };
+
   const handleCSVImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      try {
-        const text = event.target?.result as string;
-        const rows = text.split('\n').map(row => row.split(','));
-        const headers = rows[0].map(h => h.trim());
-        
-        const creatorsToInsert = [];
-        for (let i = 1; i < rows.length; i++) {
-          if (!rows[i] || rows[i].length < 2) continue;
-          const row = rows[i];
-          const obj: any = {};
-          headers.forEach((header, index) => {
-            if (row[index] !== undefined && row[index] !== '\r') {
-               obj[header] = row[index].trim();
-            }
-          });
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        try {
+          const rows: any[] = results.data;
+          const creatorsToInsert = [];
+          
+          for (const obj of rows) {
+            if (!obj.handle && !obj.creator_name) continue;
 
-          if (!obj.handle) continue;
+            creatorsToInsert.push({
+              campaign_id: obj.campaign_id || '00000000-0000-0000-0000-000000000000',
+              handle: obj.handle || '',
+              creator_name: obj.creator_name || obj.handle || 'Unknown',
+              platform: obj.platform || 'Instagram',
+              followers: parseKNumber(obj.followers),
+              engagement_rate: parseKNumber(obj.engagement_rate),
+              base_price: parseFloat(obj.base_price) || 0,
+              final_price: parseFloat(obj.final_price) || parseFloat(obj.base_price) || 0,
+              approval_status: obj.approval_status || 'Sourced',
+              lang: obj.lang || 'English'
+            });
+          }
 
-          creatorsToInsert.push({
-            campaign_id: obj.campaign_id || '00000000-0000-0000-0000-000000000000',
-            handle: obj.handle,
-            creator_name: obj.creator_name || obj.handle,
-            platform: obj.platform || 'Instagram',
-            followers: parseInt(obj.followers) || 0,
-            engagement_rate: parseFloat(obj.engagement_rate) || 0,
-            base_price: parseFloat(obj.base_price) || 0,
-            final_price: parseFloat(obj.final_price) || 0,
-            approval_status: obj.approval_status || 'Sourced',
-            lang: obj.lang || 'English'
-          });
+          if (creatorsToInsert.length === 0) throw new Error("No valid creators found in CSV");
+
+          const supabase = createClient();
+          const { error } = await supabase.from('creators').insert(creatorsToInsert);
+          if (error) throw error;
+          
+          await loadCreators();
+          showToast(`Successfully imported ${creatorsToInsert.length} creators`, 'success');
+        } catch (err: any) {
+          showToast(`Import failed: ${err.message}`, 'error');
         }
-
-        if (creatorsToInsert.length === 0) throw new Error("No valid creators found in CSV");
-
-        const supabase = createClient();
-        const { error } = await supabase.from('creators').insert(creatorsToInsert);
-        if (error) throw error;
-        
-        await loadCreators();
-        showToast(`Successfully imported ${creatorsToInsert.length} creators`, 'success');
-      } catch (err: any) {
-        showToast(`Import failed: ${err.message}`, 'error');
+        e.target.value = ''; // reset input
+      },
+      error: (error) => {
+        showToast(`CSV Parse error: ${error.message}`, 'error');
+        e.target.value = ''; // reset input
       }
-      e.target.value = ''; // reset input
-    };
-    reader.readAsText(file);
+    });
   };
 
   if (loadingCreators) {
@@ -194,10 +199,19 @@ export default function KanbanPage() {
               <button onClick={() => { setSelectedCreator(null); setIsModalOpen(true); }} className="bg-lime-400 text-black font-black uppercase text-xs px-4 py-2 rounded-xl hover:bg-lime-300 transition-colors flex items-center gap-2">
                 <Plus className="w-4 h-4" /> Add Creator
               </button>
-              <label className="bg-white/5 border border-white/10 hover:bg-white/10 text-white font-black uppercase text-[10px] tracking-widest px-4 py-2 rounded-xl transition-colors flex items-center justify-center cursor-pointer">
-                 Import CSV
-                 <input type="file" accept=".csv" className="hidden" onChange={handleCSVImport} />
-              </label>
+              <div className="flex items-center gap-1">
+                <label className="bg-white/5 border border-white/10 hover:bg-white/10 text-white font-black uppercase text-[10px] tracking-widest px-4 py-2 rounded-xl transition-colors flex items-center justify-center cursor-pointer">
+                   Import CSV
+                   <input type="file" accept=".csv" className="hidden" onChange={handleCSVImport} />
+                </label>
+                <button 
+                  onClick={() => setShowCSVInfo(!showCSVInfo)}
+                  className="bg-white/5 border border-white/10 hover:bg-white/10 text-neutral-400 hover:text-white p-2 rounded-xl transition-colors"
+                  title="CSV Format Info"
+                >
+                  <Info className="w-4 h-4" />
+                </button>
+              </div>
             </>
           )}
           <div className="relative flex-1 md:w-64">
@@ -322,12 +336,42 @@ export default function KanbanPage() {
         )}
       </div>
 
-      <CreatorModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+      <CreatorModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
         onSave={async () => { setIsModalOpen(false); await loadCreators(); }}
         creator={selectedCreator}
       />
+
+      {/* CSV Info Modal */}
+      {showCSVInfo && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-neutral-950 border border-white/10 rounded-2xl p-6 max-w-lg w-full relative">
+            <button 
+              onClick={() => setShowCSVInfo(false)}
+              className="absolute top-4 right-4 text-neutral-400 hover:text-white"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <h3 className="text-lg font-black text-white mb-2">CSV Import Format</h3>
+            <p className="text-sm text-neutral-400 mb-4">
+              Your CSV file must include headers in the first row. Here are the expected column names:
+            </p>
+            <div className="bg-[#050505] border border-white/5 rounded-xl p-4 text-xs font-mono text-neutral-300 space-y-2 mb-6">
+              <p><span className="text-lime-400">handle</span> (Required) - Creator's handle</p>
+              <p><span className="text-lime-400">creator_name</span> (Optional) - Display name</p>
+              <p><span className="text-lime-400">platform</span> (Optional) - Instagram, TikTok, YouTube, Twitter</p>
+              <p><span className="text-lime-400">followers</span> (Optional) - Number or 'k' format (e.g. 15k)</p>
+              <p><span className="text-lime-400">engagement_rate</span> (Optional) - Number or 'k' format (e.g. 12k or 5.2)</p>
+              <p><span className="text-lime-400">base_price</span> (Optional) - Number</p>
+              <p><span className="text-lime-400">approval_status</span> (Optional) - e.g. Sourced, Outreach</p>
+            </div>
+            <div className="bg-lime-400/10 border border-lime-400/20 text-lime-400/80 p-3 rounded-lg text-xs font-bold">
+              Tip: You can use 'k' suffixes for large numbers (e.g. 15k will become 15000).
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
