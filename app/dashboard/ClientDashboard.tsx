@@ -7,6 +7,8 @@ import { Users, Play, Calendar, X } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 import { STAGES } from '@/lib/constants';
+import VideoApprovalPanel from '@/components/VideoApprovalPanel';
+import NotesThread from '@/components/NotesThread';
 
 export default function ClientDashboard() {
   const { creators, loadingCreators, fetchError, includeProcessingFee } = useCampaign();
@@ -14,6 +16,8 @@ export default function ClientDashboard() {
   const [progressItems, setProgressItems] = useState<any[]>([]);
   const [loadingProgress, setLoadingProgress] = useState(true);
   const [selectedCreator, setSelectedCreator] = useState<any | null>(null);
+  const [notes, setNotes] = useState<any[]>([]);
+  const [loadingNotes, setLoadingNotes] = useState(false);
   
   const userRole = profile?.role || 'client';
 
@@ -31,6 +35,45 @@ export default function ClientDashboard() {
     }
     loadProgress();
   }, []);
+
+  useEffect(() => {
+    async function fetchNotes() {
+      if (!selectedCreator) return;
+      setLoadingNotes(true);
+      try {
+        const response = await fetch(`/api/creators/notes?creatorId=${selectedCreator.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setNotes(data.notes || []);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoadingNotes(false);
+      }
+    }
+    fetchNotes();
+  }, [selectedCreator]);
+
+  const handleAddNote = async (content: string, isInternal: boolean) => {
+    if (!selectedCreator) return;
+    try {
+      const response = await fetch('/api/creators/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ creatorId: selectedCreator.id, content, isInternal }),
+      });
+      if (response.ok) {
+         const res = await fetch(`/api/creators/notes?creatorId=${selectedCreator.id}`);
+         if (res.ok) {
+            const data = await res.json();
+            setNotes(data.notes || []);
+         }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   if (loadingCreators || loadingProgress) {
     return (
@@ -192,14 +235,21 @@ export default function ClientDashboard() {
                 <span className="text-[10px] font-black uppercase tracking-widest text-neutral-500 block mb-1">Platform</span>
                 <span className="font-bold">{selectedCreator.platform || 'N/A'}</span>
               </div>
-              {selectedCreator.draft_reel_url && selectedCreator.draft_reel_url.trim() !== '' && (
-                <div className="col-span-2 bg-[#050505] rounded-lg p-4 border border-lime-400/20">
-                    <a href={selectedCreator.draft_reel_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-lime-400 text-xs font-black uppercase tracking-widest hover:underline">
-                      <Play className="w-4 h-4" /> Review Draft Video
-                    </a>
-                </div>
-              )}
             </div>
+
+            {/* VIDEO APPROVAL & REVISIONS */}
+            {(selectedCreator.draft_reel_url || selectedCreator.video_link) && (
+              <div className="mb-8">
+                <h4 className="text-xs font-black uppercase tracking-widest text-neutral-500 mb-4 pb-2 border-b border-white/10">Video Review</h4>
+                <VideoApprovalPanel
+                  creatorName={selectedCreator.creator_name || selectedCreator.handle || 'Unknown'}
+                  creatorId={selectedCreator.id}
+                  approvalStatus={selectedCreator.approval_status || getCreatorStage(selectedCreator.id)}
+                  videoLink={selectedCreator.draft_reel_url || selectedCreator.video_link}
+                  userRole="client"
+                />
+              </div>
+            )}
 
             {/* FULL PRICING BREAKDOWN */}
             <div className="mb-8 p-5 bg-[#111] border border-white/10 rounded-xl text-xs space-y-3">
@@ -255,6 +305,20 @@ export default function ClientDashboard() {
                 )}
               </div>
             </div>
+            
+            {/* FEEDBACK & NOTES */}
+            <div className="mt-8 pt-8 border-t border-white/10">
+              <h4 className="text-xs font-black uppercase tracking-widest text-neutral-500 mb-4">Feedback & Notes</h4>
+              <NotesThread
+                creatorId={selectedCreator.id}
+                creatorName={selectedCreator.creator_name || selectedCreator.handle || 'Unknown'}
+                notes={notes}
+                onAddNote={handleAddNote}
+                userRole="client"
+                isLoading={loadingNotes}
+              />
+            </div>
+            
           </div>
         </>
       )}

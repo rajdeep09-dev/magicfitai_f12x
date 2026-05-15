@@ -12,15 +12,24 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   
-  const navItems = [
+  const editorNav = [
     { label: 'Dash', href: '/dashboard', icon: LayoutDashboard },
     { label: 'Kanban', href: '/dashboard/kanban', icon: Users },
-    { label: 'Creators', href: '/dashboard/creators', icon: Users },
+    { label: 'Roster', href: '/dashboard/creators', icon: Users },
     { label: 'Time', href: '/dashboard/timeline', icon: Clock },
     { label: 'Cal', href: '/dashboard/calendar', icon: CalendarDays },
     { label: 'Docs', href: '/dashboard/reports', icon: FileText },
-    ...(isEditor ? [{ label: 'Settings', href: '/dashboard/settings', icon: FileText }] : []),
+    { label: 'Settings', href: '/dashboard/settings', icon: FileText },
   ];
+
+  const clientNav = [
+    { label: 'Campaign', href: '/dashboard', icon: LayoutDashboard },
+    { label: 'Timeline', href: '/dashboard/timeline', icon: Clock },
+    { label: 'Calendar', href: '/dashboard/calendar', icon: CalendarDays },
+    { label: 'Reports', href: '/dashboard/reports', icon: FileText },
+  ];
+
+  const navItems = isEditor ? editorNav : clientNav;
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#050505] border-b border-white/10">

@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Creator } from '@/types/creator';
 import { useAuth } from '@/hooks/useAuth';
 import { createClient } from '@/lib/supabase/client';
+import NotesThread from '@/components/NotesThread';
 
 import { STAGES } from '@/lib/constants';
 
@@ -26,6 +27,8 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
   const { isEditor, isClient } = useAuth();
   const [loading, setLoading] = useState(false);
   const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [notes, setNotes] = useState<any[]>([]);
+  const [loadingNotes, setLoadingNotes] = useState(false);
   const [formData, setFormData] = useState<Partial<Creator>>({
     creator_name: '',
     handle: '',
@@ -46,6 +49,48 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
     include_processing_fee: true,
     payment_status: 'pending',
   });
+
+  useEffect(() => {
+    async function fetchNotes() {
+      if (!creator || !isOpen) {
+         setNotes([]);
+         return;
+      }
+      setLoadingNotes(true);
+      try {
+        const response = await fetch(`/api/creators/notes?creatorId=${creator.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setNotes(data.notes || []);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoadingNotes(false);
+      }
+    }
+    fetchNotes();
+  }, [creator, isOpen]);
+
+  const handleAddNote = async (content: string, isInternal: boolean) => {
+    if (!creator) return;
+    try {
+      const response = await fetch('/api/creators/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ creatorId: creator.id, content, isInternal }),
+      });
+      if (response.ok) {
+         const res = await fetch(`/api/creators/notes?creatorId=${creator.id}`);
+         if (res.ok) {
+            const data = await res.json();
+            setNotes(data.notes || []);
+         }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   useEffect(() => {
     async function loadCampaigns() {
@@ -447,8 +492,22 @@ export default function CreatorModal({ isOpen, onClose, onSave, creator }: Creat
               </div>
             )}
           </div>
+          
+          {creator && creator.id && (
+            <div className="mt-6 pt-6 border-t border-white/10">
+              <h4 className="text-xs font-black uppercase tracking-widest text-neutral-500 mb-4">Feedback & Notes</h4>
+              <NotesThread
+                creatorId={creator.id}
+                creatorName={creator.creator_name || creator.handle || 'Unknown'}
+                notes={notes}
+                onAddNote={handleAddNote}
+                userRole={isEditor ? 'editor' : 'client'}
+                isLoading={loadingNotes}
+              />
+            </div>
+          )}
 
-          <DialogFooter className="mt-2 pt-4 border-t border-white/5">
+          <DialogFooter className="mt-6 pt-4 border-t border-white/5">
             <Button type="button" variant="ghost" onClick={onClose} disabled={loading} className="text-neutral-400 hover:text-white">
               Cancel
             </Button>

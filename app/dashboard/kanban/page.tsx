@@ -9,9 +9,20 @@ import Papa from 'papaparse';
 
 import { useAuth } from '@/hooks/useAuth';
 
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+
 export default function KanbanPage() {
   const { creators, loadingCreators, fetchError, loadCreators } = useCampaign();
-  const { isEditor } = useAuth();
+  const { isEditor, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !isEditor) {
+      router.push('/dashboard');
+    }
+  }, [isEditor, loading, router]);
+
   
   const [search, setSearch] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);

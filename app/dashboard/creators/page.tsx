@@ -10,8 +10,18 @@ import { createClient } from '@/lib/supabase/client';
 import { Creator } from '@/types/creator';
 import Papa from 'papaparse';
 
+import { useRouter } from 'next/navigation';
+
 export default function CreatorsPage() {
-  const { isEditor } = useAuth();
+  const { isEditor, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !isEditor) {
+      router.push('/dashboard');
+    }
+  }, [isEditor, loading, router]);
+
   const { creators, loadingCreators, fetchError, loadCreators } = useCampaign();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('name');
