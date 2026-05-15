@@ -40,21 +40,14 @@ CREATE TABLE IF NOT EXISTS creators (
   live_date DATE,
   video_link TEXT,
   published_video_link TEXT,
-  
-  -- Editor specific additions
   recommended_for_batch TEXT,
   draft_reel_url TEXT,
   is_recommended BOOLEAN DEFAULT false,
-  
-  -- Client approval additions
   client_approved_creator BOOLEAN DEFAULT false,
   client_approved_video BOOLEAN DEFAULT false,
-  
-  -- Pricing additions
   base_price DECIMAL(12, 2) DEFAULT 0.00,
   final_price DECIMAL(12, 2) DEFAULT 0.00,
   payment_status TEXT CHECK (payment_status IN ('pending', 'waiting_for_tolt', 'paid')) DEFAULT 'pending',
-
   views INTEGER DEFAULT 0,
   spend DECIMAL(12, 2) DEFAULT 0.00,
   total_reach INTEGER DEFAULT 0,
@@ -106,150 +99,6 @@ CREATE TABLE IF NOT EXISTS bulk_imports (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create indexes for performance
-CREATE INDEX IF NOT EXISTS idx_creators_campaign_id ON creators(campaign_id);
-CREATE INDEX IF NOT EXISTS idx_creators_approval_status ON creators(approval_status);
-CREATE INDEX IF NOT EXISTS idx_creators_platform ON creators(platform);
-CREATE INDEX IF NOT EXISTS idx_payouts_creator_id ON payouts(creator_id);
-CREATE INDEX IF NOT EXISTS idx_payouts_campaign_id ON payouts(campaign_id);
-CREATE INDEX IF NOT EXISTS idx_payouts_status ON payouts(status);
-CREATE INDEX IF NOT EXISTS idx_creator_engagements_creator_id ON creator_engagements(creator_id);
-CREATE INDEX IF NOT EXISTS idx_creator_engagements_metric_date ON creator_engagements(metric_date);
-CREATE INDEX IF NOT EXISTS idx_campaigns_created_by ON campaigns(created_by);
-CREATE INDEX IF NOT EXISTS idx_campaigns_status ON campaigns(status);
-CREATE INDEX IF NOT EXISTS idx_bulk_imports_imported_by ON bulk_imports(imported_by);
-CREATE INDEX IF NOT EXISTS idx_bulk_imports_campaign_id ON bulk_imports(campaign_id);
-CREATE INDEX IF NOT EXISTS idx_bulk_imports_status ON bulk_imports(status);
-
--- Enable RLS
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE campaigns ENABLE ROW LEVEL SECURITY;
-ALTER TABLE creators ENABLE ROW LEVEL SECURITY;
-ALTER TABLE payouts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE creator_engagements ENABLE ROW LEVEL SECURITY;
-ALTER TABLE bulk_imports ENABLE ROW LEVEL SECURITY;
-
--- Profiles RLS Policies
-CREATE POLICY "Users can read their own profile" ON profiles
-  FOR SELECT USING (auth.uid() = id);
-
-CREATE POLICY "Users can update their own profile" ON profiles
-  FOR UPDATE USING (auth.uid() = id);
-
-CREATE POLICY "Admins, editors, clients can read all profiles" ON profiles
-  FOR SELECT USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor', 'client')
-  );
-
--- Campaigns RLS Policies
-CREATE POLICY "Editors and admins can create campaigns" ON campaigns
-  FOR INSERT WITH CHECK (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "All roles can read campaigns" ON campaigns
-  FOR SELECT USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor', 'client')
-  );
-
-CREATE POLICY "Editors and admins can update campaigns" ON campaigns
-  FOR UPDATE USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Editors and admins can delete campaigns" ON campaigns
-  FOR DELETE USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
--- Creators RLS Policies
-CREATE POLICY "Editors and admins can create creators" ON creators
-  FOR INSERT WITH CHECK (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "All roles can read creators" ON creators
-  FOR SELECT USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor', 'client')
-  );
-
-CREATE POLICY "All roles can update creators" ON creators
-  FOR UPDATE USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor', 'client')
-  );
-
-CREATE POLICY "Editors and admins can delete creators" ON creators
-  FOR DELETE USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
--- Payouts RLS Policies
-CREATE POLICY "Editors and admins can create payouts" ON payouts
-  FOR INSERT WITH CHECK (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "All roles can read payouts" ON payouts
-  FOR SELECT USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor', 'client')
-  );
-
-CREATE POLICY "Editors and admins can update payouts" ON payouts
-  FOR UPDATE USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Editors and admins can delete payouts" ON payouts
-  FOR DELETE USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
--- Creator Engagements RLS Policies
-CREATE POLICY "Editors and admins can create engagements" ON creator_engagements
-  FOR INSERT WITH CHECK (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Everyone can read engagement data" ON creator_engagements
-  FOR SELECT USING (true);
-
-CREATE POLICY "Editors and admins can update engagements" ON creator_engagements
-  FOR UPDATE USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Editors and admins can delete engagements" ON creator_engagements
-  FOR DELETE USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
--- Bulk Imports RLS Policies
-CREATE POLICY "Editors and admins can create imports" ON bulk_imports
-  FOR INSERT WITH CHECK (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Editors and admins can read imports" ON bulk_imports
-  FOR SELECT USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Users can read their own imports" ON bulk_imports
-  FOR SELECT USING (
-    imported_by = auth.uid() OR
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Editors and admins can update imports" ON bulk_imports
-  FOR UPDATE USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Editors and admins can delete imports" ON bulk_imports
-  FOR DELETE USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
 -- Create notes table
 CREATE TABLE IF NOT EXISTS notes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -262,198 +111,51 @@ CREATE TABLE IF NOT EXISTS notes (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Notes RLS Policies
+-- RLS Policies Enabling
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE campaigns ENABLE ROW LEVEL SECURITY;
+ALTER TABLE creators ENABLE ROW LEVEL SECURITY;
+ALTER TABLE payouts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE creator_engagements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bulk_imports ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can read notes for their campaign" ON notes
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM creators c 
-      JOIN campaigns cp ON c.campaign_id = cp.id
-      WHERE notes.creator_id = c.id
-    )
-  );
+-- Security Policies
+CREATE POLICY "Users can read their own profile" ON profiles FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Users can update their own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
+CREATE POLICY "Admins/Editors read all profiles" ON profiles FOR SELECT USING ((SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor'));
 
-CREATE POLICY "Editors and admins can insert notes" ON notes
-  FOR INSERT WITH CHECK (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
+CREATE POLICY "Campaign creators/admins manage campaigns" ON campaigns USING (created_by = auth.uid() OR (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor'));
+CREATE POLICY "Clients read their campaigns" ON campaigns FOR SELECT USING (created_by = auth.uid() OR (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor'));
 
-CREATE POLICY "Clients can insert notes" ON notes
-  FOR INSERT WITH CHECK (
-    (SELECT role FROM profiles WHERE id = auth.uid()) = 'client'
-  );
+CREATE POLICY "Editors/admins manage creators" ON creators USING ((SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor'));
+CREATE POLICY "Clients read approved creators" ON creators FOR SELECT USING (approval_status IN ('Approved', 'Published') OR (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor'));
 
--- Function to automatically create a profile for new users based on email or metadata
+CREATE POLICY "Editors/admins manage payouts" ON payouts USING ((SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor'));
+
+CREATE POLICY "Editors/admins manage imports" ON bulk_imports USING ((SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor'));
+
+CREATE POLICY "Users read notes for own campaign" ON notes FOR SELECT USING (EXISTS (SELECT 1 FROM creators c JOIN campaigns cp ON c.campaign_id = cp.id WHERE notes.creator_id = c.id));
+CREATE POLICY "Editors/admins insert notes" ON notes FOR INSERT WITH CHECK ((SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor'));
+CREATE POLICY "Clients insert notes" ON notes FOR INSERT WITH CHECK ((SELECT role FROM profiles WHERE id = auth.uid()) = 'client');
+
+-- Trigger function
 CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS trigger AS $$
+RETURNS trigger AS 21324
 DECLARE
   assigned_role TEXT;
   meta_role TEXT;
 BEGIN
-  -- Check if a role was passed in raw_user_meta_data
   meta_role := new.raw_user_meta_data->>'role';
-
   IF meta_role IS NOT NULL AND meta_role IN ('editor', 'client', 'admin') THEN
     assigned_role := meta_role;
-  -- Fallback logic for specific emails if not in metadata
-  ELSIF new.email = 'f12x.studio@gmail.com' OR new.email = 'ajayracharla20001@gmail.com' THEN
-    assigned_role := 'editor';
   ELSE
-    assigned_role := 'client'; -- Default fallback
+    assigned_role := 'client';
   END IF;
-
-  INSERT INTO public.profiles (id, email, first_name, role)
-  VALUES (
-    new.id,
-    new.email,
-    new.raw_user_meta_data->>'first_name',
-    assigned_role
-  );
+  INSERT INTO public.profiles (id, email, first_name, role) VALUES (new.id, new.email, new.raw_user_meta_data->>'first_name', assigned_role);
   RETURN new;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+21324 LANGUAGE plpgsql SECURITY DEFINER;
 
-
--- Trigger to call the function on user creation
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
--- Profiles RLS Policies
-CREATE POLICY "Users can read their own profile" ON profiles
-  FOR SELECT USING (auth.uid() = id);
-
-CREATE POLICY "Users can update their own profile" ON profiles
-  FOR UPDATE USING (auth.uid() = id);
-
-CREATE POLICY "Admins and editors can read all profiles" ON profiles
-  FOR SELECT USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
--- Campaigns RLS Policies
-CREATE POLICY "Editors and admins can create campaigns" ON campaigns
-  FOR INSERT WITH CHECK (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Editors and admins can read all campaigns" ON campaigns
-  FOR SELECT USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Clients can read campaigns they created" ON campaigns
-  FOR SELECT USING (
-    created_by = auth.uid() OR
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Campaign creators and admins can update" ON campaigns
-  FOR UPDATE USING (
-    created_by = auth.uid() OR
-    (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
-  );
-
-CREATE POLICY "Campaign creators and admins can delete" ON campaigns
-  FOR DELETE USING (
-    created_by = auth.uid() OR
-    (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
-  );
-
--- Creators RLS Policies
-CREATE POLICY "Editors and admins can create creators" ON creators
-  FOR INSERT WITH CHECK (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Everyone can read approved creators" ON creators
-  FOR SELECT USING (
-    approval_status IN ('Approved', 'Published') OR
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Editors and admins can update creators" ON creators
-  FOR UPDATE USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Editors and admins can delete creators" ON creators
-  FOR DELETE USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
--- Payouts RLS Policies
-CREATE POLICY "Editors and admins can create payouts" ON payouts
-  FOR INSERT WITH CHECK (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Editors and admins can read payouts" ON payouts
-  FOR SELECT USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Clients can read their own campaign payouts" ON payouts
-  FOR SELECT USING (
-    campaign_id IN (
-      SELECT id FROM campaigns WHERE created_by = auth.uid()
-    ) OR
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Editors and admins can update payouts" ON payouts
-  FOR UPDATE USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Editors and admins can delete payouts" ON payouts
-  FOR DELETE USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
--- Creator Engagements RLS Policies
-CREATE POLICY "Editors and admins can create engagements" ON creator_engagements
-  FOR INSERT WITH CHECK (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Everyone can read engagement data" ON creator_engagements
-  FOR SELECT USING (true);
-
-CREATE POLICY "Editors and admins can update engagements" ON creator_engagements
-  FOR UPDATE USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Editors and admins can delete engagements" ON creator_engagements
-  FOR DELETE USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
--- Bulk Imports RLS Policies
-CREATE POLICY "Editors and admins can create imports" ON bulk_imports
-  FOR INSERT WITH CHECK (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Editors and admins can read imports" ON bulk_imports
-  FOR SELECT USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Users can read their own imports" ON bulk_imports
-  FOR SELECT USING (
-    imported_by = auth.uid() OR
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Editors and admins can update imports" ON bulk_imports
-  FOR UPDATE USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
-
-CREATE POLICY "Editors and admins can delete imports" ON bulk_imports
-  FOR DELETE USING (
-    (SELECT role FROM profiles WHERE id = auth.uid()) IN ('admin', 'editor')
-  );
+CREATE TRIGGER on_auth_user_created AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
